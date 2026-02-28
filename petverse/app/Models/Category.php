@@ -21,4 +21,12 @@ class Category extends Model
     {
         return $this->hasMany(Product::class, 'animal_category_id');
     }
+
+    /**
+     * Parent category for hierarchical lists.
+     */
+    public function parent()
+    {
+        return $this->belongsTo(Category::class, 'parent_category_id');
+    }
 }

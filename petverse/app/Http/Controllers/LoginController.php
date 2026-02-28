@@ -32,7 +32,7 @@ class LoginController extends Controller
 
         Auth::login($user, $request->has('remember'));
 
-        return response()->json(['success' => true, 'redirect' => route('dashboard')]);
+        return response()->json(['success' => true, 'redirect' => route('home')]);
     }
 
     public function logout(Request $request)

@@ -22,6 +22,7 @@
         initSidebarNav();
         initDateFilter();
         initRestockButtons();
+        initProfileDropdown();
     }
 
     /**
@@ -137,13 +138,24 @@
     }
 
     function initDateFilter() {
-        var select = document.getElementById('dateRange');
-        if (!select) return;
-        select.addEventListener('change', function () {
-            var value = this.value;
-            // Could trigger data refresh here (e.g. fetch metrics for last N days)
-            console.log('Date range changed to last', value, 'days');
+        // generic handler for any filter form with a select
+        var forms = document.querySelectorAll('.date-filter-form');
+        forms.forEach(function (form) {
+            var select = form.querySelector('select');
+            if (!select) return;
+            select.addEventListener('change', function () {
+                form.submit();
+            });
         });
+
+        // legacy dashboard select (no form)
+        var dashboardSelect = document.getElementById('dateRange');
+        if (dashboardSelect) {
+            dashboardSelect.addEventListener('change', function () {
+                var value = this.value;
+                console.log('Date range changed to last', value, 'days');
+            });
+        }
     }
 
     function initRestockButtons() {
@@ -157,6 +169,31 @@
                 // In a real app: send restock request to API
             });
         });
+    }
+
+    function initProfileDropdown() {
+        var btn = document.getElementById('profileMenuButton');
+        var menu = document.querySelector('.dropdown-menu');
+        var logoutLink = document.getElementById('logoutLink');
+        if (btn && menu) {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                menu.classList.toggle('show');
+                btn.setAttribute('aria-expanded', menu.classList.contains('show'));
+            });
+            document.addEventListener('click', function (e) {
+                if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                    menu.classList.remove('show');
+                    btn.setAttribute('aria-expanded', 'false');
+                }
+            });
+        }
+        if (logoutLink) {
+            logoutLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.getElementById('logoutForm').submit();
+            });
+        }
     }
 
     function debounce(fn, ms) {

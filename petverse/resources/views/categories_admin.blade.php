@@ -79,7 +79,7 @@
                         <form method="POST" action="{{ route('categories.destroy', $category) }}" style="display:inline">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="action-btn" title="Delete" onclick="return confirm('Delete this category?')">
+                            <button type="submit" class="action-btn" title="Deactivate" onclick="return confirm('Deactivate this category?')">
                                 <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-4.5l-1-1z"/></svg>
                             </button>
                         </form>

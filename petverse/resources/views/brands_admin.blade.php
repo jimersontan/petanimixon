@@ -59,6 +59,7 @@
             <thead>
                 <tr>
                     <th>Brand</th>
+                    <th>Logo</th>
                     <th>Products</th>
                     <th>Status</th>
                     <th class="col-actions">Actions</th>
@@ -68,6 +69,13 @@
                 @forelse(($brands ?? []) as $brand)
                 <tr>
                     <td>{{ $brand->name ?? '—' }}</td>
+                    <td>
+                        @if(!empty($brand->logo_path))
+                            <img src="{{ asset('storage/'.$brand->logo_path) }}" alt="{{ $brand->name }} logo" style="max-height:40px;">
+                        @else
+                            —
+                        @endif
+                    </td>
                     <td>{{ $brand->products_count ?? 0 }}</td>
                     <td>{{ ($brand->is_active ?? true) ? 'Active' : 'Inactive' }}</td>
                     <td class="col-actions">
@@ -77,7 +85,7 @@
                         <form method="POST" action="{{ route('brands.destroy', $brand) }}" style="display:inline">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="action-btn" title="Delete" onclick="return confirm('Delete this brand?')">
+                            <button type="submit" class="action-btn" title="Deactivate" onclick="return confirm('Deactivate this brand?')">
                                 <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-4.5l-1-1z"/></svg>
                             </button>
                         </form>

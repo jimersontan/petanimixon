@@ -17,13 +17,15 @@
     <input type="text" name="product_name" id="product_name" class="form-control" value="{{ old('product_name', $product->product_name) }}" required>
 </div>
 <div class="form-group">
-    <label for="animal_type_id">Animal Type</label>
-    <select name="animal_type_id" id="animal_type_id" class="form-control" required>
-        <option value="">Select type</option>
-        @foreach($animalTypes as $type)
-            <option value="{{ $type->id }}" {{ (old('animal_type_id', $product->animal_type_id) == $type->id) ? 'selected' : '' }}>{{ $type->animal_type }}</option>
-        @endforeach
-    </select>
+    <label for="animal_type">Animal Type</label>
+    <input
+        type="text"
+        name="animal_type"
+        id="animal_type"
+        class="form-control"
+        value="{{ old('animal_type', $product->animal_type) }}"
+        required
+    >
 </div>
 <div class="form-group">
     <label for="animal_category_id">Category</label>
@@ -46,6 +48,20 @@
 <div class="form-group">
     <label for="price">Price</label>
     <input type="number" step="0.01" name="price" id="price" class="form-control" value="{{ old('price', $product->price) }}" required>
+</div>
+<div class="form-group">
+    <label for="stock">Stock</label>
+    <input type="number" min="0" name="stock" id="stock" class="form-control" value="{{ old('stock') }}">
+    <small class="form-text text-muted">Initial quantity available for this product.</small>
+</div>
+<div class="form-group">
+    <label for="image">Product Image</label>
+    <input type="file" name="image" id="image" class="form-control">
+    @if(!empty($product->animal_image_url))
+        <div class="mt-2">
+            <img src="{{ asset('storage/'.$product->animal_image_url) }}" alt="{{ $product->product_name }} image" style="max-height:80px;">
+        </div>
+    @endif
 </div>
 <div class="form-group">
     <label for="sku">SKU</label>

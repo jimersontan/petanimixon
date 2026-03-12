@@ -76,10 +76,23 @@
     </div>
 
     <div class="order-status-tabs" role="tablist">
-        <button type="button" class="order-tab active" data-status="all" role="tab" aria-selected="true">All</button>
-        <button type="button" class="order-tab" data-status="active" role="tab">Active</button>
-        <button type="button" class="order-tab" data-status="draft" role="tab">Draft</button>
-        <button type="button" class="order-tab" data-status="out_of_stock" role="tab">Out of Stock</button>
+        @php $currentStatus = $status ?? 'all'; @endphp
+        <a href="{{ route('products.admin', array_merge(request()->all(), ['status' => 'all'])) }}"
+           class="order-tab {{ $currentStatus === 'all' ? 'active' : '' }}"
+           role="tab"
+           aria-selected="{{ $currentStatus === 'all' ? 'true' : 'false' }}">All</a>
+        <a href="{{ route('products.admin', array_merge(request()->all(), ['status' => 'active'])) }}"
+           class="order-tab {{ $currentStatus === 'active' ? 'active' : '' }}"
+           role="tab"
+           aria-selected="{{ $currentStatus === 'active' ? 'true' : 'false' }}">Active</a>
+        <a href="{{ route('products.admin', array_merge(request()->all(), ['status' => 'draft'])) }}"
+           class="order-tab {{ $currentStatus === 'draft' ? 'active' : '' }}"
+           role="tab"
+           aria-selected="{{ $currentStatus === 'draft' ? 'true' : 'false' }}">Draft</a>
+        <a href="{{ route('products.admin', array_merge(request()->all(), ['status' => 'out_of_stock'])) }}"
+           class="order-tab {{ $currentStatus === 'out_of_stock' ? 'active' : '' }}"
+           role="tab"
+           aria-selected="{{ $currentStatus === 'out_of_stock' ? 'true' : 'false' }}">Out of Stock</a>
     </div>
 
     <div class="table-wrap">
@@ -133,7 +146,7 @@
                         <form method="POST" action="{{ route('products.destroy', $product) }}" style="display:inline">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="action-btn" title="Delete" onclick="return confirm('Delete this product?')">
+                            <button type="submit" class="action-btn" title="Move to draft" onclick="return confirm('Move this product to draft?')">
                                 <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-4.5l-1-1z"/></svg>
                             </button>
                         </form>

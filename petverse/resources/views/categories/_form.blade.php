@@ -19,10 +19,14 @@
 <div class="form-group">
     <label for="parent_category_id">Parent Category</label>
     <select name="parent_category_id" id="parent_category_id" class="form-control">
-        <option value="">-- none --</option>
-        @foreach($parents as $p)
-            <option value="{{ $p->id }}" {{ (old('parent_category_id', $category->parent_category_id) == $p->id) ? 'selected' : '' }}>{{ $p->category_name }}</option>
-        @endforeach
+        <option value="">{{ old('parent_category_id', $category->parent_category_id) ? '' : '' }}</option>
+        @isset($parents)
+            @foreach($parents as $p)
+                <option value="{{ $p->id }}" {{ (old('parent_category_id', $category->parent_category_id) == $p->id) ? 'selected' : '' }}>
+                    {{ $p->category_name }}
+                </option>
+            @endforeach
+        @endisset
     </select>
 </div>
 <div class="form-group">

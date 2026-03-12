@@ -50,7 +50,7 @@
                 </form>
 
                 <div class="admin-signup-link">
-                    <a href="#">Sign Up As Admin</a>
+                    <a href="{{ route('admin.register') }}">Sign Up As Admin</a>
                 </div>
 
                 <div class="admin-security-badges">

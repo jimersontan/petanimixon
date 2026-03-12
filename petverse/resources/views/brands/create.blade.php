@@ -4,16 +4,21 @@
 
 @section('content')
 <div class="content-header">
-    <h1 class="page-title">Add New Brand</h1>
+    <div>
+        <h1 class="page-title">Add New Brand</h1>
+        <p class="page-subtitle">Highlight the brands you work with.</p>
+    </div>
 </div>
 
-<div class="card">
+<div class="card form-card">
     <div class="card-body">
-        <form method="POST" action="{{ route('brands.store') }}">
+        <form method="POST" action="{{ route('brands.store') }}" enctype="multipart/form-data">
             @csrf
             @include('brands._form')
-            <button type="submit" class="btn-primary">Create Brand</button>
-            <a href="{{ route('brands.admin') }}" class="btn-secondary">Cancel</a>
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Create brand</button>
+                <a href="{{ route('brands.admin') }}" class="btn-secondary">Cancel</a>
+            </div>
         </form>
     </div>
 </div>

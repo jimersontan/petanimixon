@@ -83,7 +83,9 @@ class CategoryAdminController extends Controller
      */
     public function destroy($id)
     {
-        Category::destroy($id);
-        return redirect()->route('categories.admin')->with('success', 'Category deleted');
+        $category = Category::findOrFail($id);
+        // Soft-deactivate instead of deleting so it can be reactivated or used for history
+        $category->update(['is_active' => false]);
+        return redirect()->route('categories.admin')->with('success', 'Category deactivated');
     }
 }

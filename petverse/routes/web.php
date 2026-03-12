@@ -43,6 +43,14 @@ Route::post('/register', [RegisterController::class, 'register'])->name('registe
 Route::get('/admin/login', [AdminLoginController::class, 'show'])->name('admin.login');
 Route::post('/admin/login', [AdminLoginController::class, 'login'])->name('admin.login.submit');
 
+// Admin registration (public signup)
+Route::get('/admin/register', [\App\Http\Controllers\AdminRegisterController::class, 'show'])
+    ->middleware('guest')
+    ->name('admin.register');
+Route::post('/admin/register', [\App\Http\Controllers\AdminRegisterController::class, 'register'])
+    ->middleware('guest')
+    ->name('admin.register.submit');
+
 // Placeholder for password reset
 Route::get('/password/reset', function () {
     return view('password.reset');
@@ -78,7 +86,7 @@ Route::get('/admin/products/{id}/edit', [ProductAdminController::class, 'edit'])
     ->middleware(['auth', 'admin'])
     ->name('products.edit');
 
-Route::post('/admin/products/{id}', [ProductAdminController::class, 'update'])
+Route::put('/admin/products/{id}', [ProductAdminController::class, 'update'])
     ->middleware(['auth', 'admin'])
     ->name('products.update');
 
@@ -115,7 +123,7 @@ Route::get('/admin/categories/{id}/edit', [CategoryAdminController::class, 'edit
     ->middleware(['auth', 'admin'])
     ->name('categories.edit');
 
-Route::post('/admin/categories/{id}', [CategoryAdminController::class, 'update'])
+Route::put('/admin/categories/{id}', [CategoryAdminController::class, 'update'])
     ->middleware(['auth', 'admin'])
     ->name('categories.update');
 
@@ -140,7 +148,7 @@ Route::get('/admin/brands/{id}/edit', [BrandAdminController::class, 'edit'])
     ->middleware(['auth', 'admin'])
     ->name('brands.edit');
 
-Route::post('/admin/brands/{id}', [BrandAdminController::class, 'update'])
+Route::put('/admin/brands/{id}', [BrandAdminController::class, 'update'])
     ->middleware(['auth', 'admin'])
     ->name('brands.update');
 
@@ -153,14 +161,22 @@ Route::get('/admin/revenue', [RevenueAdminController::class, 'index'])
     ->name('revenue.admin');
 
 // Admin settings page
-Route::get('/admin/settings', function () {
-    return view('admin_settings');
-})->middleware(['auth', 'admin'])->name('settings.admin');
-// placeholder POST route for updates
-Route::post('/admin/settings', function () {
-    // handle settings form submission
-    return back();
-})->middleware(['auth', 'admin'])->name('settings.admin.update');
+Route::get('/admin/settings', [\App\Http\Controllers\SettingsAdminController::class, 'index'])
+    ->middleware(['auth', 'admin'])->name('settings.admin');
+Route::post('/admin/settings', [\App\Http\Controllers\SettingsAdminController::class, 'update'])
+    ->middleware(['auth', 'admin'])->name('settings.admin.update');
+
+// Admin account requests (requires logged-in admin)
+use App\Http\Controllers\AdminRequestController;
+Route::get('/admin/requests', [AdminRequestController::class, 'index'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.requests');
+Route::post('/admin/requests/{id}/approve', [AdminRequestController::class, 'approve'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.requests.approve');
+Route::post('/admin/requests/{id}/decline', [AdminRequestController::class, 'decline'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.requests.decline');
 
 // Admin users management
 use App\Http\Controllers\AdminUserController;

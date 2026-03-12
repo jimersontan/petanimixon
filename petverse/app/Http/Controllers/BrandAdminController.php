@@ -36,12 +36,16 @@ class BrandAdminController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255|unique:brands,name',
+            'logo' => 'nullable|image|max:2048',
             'is_active' => 'sometimes|boolean',
             'is_featured' => 'sometimes|boolean',
         ]);
         // ensure keys exist as booleans
         $data['is_active'] = $request->boolean('is_active');
         $data['is_featured'] = $request->boolean('is_featured');
+        if ($request->hasFile('logo')) {
+            $data['logo_path'] = $request->file('logo')->store('brands', 'public');
+        }
         Brand::create($data);
         return redirect()->route('brands.admin')->with('success', 'Brand created');
     }
@@ -57,18 +61,24 @@ class BrandAdminController extends Controller
         $brand = Brand::findOrFail($id);
         $data = $request->validate([
             'name' => 'required|string|max:255|unique:brands,name,' . $brand->id,
+            'logo' => 'nullable|image|max:2048',
             'is_active' => 'sometimes|boolean',
             'is_featured' => 'sometimes|boolean',
         ]);
         $data['is_active'] = $request->boolean('is_active');
         $data['is_featured'] = $request->boolean('is_featured');
+        if ($request->hasFile('logo')) {
+            $data['logo_path'] = $request->file('logo')->store('brands', 'public');
+        }
         $brand->update($data);
         return redirect()->route('brands.admin')->with('success', 'Brand updated');
     }
 
     public function destroy($id)
     {
-        Brand::destroy($id);
-        return redirect()->route('brands.admin')->with('success', 'Brand deleted');
+        $brand = Brand::findOrFail($id);
+        // Soft-deactivate brand instead of hard delete
+        $brand->update(['is_active' => false]);
+        return redirect()->route('brands.admin')->with('success', 'Brand deactivated');
     }
 }

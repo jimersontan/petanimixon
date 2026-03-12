@@ -56,7 +56,8 @@ class CreateAdminSeeder extends Seeder
                     'admin_user_id' => (string) $admin->id,
                     'admin_type'    => 'super_admin',
                     'permissions'   => 'all',
-                    'is_active'     => 'Y',
+                    // database column is boolean, use true/false or 1/0
+                    'is_active'     => true,
                     'description'   => 'Primary application administrator',
                 ]
             );

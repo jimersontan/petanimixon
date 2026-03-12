@@ -9,8 +9,9 @@
 
 <div class="card">
     <div class="card-body">
-        <form method="POST" action="{{ route('brands.update', $brand) }}">
+        <form method="POST" action="{{ route('brands.update', $brand) }}" enctype="multipart/form-data">
             @csrf
+            @method('PUT')
             @include('brands._form')
             <button type="submit" class="btn-primary">Save Changes</button>
             <a href="{{ route('brands.admin') }}" class="btn-secondary">Cancel</a>

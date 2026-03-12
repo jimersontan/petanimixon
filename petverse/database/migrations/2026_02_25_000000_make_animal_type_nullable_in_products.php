@@ -13,9 +13,8 @@ class MakeAnimalTypeNullableInProducts extends Migration
      */
     public function up()
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->unsignedBigInteger('animal_type_id')->nullable()->change();
-        });
+        // No longer needed: animal_type_id is being removed in a later migration.
+        // This migration is now a no-op to avoid requiring Doctrine DBAL.
     }
 
     /**
@@ -25,8 +24,6 @@ class MakeAnimalTypeNullableInProducts extends Migration
      */
     public function down()
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->unsignedBigInteger('animal_type_id')->nullable(false)->change();
-        });
+        // No-op
     }
 }

@@ -176,23 +176,24 @@
 
                         <div class="checkboxes-group">
                             <div class="checkbox-item">
-                                <input type="checkbox" id="promos" name="promos" class="form-checkbox">
+                                <input type="checkbox" id="promos" name="promos" class="form-checkbox" value="1">
                                 <label for="promos">I'd like to receive promotional emails and special offers</label>
                             </div>
 
                             <div class="checkbox-item">
-                                <input type="checkbox" id="tips" name="tips" class="form-checkbox">
+                                <input type="checkbox" id="tips" name="tips" class="form-checkbox" value="1">
                                 <label for="tips">Send me pet care tips and helpful guides</label>
                             </div>
 
                             <div class="checkbox-item">
-                                <input type="checkbox" id="terms" name="terms" class="form-checkbox">
+                                <input type="checkbox" id="terms" name="terms" class="form-checkbox" value="1">
                                 <label for="terms">
                                     I agree to the 
                                     <a href="#" class="terms-link">Terms & Conditions</a> 
                                     and 
                                     <a href="#" class="terms-link">Privacy Policy</a>
                                 </label>
+                                <span id="termsError" class="error-message"></span>
                             </div>
                         </div>
 

@@ -26,6 +26,9 @@ class User extends Authenticatable
         'is_admin',
         'email_verified_at',
         'user_type',
+        'pet_type',
+        'wants_promos',
+        'wants_tips',
     ];
 
     /**
@@ -46,6 +49,8 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'is_admin' => 'boolean',
+        'wants_promos' => 'boolean',
+        'wants_tips' => 'boolean',
     ];
 
     public function orders()

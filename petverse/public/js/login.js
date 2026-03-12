@@ -27,8 +27,25 @@ if(loginForm){
         try{
             const token = document.querySelector('input[name="_token"]').value;
             const data = new URLSearchParams(new FormData(loginForm));
-            const res = await fetch(window.routes.loginSubmit || '/login', { method: 'POST', headers: { 'X-CSRF-TOKEN': token }, body: data });
-            const json = await res.json();
+            const res = await fetch(window.routes.loginSubmit || '/login', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: data
+            });
+            let json;
+            try {
+                json = await res.json();
+            } catch(p) {
+                const text = await res.text();
+                console.error('Non-JSON login response', text);
+                showError('emailError','Login failed (unexpected response)');
+                btn.disabled=false; btn.classList.remove('loading'); btn.innerHTML = orig;
+                return;
+            }
             if(res.ok && json.success){
                 btn.textContent = '✓ Login Successful!';
                 setTimeout(()=> window.location.href = json.redirect || '/', 800);

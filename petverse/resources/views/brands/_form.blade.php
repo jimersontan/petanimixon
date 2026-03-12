@@ -17,6 +17,15 @@
     <input type="text" name="name" id="name" class="form-control" value="{{ old('name', $brand->name) }}" required>
 </div>
 <div class="form-group">
+    <label for="logo">Brand Logo</label>
+    <input type="file" name="logo" id="logo" class="form-control">
+    @if(!empty($brand->logo_path))
+        <div class="mt-2">
+            <img src="{{ asset('storage/'.$brand->logo_path) }}" alt="{{ $brand->name }} logo" style="max-height:60px;">
+        </div>
+    @endif
+</div>
+<div class="form-group">
     <label for="is_active">Status</label>
     <select name="is_active" id="is_active" class="form-control">
         <option value="1" {{ old('is_active', $brand->is_active) ? 'selected' : '' }}>Active</option>

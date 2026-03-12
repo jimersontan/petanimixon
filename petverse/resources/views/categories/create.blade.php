@@ -3,11 +3,21 @@
 @section('title','Create Category')
 
 @section('content')
-<h1>Create Category</h1>
-<form action="{{ route('categories.store') }}" method="POST">
-    @csrf
-    @include('categories._form')
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a href="{{ route('categories.admin') }}" class="btn btn-secondary">Cancel</a>
-</form>
+<div class="content-header">
+    <div>
+        <h1 class="page-title">Create Category</h1>
+        <p class="page-subtitle">Organize your products into clear sections.</p>
+    </div>
+</div>
+
+<div class="card form-card">
+    <form action="{{ route('categories.store') }}" method="POST">
+        @csrf
+        @include('categories._form')
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Save category</button>
+            <a href="{{ route('categories.admin') }}" class="btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
 @endsection

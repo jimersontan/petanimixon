@@ -41,47 +41,61 @@ const registerForm = document.getElementById('registerForm');
 if(registerForm){
     registerForm.addEventListener('submit', async function(e){
         e.preventDefault();
-        // basic validation
+        // basic client-side validation
         const first = document.getElementById('first_name').value.trim();
         const last = document.getElementById('last_name').value.trim();
         const email = document.getElementById('email').value.trim();
         const pw = document.getElementById('password').value;
         const pw2 = document.getElementById('password_confirmation').value;
+        const terms = document.getElementById('terms') && document.getElementById('terms').checked;
         let ok = true;
-        showError('firstNameError',''); showError('lastNameError',''); showError('emailError',''); showError('passwordError',''); showError('confirmPasswordError','');
+        showError('firstNameError',''); showError('lastNameError',''); showError('emailError',''); showError('passwordError',''); showError('confirmPasswordError',''); showError('termsError','');
 
         if(!first){ showError('firstNameError','First name is required'); ok=false; }
         if(!last){ showError('lastNameError','Last name is required'); ok=false; }
         if(!email || !isValidEmail(email)){ showError('emailError','Valid email required'); ok=false; }
-        if(pw.length < 8){ showError('passwordError','Password must be at least 8 chars'); ok=false; }
+        if(pw.length < 8){ showError('passwordError','Password must be at least 8 characters'); ok=false; }
+        else if(!/[A-Z]/.test(pw)){ showError('passwordError','Include at least one uppercase letter'); ok=false; }
+        else if(!/[0-9]/.test(pw)){ showError('passwordError','Include at least one number'); ok=false; }
+        else if(!/[!@#$%^&*(),.?":{}|<>]/.test(pw)){ showError('passwordError','Include at least one special character (!@#$% etc.)'); ok=false; }
         if(pw !== pw2){ showError('confirmPasswordError','Passwords do not match'); ok=false; }
+        if(!terms){ showError('termsError','You must agree to the Terms & Conditions and Privacy Policy'); ok=false; }
         if(!ok) return;
 
-        const btn = registerForm.querySelector('.login-btn');
-        const orig = btn.innerHTML;
-        btn.disabled = true; btn.textContent = 'Creating...';
+        const btn = registerForm.querySelector('.create-btn, .login-btn, button[type="submit"]');
+        const orig = btn ? btn.innerHTML : '';
+        if(btn){ btn.disabled = true; btn.textContent = 'Creating...'; }
 
         try{
             const token = document.querySelector('input[name="_token"]').value;
             const data = new URLSearchParams(new FormData(registerForm));
             const res = await fetch(window.routes.registerSubmit || '/register', {
                 method: 'POST',
-                headers: { 'X-CSRF-TOKEN': token },
+                headers: {
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
                 body: data
             });
-            if(res.ok){
+            const json = await res.json().catch(()=>({}));
+            if(res.ok && json.success){
                 showNotification('Account created — redirecting...');
-                const json = await res.json();
-                setTimeout(()=> window.location.href = json.redirect || window.routes.login || '/', 900);
+                setTimeout(()=> window.location.href = json.redirect || window.routes.login || '/home', 900);
             } else {
-                const json = await res.json();
-                showError('emailError', json.message || 'Registration failed');
-                btn.disabled = false; btn.innerHTML = orig;
+                const errs = json.errors || {};
+                showError('firstNameError', (errs.first_name||[])[0]||'');
+                showError('lastNameError', (errs.last_name||[])[0]||'');
+                showError('emailError', (errs.email||[])[0]||'');
+                showError('passwordError', (errs.password||[])[0]||'');
+                showError('confirmPasswordError', (errs.password_confirmation||[])[0]||'');
+                showError('termsError', (errs.terms||[])[0]||(json.message && !errs.email && !errs.password ? json.message : ''));
+                if(btn){ btn.disabled = false; btn.innerHTML = orig; }
             }
         }catch(err){
             console.error(err);
-            showError('emailError','An error occurred');
-            btn.disabled = false; btn.innerHTML = orig;
+            showError('emailError','An error occurred. Please try again.');
+            if(btn){ btn.disabled = false; btn.innerHTML = orig; }
         }
     });
 }

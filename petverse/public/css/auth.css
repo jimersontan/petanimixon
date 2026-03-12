@@ -34,7 +34,8 @@ body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; margin: 0; color: #1f
 .login-btn.dark { background:#0e2433; }
 .divider { text-align:center; margin:18px 0; color:#888; }
 .social-login { display:grid; gap:10px; }
-.social-btn { padding:10px; border:1px solid #e6e6e6; border-radius:8px; background:#fff; cursor:pointer; }
+.social-btn { padding:10px 14px; border:1px solid #e6e6e6; border-radius:8px; background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; font-size:14px; }
+.social-btn .social-icon { flex-shrink:0; }
 .form-footer { margin-top:14px; font-size:13px; color:#777; display:flex; justify-content:space-between; align-items:center; }
 .form-footer a { color:#FF6B35; text-decoration:none; margin-left:8px; }
 .security-note { margin-top:18px; padding:12px; background:#f3fff3; border-radius:6px; color:#2d7a3e; }

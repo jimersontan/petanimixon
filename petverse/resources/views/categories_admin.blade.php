@@ -6,10 +6,10 @@
 <div class="content-header">
     <h1 class="page-title">Categories</h1>
     <div class="date-filter">
-        <a href="{{ route('categories.create') }}" class="btn-primary">
+        <button type="button" class="btn-primary" data-modal-open="add-category-modal">
             <span class="btn-icon">+</span>
             <span>Add Category</span>
-        </a>
+        </button>
     </div>
 </div>
 
@@ -95,6 +95,26 @@
     </div>
 </div>
 @endsection
+
+@push('modals')
+<div class="modal-backdrop {{ $errors->any() ? 'open' : '' }}" data-modal-id="add-category-modal"></div>
+<div id="add-category-modal" class="modal {{ $errors->any() ? 'open' : '' }}" role="dialog" aria-modal="true" aria-labelledby="addCategoryTitle" tabindex="-1">
+    <div class="modal-header">
+        <h2 id="addCategoryTitle" class="modal-title">Add Category</h2>
+        <button type="button" class="modal-close" data-modal-close="add-category-modal" aria-label="Close modal">&times;</button>
+    </div>
+    <div class="modal-body">
+        <form action="{{ route('categories.store') }}" method="POST">
+            @csrf
+            @include('categories._form')
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" data-modal-close="add-category-modal">Cancel</button>
+                <button type="submit" class="btn-primary">Save category</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endpush
 
 @push('scripts')
 <script src="{{ asset('js/orders.js') }}"></script>

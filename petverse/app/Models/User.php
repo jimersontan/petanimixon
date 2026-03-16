@@ -70,10 +70,66 @@ class User extends Authenticatable
     }
 
     /**
-     * Related admin profile (row in admin_users).
+     * Record from admin_users for this admin user.
      */
     public function adminProfile()
     {
         return $this->hasOne(AdminUser::class, 'user_id');
+    }
+
+    /**
+     * Helper to check whether this is an active admin user.
+     */
+    public function isAdmin(): bool
+    {
+        $isAdminFlag = ! empty($this->is_admin) || ($this->user_type ?? '') === 'admin';
+        if (! $isAdminFlag) {
+            return false;
+        }
+
+        $profile = $this->adminProfile;
+        if ($profile && $profile->is_active === false) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Return normalized admin role.
+     *
+     * - main_admin: top-level admin (previously called super_admin)
+     * - supervisor: mid-tier manager
+     * - staff_admin: day-to-day staff
+     */
+    public function adminRole(): ?string
+    {
+        $type = $this->adminProfile->admin_type ?? null;
+        if (! $type) {
+            return null;
+        }
+
+        if ($type === 'super_admin') {
+            return 'main_admin';
+        }
+
+        return $type;
+    }
+
+    public function isMainAdmin(): bool
+    {
+        return $this->adminRole() === 'main_admin';
+    }
+
+    public function isSupervisor(): bool
+    {
+        $role = $this->adminRole();
+        return in_array($role, ['supervisor', 'main_admin'], true);
+    }
+
+    public function isStaffAdmin(): bool
+    {
+        $role = $this->adminRole();
+        return in_array($role, ['staff_admin', 'supervisor', 'main_admin'], true);
     }
 }

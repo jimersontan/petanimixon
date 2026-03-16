@@ -20,10 +20,7 @@ class EnsureUserIsAdmin
 
         $user = Auth::user();
 
-        // Check if user is admin (handle both boolean and string user_type)
-        $isAdmin = !empty($user->is_admin) || ($user->user_type ?? '') === 'admin';
-
-        if (!$isAdmin) {
+        if (! method_exists($user, 'isAdmin') || ! $user->isAdmin()) {
             return redirect()->route('home')->with('message', 'You do not have access to the admin area.');
         }
 

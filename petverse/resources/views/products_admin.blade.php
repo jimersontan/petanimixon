@@ -16,10 +16,10 @@
                 <option value="90" {{ ($days ?? 30) == 90 ? 'selected' : '' }}>Last 90 days</option>
             </select>
         </form>
-        <a href="{{ route('products.create') }}" class="btn-primary">
+        <button type="button" class="btn-primary" data-modal-open="add-product-modal">
             <span class="btn-icon">+</span>
             <span>Add New Product</span>
-        </a>
+        </button>
     </div>
 </div>
 
@@ -168,6 +168,26 @@
     @endif
 </div>
 @endsection
+
+@push('modals')
+<div class="modal-backdrop {{ $errors->any() ? 'open' : '' }}" data-modal-id="add-product-modal"></div>
+<div id="add-product-modal" class="modal {{ $errors->any() ? 'open' : '' }}" role="dialog" aria-modal="true" aria-labelledby="addProductTitle" tabindex="-1">
+    <div class="modal-header">
+        <h2 id="addProductTitle" class="modal-title">Add New Product</h2>
+        <button type="button" class="modal-close" data-modal-close="add-product-modal" aria-label="Close modal">&times;</button>
+    </div>
+    <div class="modal-body">
+        <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            @include('products._form')
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" data-modal-close="add-product-modal">Cancel</button>
+                <button type="submit" class="btn-primary">Save product</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endpush
 
 @push('scripts')
 <script src="{{ asset('js/orders.js') }}"></script>

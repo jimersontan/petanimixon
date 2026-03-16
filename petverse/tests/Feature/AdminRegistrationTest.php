@@ -11,33 +11,13 @@ class AdminRegistrationTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function admin_registration_page_is_accessible()
+    public function admin_registration_is_not_available()
     {
-        $response = $this->get(route('admin.register'));
-        $response->assertStatus(200);
-        $response->assertSee('Admin Sign Up');
-    }
+        $response = $this->get('/admin/register');
+        $response->assertStatus(404);
 
-    /** @test */
-    public function guest_can_request_admin_account()
-    {
-        $data = [
-            'name' => 'Jane Admin',
-            'email' => 'janadmin@example.com',
-            'password' => 'Admin@1234',
-            'password_confirmation' => 'Admin@1234',
-        ];
-
-        $response = $this->postJson(route('admin.register.submit'), $data);
-        $response->assertStatus(200)->assertJson([
-            'success' => true,
-            'message' => 'Your request has been submitted and is awaiting approval.',
-        ]);
-
-        $this->assertDatabaseHas('admin_requests', [
-            'email' => 'janadmin@example.com',
-            'status' => 'pending',
-        ]);
+        $response = $this->postJson('/admin/register', []);
+        $response->assertStatus(404);
     }
 
     /** @test */
@@ -66,6 +46,10 @@ class AdminRegistrationTest extends TestCase
             $adminData['name'] = 'Existing Admin';
         }
         $admin = \App\Models\User::create($adminData);
+        \App\Models\AdminUser::updateOrCreate(
+            ['user_id' => $admin->id],
+            ['admin_type' => 'main_admin', 'admin_user_id' => (string) $admin->id, 'is_active' => true]
+        );
         $this->actingAs($admin);
 
         $response = $this->post(route('admin.requests.approve', $req->id));

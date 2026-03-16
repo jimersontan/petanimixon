@@ -49,10 +49,6 @@
                     <button type="submit" class="login-btn dark">Access Admin Panel 🔒</button>
                 </form>
 
-                <div class="admin-signup-link">
-                    <a href="{{ route('admin.register') }}">Sign Up As Admin</a>
-                </div>
-
                 <div class="admin-security-badges">
                     <div class="badge-item">
                         <div class="badge-icon">🔒</div>

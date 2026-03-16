@@ -17,7 +17,8 @@ class CreateAdminUser extends Command
     protected $signature = 'admin:create
                             {--email= : Email address of the new admin}
                             {--password= : Password for the new admin}
-                            {--name= : Full name of the admin}';
+                            {--name= : Full name of the admin}
+                            {--role= : Admin role (main_admin, supervisor, staff_admin) (default: main_admin)}';
 
     /**
      * The console command description.
@@ -65,11 +66,17 @@ class CreateAdminUser extends Command
 
         $user = User::create($userData);
         if ($user) {
+            $role = $this->option('role') ?: 'main_admin';
+            $allowed = ['main_admin', 'supervisor', 'staff_admin'];
+            if (! in_array($role, $allowed, true)) {
+                $role = 'main_admin';
+            }
+
             AdminUser::updateOrCreate(
                 ['user_id' => $user->id],
                 [
                     'admin_user_id' => (string) $user->id,
-                    'admin_type' => 'super_admin',
+                    'admin_type' => $role,
                     'permissions' => 'all',
                     'is_active' => true,
                 ]

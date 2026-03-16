@@ -54,8 +54,8 @@ class AdminLoginController extends Controller
             'user_type' => $user->user_type,
         ]);
 
-        // Check if user is admin (handle both boolean and integer)
-        if (!$user->is_admin && $user->user_type !== 'admin') {
+        // Only admin users should be able to log in here.
+        if (! method_exists($user, 'isAdmin') || ! $user->isAdmin()) {
             return response()->json(['success' => false, 'message' => 'Unauthorized - User is not an admin'], 403);
         }
 

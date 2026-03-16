@@ -6,10 +6,10 @@
 <div class="content-header">
     <h1 class="page-title">Brands</h1>
     <div class="date-filter">
-        <a href="{{ route('brands.create') }}" class="btn-primary">
+        <button type="button" class="btn-primary" data-modal-open="add-brand-modal">
             <span class="btn-icon">+</span>
             <span>Add Brand</span>
-        </a>
+        </button>
     </div>
 </div>
 
@@ -104,6 +104,26 @@
     </div>
 </div>
 @endsection
+
+@push('modals')
+<div class="modal-backdrop {{ $errors->any() ? 'open' : '' }}" data-modal-id="add-brand-modal"></div>
+<div id="add-brand-modal" class="modal {{ $errors->any() ? 'open' : '' }}" role="dialog" aria-modal="true" aria-labelledby="addBrandTitle" tabindex="-1">
+    <div class="modal-header">
+        <h2 id="addBrandTitle" class="modal-title">Add Brand</h2>
+        <button type="button" class="modal-close" data-modal-close="add-brand-modal" aria-label="Close modal">&times;</button>
+    </div>
+    <div class="modal-body">
+        <form method="POST" action="{{ route('brands.store') }}" enctype="multipart/form-data">
+            @csrf
+            @include('brands._form')
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" data-modal-close="add-brand-modal">Cancel</button>
+                <button type="submit" class="btn-primary">Create brand</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endpush
 
 @push('scripts')
 <script src="{{ asset('js/orders.js') }}"></script>

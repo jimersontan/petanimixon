@@ -171,7 +171,11 @@
                                     <span>Other</span>
                                 </button>
                             </div>
+                            <div id="custom-pet-input" style="display: none; margin-top: 10px;">
+                                <input type="text" id="custom_pet_type" name="custom_pet_type" placeholder="Enter your pet type (e.g., hamster, turtle)" class="form-control">
+                            </div>
                             <input type="hidden" id="pet_type" name="pet_type" value="">
+                            <span id="petError" class="error-message"></span>
                         </div>
 
                         <div class="checkboxes-group">

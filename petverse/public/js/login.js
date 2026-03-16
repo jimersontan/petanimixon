@@ -29,6 +29,7 @@ if(loginForm){
             const data = new URLSearchParams(new FormData(loginForm));
             const res = await fetch(window.routes.loginSubmit || '/login', {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'X-CSRF-TOKEN': token,
                     'Accept': 'application/json',
@@ -37,15 +38,17 @@ if(loginForm){
                 body: data
             });
             let json;
-            try {
+            const contentType = (res.headers.get('content-type') || '');
+            if (contentType.includes('application/json')) {
                 json = await res.json();
-            } catch(p) {
+            } else {
                 const text = await res.text();
                 console.error('Non-JSON login response', text);
-                showError('emailError','Login failed (unexpected response)');
+                showError('emailError','Login failed (unexpected server response)');
                 btn.disabled=false; btn.classList.remove('loading'); btn.innerHTML = orig;
                 return;
             }
+
             if(res.ok && json.success){
                 btn.textContent = '✓ Login Successful!';
                 setTimeout(()=> window.location.href = json.redirect || '/', 800);

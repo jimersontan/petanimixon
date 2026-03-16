@@ -33,6 +33,14 @@
                     <label>Confirm Password</label>
                     <input type="password" name="password_confirmation">
                 </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select name="role" required>
+                        @foreach($roles as $roleKey => $roleLabel)
+                            <option value="{{ $roleKey }}" @if(old('role', $user->adminProfile->admin_type ?? '') === $roleKey) selected @endif>{{ $roleLabel }}</option>
+                        @endforeach
+                    </select>
+                </div>
                 <button type="submit" class="btn btn-primary">Save</button>
             </form>
         </main>

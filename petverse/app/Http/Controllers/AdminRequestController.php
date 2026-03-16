@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\AdminRequest;
 use App\Models\User;
 use App\Models\AdminUser;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AdminRequestController extends Controller
@@ -15,6 +16,10 @@ class AdminRequestController extends Controller
      */
     public function index()
     {
+        if (!Auth::check() || !Auth::user()->isMainAdmin()) {
+            abort(403);
+        }
+
         $requests = AdminRequest::orderBy('created_at', 'desc')->get();
         return view('admin_requests.index', compact('requests'));
     }
@@ -24,6 +29,10 @@ class AdminRequestController extends Controller
      */
     public function approve($id)
     {
+        if (!Auth::check() || !Auth::user()->isMainAdmin()) {
+            abort(403);
+        }
+
         $req = AdminRequest::findOrFail($id);
         if ($req->status !== 'pending') {
             return back()->with('error', 'Request has already been processed.');
@@ -61,7 +70,7 @@ class AdminRequestController extends Controller
                 ['user_id' => $user->id],
                 [
                     'admin_user_id' => (string) $user->id,
-                    'admin_type' => 'staff',
+                    'admin_type' => 'staff_admin',
                     'permissions' => null,
                     'is_active' => true,
                 ]
@@ -79,6 +88,10 @@ class AdminRequestController extends Controller
      */
     public function decline($id)
     {
+        if (!Auth::check() || !Auth::user()->isMainAdmin()) {
+            abort(403);
+        }
+
         $req = AdminRequest::findOrFail($id);
         if ($req->status !== 'pending') {
             return back()->with('error', 'Request has already been processed.');

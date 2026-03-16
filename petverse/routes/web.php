@@ -12,6 +12,7 @@ use App\Http\Controllers\ReviewAdminController;
 use App\Http\Controllers\BrandAdminController;
 use App\Http\Controllers\RevenueAdminController;
 use App\Http\Controllers\AnalyticsAdminController;
+use App\Http\Controllers\ShopController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,9 +25,19 @@ use App\Http\Controllers\AnalyticsAdminController;
 |
 */
 
-Route::get('/', function () {
-    return redirect()->route('login');
-});
+// Public storefront
+Route::get('/', [ShopController::class, 'index'])->name('shop');
+Route::get('/shop', [ShopController::class, 'shop'])->name('shop.all');
+Route::get('/shop/all', [ShopController::class, 'shop']);
+Route::get('/categories', [ShopController::class, 'categories'])->name('categories');
+Route::get('/categories/{id}', [ShopController::class, 'showCategory'])->name('categories.show');
+Route::get('/product/{id}', [ShopController::class, 'showProduct'])->name('product.show');
+Route::get('/brands', function () {
+    return view('frontend.brands');
+})->name('brands');
+Route::get('/checkout', function () {
+    return view('frontend.checkout');
+})->name('checkout');
 
 // Login Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -43,26 +54,32 @@ Route::post('/register', [RegisterController::class, 'register'])->name('registe
 Route::get('/admin/login', [AdminLoginController::class, 'show'])->name('admin.login');
 Route::post('/admin/login', [AdminLoginController::class, 'login'])->name('admin.login.submit');
 
-// Admin registration (public signup)
-Route::get('/admin/register', [\App\Http\Controllers\AdminRegisterController::class, 'show'])
-    ->middleware('guest')
-    ->name('admin.register');
-Route::post('/admin/register', [\App\Http\Controllers\AdminRegisterController::class, 'register'])
-    ->middleware('guest')
-    ->name('admin.register.submit');
-
 // Placeholder for password reset
 Route::get('/password/reset', function () {
     return view('password.reset');
 })->name('password.request');
 
 // Customer home (after login - for regular users)
-Route::get('/home', function () {
-    return view('user_dashboard');
-})->middleware('auth')->name('home');
+Route::get('/home', [ShopController::class, 'index'])->middleware(['auth', 'client'])->name('home');
 
 // Orders (protected route, for customers)
-Route::get('/orders', [OrdersController::class, 'index'])->middleware('auth')->name('orders');
+Route::get('/orders', [\App\Http\Controllers\ClientOrdersController::class, 'index'])
+    ->middleware(['auth', 'client'])
+    ->name('orders');
+
+// Profile/Account (protected route, for customers)
+Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])
+    ->middleware(['auth', 'client'])
+    ->name('profile.edit');
+
+Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])
+    ->middleware(['auth', 'client'])
+    ->name('profile.update');
+
+// Admin orders (admin-only view)
+Route::get('/admin/orders', [OrdersController::class, 'index'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.orders');
 
 // Admin routes (dashboard and all admin pages - admin only)
 Route::get('/dashboard', function () {
@@ -99,7 +116,7 @@ Route::get('/admin/customers', [CustomerAdminController::class, 'index'])
     ->name('customers.admin');
 
 Route::get('/admin/analytics', [AnalyticsAdminController::class, 'index'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor'])
     ->name('analytics.admin');
 
 Route::get('/admin/reviews', [ReviewAdminController::class, 'index'])
@@ -157,48 +174,48 @@ Route::delete('/admin/brands/{id}', [BrandAdminController::class, 'destroy'])
     ->name('brands.destroy');
 
 Route::get('/admin/revenue', [RevenueAdminController::class, 'index'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin'])
     ->name('revenue.admin');
 
 // Admin settings page
 Route::get('/admin/settings', [\App\Http\Controllers\SettingsAdminController::class, 'index'])
-    ->middleware(['auth', 'admin'])->name('settings.admin');
+    ->middleware(['auth', 'admin', 'admin.role:main_admin'])->name('settings.admin');
 Route::post('/admin/settings', [\App\Http\Controllers\SettingsAdminController::class, 'update'])
-    ->middleware(['auth', 'admin'])->name('settings.admin.update');
+    ->middleware(['auth', 'admin', 'admin.role:main_admin'])->name('settings.admin.update');
 
 // Admin account requests (requires logged-in admin)
 use App\Http\Controllers\AdminRequestController;
 Route::get('/admin/requests', [AdminRequestController::class, 'index'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin'])
     ->name('admin.requests');
 Route::post('/admin/requests/{id}/approve', [AdminRequestController::class, 'approve'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin'])
     ->name('admin.requests.approve');
 Route::post('/admin/requests/{id}/decline', [AdminRequestController::class, 'decline'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin'])
     ->name('admin.requests.decline');
 
 // Admin users management
 use App\Http\Controllers\AdminUserController;
 
 Route::get('/admin/users', [AdminUserController::class, 'index'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor'])
     ->name('admin.users');
 
 Route::get('/admin/users/create', [AdminUserController::class, 'create'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor'])
     ->name('admin.users.create');
 
 Route::post('/admin/users', [AdminUserController::class, 'store'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor'])
     ->name('admin.users.store');
 
 Route::get('/admin/users/{id}/edit', [AdminUserController::class, 'edit'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor'])
     ->name('admin.users.edit');
 
 Route::post('/admin/users/{id}', [AdminUserController::class, 'update'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor'])
     ->name('admin.users.update');
 
 // Admin profile

@@ -25,7 +25,10 @@ class CategoryAdminController extends Controller
             ->orderBy('category_name')
             ->get();
 
-        return view('categories_admin', compact('stats', 'categories'));
+        // for modal creation form
+        $parents = Category::orderBy('category_name')->get();
+
+        return view('categories_admin', compact('stats', 'categories', 'parents'));
     }
 
     /**

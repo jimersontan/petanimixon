@@ -16,6 +16,8 @@ class ExampleTest extends TestCase
     {
         $response = $this->get('/');
 
+        // The root route now serves the public shop landing page.
         $response->assertStatus(200);
+        $response->assertSee('Everything your pet needs is here');
     }
 }

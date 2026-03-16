@@ -23,6 +23,7 @@
         initDateFilter();
         initRestockButtons();
         initProfileDropdown();
+        initModals();
     }
 
     /**
@@ -194,6 +195,64 @@
                 document.getElementById('logoutForm').submit();
             });
         }
+    }
+
+    function initModals() {
+        var openers = document.querySelectorAll('[data-modal-open]');
+        var closers = document.querySelectorAll('[data-modal-close]');
+        var backdrops = document.querySelectorAll('.modal-backdrop');
+
+        function openModal(id) {
+            var modal = document.getElementById(id);
+            if (!modal) return;
+            modal.classList.add('open');
+            var backdrop = document.querySelector('.modal-backdrop[data-modal-id="' + id + '"]');
+            if (backdrop) {
+                backdrop.classList.add('open');
+            }
+            document.body.style.overflow = 'hidden';
+            modal.focus();
+        }
+
+        function closeModal(id) {
+            var modal = document.getElementById(id);
+            if (!modal) return;
+            modal.classList.remove('open');
+            var backdrop = document.querySelector('.modal-backdrop[data-modal-id="' + id + '"]');
+            if (backdrop) {
+                backdrop.classList.remove('open');
+            }
+            document.body.style.overflow = '';
+        }
+
+        openers.forEach(function (btn) {
+            var target = btn.getAttribute('data-modal-open');
+            btn.addEventListener('click', function () {
+                openModal(target);
+            });
+        });
+
+        closers.forEach(function (btn) {
+            var target = btn.getAttribute('data-modal-close');
+            btn.addEventListener('click', function () {
+                closeModal(target);
+            });
+        });
+
+        backdrops.forEach(function (backdrop) {
+            backdrop.addEventListener('click', function () {
+                var id = this.getAttribute('data-modal-id');
+                closeModal(id);
+            });
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                document.querySelectorAll('.modal.open').forEach(function (modal) {
+                    closeModal(modal.id);
+                });
+            }
+        });
     }
 
     function debounce(fn, ms) {

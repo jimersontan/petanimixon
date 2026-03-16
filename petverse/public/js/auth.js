@@ -27,12 +27,45 @@ function showNotification(message){
 
 // pet chips for register page
 document.addEventListener('click', function(e){
-    if(e.target && e.target.classList && e.target.classList.contains('pet-chip')){
-        document.querySelectorAll('.pet-chip').forEach(c=>c.classList.remove('active'));
-        e.target.classList.add('active');
-        const v = e.target.getAttribute('data-value');
-        const input = document.getElementById('pet_type');
-        if(input) input.value = v;
+    // Find the pet-chip button, even if clicking on child elements
+    const petChip = e.target.closest('.pet-chip');
+    if(petChip){
+        const clickedValue = petChip.getAttribute('data-value');
+        
+        // If clicking "other", remove all other highlights and keep only "other"
+        if(clickedValue === 'other'){
+            document.querySelectorAll('.pet-chip').forEach(c=>c.classList.remove('selected'));
+            petChip.classList.add('selected');
+            const input = document.getElementById('pet_type');
+            if(input) input.value = 'other';
+            // Show custom input
+            const customInput = document.getElementById('custom-pet-input');
+            if(customInput) customInput.style.display = 'block';
+        } else {
+            // Remove "other" highlight if it was selected
+            const otherBtn = document.querySelector('[data-value="other"]');
+            if(otherBtn && otherBtn.classList.contains('selected')){
+                otherBtn.classList.remove('selected');
+                // Hide custom input
+                const customInput = document.getElementById('custom-pet-input');
+                if(customInput) customInput.style.display = 'none';
+                // Clear custom input
+                const customField = document.getElementById('custom_pet_type');
+                if(customField) customField.value = '';
+            }
+            
+            // Toggle the clicked pet's highlight (allow multiple selections)
+            petChip.classList.toggle('selected');
+            
+            // Collect all selected pet values
+            const selected = Array.from(document.querySelectorAll('.pet-chip.selected'))
+                .map(c => c.getAttribute('data-value'))
+                .filter(v => v !== 'other')
+                .join(',');
+            
+            const input = document.getElementById('pet_type');
+            if(input) input.value = selected;
+        }
     }
 });
 
@@ -49,7 +82,7 @@ if(registerForm){
         const pw2 = document.getElementById('password_confirmation').value;
         const terms = document.getElementById('terms') && document.getElementById('terms').checked;
         let ok = true;
-        showError('firstNameError',''); showError('lastNameError',''); showError('emailError',''); showError('passwordError',''); showError('confirmPasswordError',''); showError('termsError','');
+        showError('firstNameError',''); showError('lastNameError',''); showError('emailError',''); showError('passwordError',''); showError('confirmPasswordError',''); showError('termsError',''); showError('petError','');
 
         if(!first){ showError('firstNameError','First name is required'); ok=false; }
         if(!last){ showError('lastNameError','Last name is required'); ok=false; }
@@ -60,7 +93,25 @@ if(registerForm){
         else if(!/[!@#$%^&*(),.?":{}|<>]/.test(pw)){ showError('passwordError','Include at least one special character (!@#$% etc.)'); ok=false; }
         if(pw !== pw2){ showError('confirmPasswordError','Passwords do not match'); ok=false; }
         if(!terms){ showError('termsError','You must agree to the Terms & Conditions and Privacy Policy'); ok=false; }
+        const petTypeInput = document.getElementById('pet_type');
+        if(petTypeInput && petTypeInput.value === 'other'){
+            const customPet = document.getElementById('custom_pet_type').value.trim();
+            if(!customPet){
+                showError('petError','Please specify your pet type');
+                ok = false;
+            }
+        }
         if(!ok) return;
+
+        // Handle custom pet type
+        if(petTypeInput && petTypeInput.value === 'other'){
+            const customPet = document.getElementById('custom_pet_type').value.trim();
+            if(customPet){
+                petTypeInput.value = customPet;
+            } else {
+                petTypeInput.value = '';
+            }
+        }
 
         const btn = registerForm.querySelector('.create-btn, .login-btn, button[type="submit"]');
         const orig = btn ? btn.innerHTML : '';
@@ -71,6 +122,7 @@ if(registerForm){
             const data = new URLSearchParams(new FormData(registerForm));
             const res = await fetch(window.routes.registerSubmit || '/register', {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'X-CSRF-TOKEN': token,
                     'Accept': 'application/json',
@@ -119,9 +171,22 @@ if(adminForm){
             const token = document.querySelector('input[name="_token"]').value;
             const data = new URLSearchParams(new FormData(adminForm));
             const res = await fetch(window.routes.adminLogin || '/admin/login', {
-                method: 'POST', headers: { 'X-CSRF-TOKEN': token }, body: data
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'X-CSRF-TOKEN': token },
+                body: data
             });
-            const j = await res.json();
+
+            const contentType = (res.headers.get('content-type') || '');
+            let j;
+            if (contentType.includes('application/json')) {
+                j = await res.json();
+            } else {
+                const text = await res.text();
+                console.error('Non-JSON admin login response', text);
+                throw new Error('Unexpected server response');
+            }
+
             if(res.ok){
                 showNotification('Welcome back, admin');
                 setTimeout(()=> window.location.href = j.redirect || '/admin/dashboard', 700);

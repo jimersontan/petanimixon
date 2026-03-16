@@ -55,7 +55,10 @@ class ProductAdminController extends Controller
             ->orderByDesc('created_at')
             ->paginate(15);
 
-        return view('products_admin', compact('stats', 'products', 'days', 'status'));
+        $categories = \App\Models\Category::where('is_active', true)->orderBy('category_name')->get();
+        $brands = \App\Models\Brand::where('is_active', true)->orderBy('name')->get();
+
+        return view('products_admin', compact('stats', 'products', 'days', 'status', 'categories', 'brands'));
     }
 
     /**

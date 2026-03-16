@@ -68,11 +68,20 @@ class AdminUserController extends Controller
             'role' => 'required|in:' . implode(',', $allowedRoles),
         ]);
 
-        $data['password'] = Hash::make($data['password']);
-        $data['is_admin'] = true;
-        $data['user_type'] = 'admin';
+        // Split name into first_name and last_name
+        $parts = preg_split('/\s+/', trim($data['name']), 2);
+        
+        $userData = [
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'is_admin' => true,
+            'user_type' => 'admin',
+            'email_verified_at' => now(),
+            'first_name' => $parts[0] ?? '',
+            'last_name' => $parts[1] ?? '',
+        ];
 
-        $user = User::create($data);
+        $user = User::create($userData);
 
         // Ensure admin profile exists with the chosen role.
         
@@ -147,6 +156,12 @@ class AdminUserController extends Controller
 
         $data = $request->validate($rules);
 
+        // Split name into first_name and last_name
+        $parts = preg_split('/\s+/', trim($data['name']), 2);
+        $data['first_name'] = $parts[0] ?? '';
+        $data['last_name'] = $parts[1] ?? '';
+        unset($data['name']);
+
         if (isset($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         }
@@ -155,7 +170,7 @@ class AdminUserController extends Controller
 
         \App\Models\AdminUser::updateOrCreate(
             ['user_id' => $user->id],
-            ['admin_type' => $data['role']]
+            ['admin_type' => $request->input('role')]
         );
 
         return redirect()->route('admin.users')->with('success', 'Admin user updated.');

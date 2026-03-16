@@ -175,7 +175,6 @@
     function initProfileDropdown() {
         var btn = document.getElementById('profileMenuButton');
         var menu = document.querySelector('.dropdown-menu');
-        var logoutLink = document.getElementById('logoutLink');
         if (btn && menu) {
             btn.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -187,12 +186,6 @@
                     menu.classList.remove('show');
                     btn.setAttribute('aria-expanded', 'false');
                 }
-            });
-        }
-        if (logoutLink) {
-            logoutLink.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.getElementById('logoutForm').submit();
             });
         }
     }

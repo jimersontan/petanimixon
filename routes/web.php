@@ -78,7 +78,7 @@ Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'
 
 // Admin orders (admin-only view)
 Route::get('/admin/orders', [OrdersController::class, 'index'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor,staff_admin'])
     ->name('admin.orders');
 
 // Admin routes (dashboard and all admin pages - admin only)
@@ -87,32 +87,32 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'admin'])->name('dashboard');
 
 Route::get('/admin/products', [ProductAdminController::class, 'index'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor,staff_admin'])
     ->name('products.admin');
 
 // product CRUD
 Route::get('/admin/products/create', [ProductAdminController::class, 'create'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor,staff_admin'])
     ->name('products.create');
 
 Route::post('/admin/products', [ProductAdminController::class, 'store'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor,staff_admin'])
     ->name('products.store');
 
 Route::get('/admin/products/{id}/edit', [ProductAdminController::class, 'edit'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor,staff_admin'])
     ->name('products.edit');
 
 Route::put('/admin/products/{id}', [ProductAdminController::class, 'update'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor,staff_admin'])
     ->name('products.update');
 
 Route::delete('/admin/products/{id}', [ProductAdminController::class, 'destroy'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor,staff_admin'])
     ->name('products.destroy');
 
 Route::get('/admin/customers', [CustomerAdminController::class, 'index'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin'])
     ->name('customers.admin');
 
 Route::get('/admin/analytics', [AnalyticsAdminController::class, 'index'])
@@ -120,57 +120,57 @@ Route::get('/admin/analytics', [AnalyticsAdminController::class, 'index'])
     ->name('analytics.admin');
 
 Route::get('/admin/reviews', [ReviewAdminController::class, 'index'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor,staff_admin'])
     ->name('reviews.admin');
 
 Route::get('/admin/categories', [CategoryAdminController::class, 'index'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor'])
     ->name('categories.admin');
 
 // category CRUD
 Route::get('/admin/categories/create', [CategoryAdminController::class, 'create'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor'])
     ->name('categories.create');
 
 Route::post('/admin/categories', [CategoryAdminController::class, 'store'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor'])
     ->name('categories.store');
 
 Route::get('/admin/categories/{id}/edit', [CategoryAdminController::class, 'edit'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor'])
     ->name('categories.edit');
 
 Route::put('/admin/categories/{id}', [CategoryAdminController::class, 'update'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor'])
     ->name('categories.update');
 
 Route::delete('/admin/categories/{id}', [CategoryAdminController::class, 'destroy'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor'])
     ->name('categories.destroy');
 
 Route::get('/admin/brands', [BrandAdminController::class, 'index'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor'])
     ->name('brands.admin');
 
 // brand CRUD
 Route::get('/admin/brands/create', [BrandAdminController::class, 'create'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor'])
     ->name('brands.create');
 
 Route::post('/admin/brands', [BrandAdminController::class, 'store'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor'])
     ->name('brands.store');
 
 Route::get('/admin/brands/{id}/edit', [BrandAdminController::class, 'edit'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor'])
     ->name('brands.edit');
 
 Route::put('/admin/brands/{id}', [BrandAdminController::class, 'update'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor'])
     ->name('brands.update');
 
 Route::delete('/admin/brands/{id}', [BrandAdminController::class, 'destroy'])
-    ->middleware(['auth', 'admin'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor'])
     ->name('brands.destroy');
 
 Route::get('/admin/revenue', [RevenueAdminController::class, 'index'])

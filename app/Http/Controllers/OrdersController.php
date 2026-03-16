@@ -5,11 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\Traits\RoleBasedAuthorization;
 
 class OrdersController extends Controller
 {
+    use RoleBasedAuthorization;
+
     /**
      * Display orders list and stats (from database).
+     * Main Admin: sees all orders with full details
+     * Supervisor: sees all orders, can approve/handle escalations
+     * Staff Admin: sees all orders but limited capabilities
      */
     public function index(Request $request)
     {
@@ -41,8 +47,7 @@ class OrdersController extends Controller
                     }]);
                 }])
                 ->orderByDesc('created_at')
-                ->paginate(15)
-                ->withQueryString();
+                ->paginate(15);
 
             return view('orders', [
                 'orders' => $orders,

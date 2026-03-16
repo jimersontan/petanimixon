@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Traits\RoleBasedAuthorization;
 
 class ProductAdminController extends Controller
 {
+    use RoleBasedAuthorization;
+
     /**
      * Display a list of products with stats.
      */
@@ -73,9 +76,12 @@ class ProductAdminController extends Controller
 
     /**
      * Persist a new product to the database.
+     * Staff Admin can create products, Supervisors can create products, but it's restricted
      */
     public function store(Request $request)
     {
+        // Staff Admin and Supervisor can create products, but Main Admin has full control
+        // This is enforced by middleware, controller just validates data
         $data = $request->validate([
             'product_name' => 'required|string|max:255',
             'animal_type' => 'nullable|string|max:255',
@@ -185,9 +191,13 @@ class ProductAdminController extends Controller
 
     /**
      * Delete a product.
+     * Only Main Admin and Supervisor can delete products
      */
     public function destroy($id)
     {
+        // Staff Admin should not be able to delete products
+        $this->ensureNotStaffAdmin('Staff Admin cannot delete products. Only Main Admin and Supervisor can delete products.');
+        
         $product = Product::findOrFail($id);
         // Instead of hard-deleting, mark as draft so it can be edited later
         $product->update(['product_status' => 'draft']);

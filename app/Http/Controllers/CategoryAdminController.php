@@ -5,11 +5,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\Product;
+use App\Traits\RoleBasedAuthorization;
 
 class CategoryAdminController extends Controller
 {
+    use RoleBasedAuthorization;
+
     /**
      * Display category hierarchy and stats.
+     * Only Main Admin and Supervisor can manage categories
      */
     public function index(Request $request)
     {
@@ -33,18 +37,22 @@ class CategoryAdminController extends Controller
 
     /**
      * Show form for new category.
+     * Only Main Admin and Supervisor can create categories
      */
     public function create()
     {
+        $this->ensureNotStaffAdmin('Staff Admin cannot create categories.');
         $parents = Category::orderBy('category_name')->get();
         return view('categories.create', compact('parents'));
     }
 
     /**
-     * Persist new category.
+     * Store new category.
+     * Only Main Admin and Supervisor can store categories
      */
     public function store(Request $request)
     {
+        $this->ensureNotStaffAdmin('Staff Admin cannot create categories.');
         $data = $request->validate([
             'category_name' => 'required|string|max:255',
             'parent_category_id' => 'nullable|exists:categories,id',

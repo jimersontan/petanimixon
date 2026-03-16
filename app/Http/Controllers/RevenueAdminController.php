@@ -4,14 +4,19 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Traits\RoleBasedAuthorization;
 
 class RevenueAdminController extends Controller
 {
+    use RoleBasedAuthorization;
+
     /**
      * Display revenue metrics.
+     * Only Main Admin can view financial/revenue reports
      */
     public function index(Request $request)
     {
+        $this->ensureMainAdmin('Only Main Admin can view revenue reports.');
         $days = (int) $request->get('days', 30);
         $from = now()->subDays($days);
 

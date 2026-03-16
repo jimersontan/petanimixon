@@ -1,11 +1,11 @@
 <header class="dashboard-header">
     <div class="header-left">
-        <div class="logo">
+        <a href="{{ route('dashboard') }}" class="logo" title="Go to Dashboard">
             <span class="logo-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 8c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm0-14C6.48 4 2 8.48 2 14s4.48 10 10 10 10-4.48 10-10S17.52 4 12 4z"/></svg>
             </span>
             <span class="logo-text">Pet Animixon</span>
-        </div>
+        </a>
     </div>
     <div class="header-center">
         <div class="search-bar">
@@ -18,19 +18,40 @@
             <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
         </button>
         <div class="dropdown">
-            <button type="button" class="icon-btn dropdown-toggle" id="profileMenuButton" aria-haspopup="true" aria-expanded="false" aria-label="Profile">
+            <button type="button" class="icon-btn dropdown-toggle" id="profileMenuButton" aria-haspopup="true" aria-expanded="false" aria-label="Profile menu">
                 <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             </button>
             <div class="dropdown-menu" aria-labelledby="profileMenuButton">
-                <a href="{{ route('admin.profile') }}">Your Profile</a>
-                <a href="#" id="logoutLink">Logout</a>
-                <form id="logoutForm" method="post" action="{{ route('logout') }}" style="display:none;">
+                @auth
+                <div class="dropdown-header">
+                    <div class="user-info">
+                        <div class="user-name">{{ auth()->user()->full_name ?? auth()->user()->name ?? auth()->user()->email }}</div>
+                        @if(auth()->user()->adminRole())
+                        <div class="user-role">
+                            <span class="role-badge" style="background: #ff6b35; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                {{ ucwords(str_replace('_', ' ', auth()->user()->adminRole())) }}
+                            </span>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+                <hr style="margin: 8px 0; border: none; border-top: 1px solid #e5e7eb;">
+                @endauth
+                <a href="{{ route('admin.profile') }}" class="dropdown-item">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    Your Profile
+                </a>
+                <form method="POST" action="{{ route('logout') }}" style="margin:0;">
                     @csrf
+                    <button type="submit" class="dropdown-item logout-btn" style="width: 100%; text-align: left; padding: 10px 16px; border: none; background: none; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h10v2H4v10h10v2H4c-1.1 0-2-.9-2-2V7c0-1.1.9-2 2-2z"/></svg>
+                        Logout
+                    </button>
                 </form>
             </div>
         </div>
-        <button type="button" class="icon-btn" aria-label="Settings">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M11.4 24H0V12.6h2.4v9.4h9v2.4zm12-12H12.6V0H24v2.4h-9.6v9.6H24V12zM2.4 9.6V0h2.4v9.6H2.4zm19.2 0V0H24v9.6h-2.4zM9.6 2.4V0h4.8v2.4H9.6zm4.8 19.2v-2.4h4.8V24h-4.8z"/></svg>
-        </button>
+        <a href="{{ route('admin.profile') }}" class="icon-btn" aria-label="Settings" title="Go to profile settings">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        </a>
     </div>
 </header>

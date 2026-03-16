@@ -4,11 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Brand;
+use App\Traits\RoleBasedAuthorization;
 
 class BrandAdminController extends Controller
 {
+    use RoleBasedAuthorization;
+
     /**
      * Display a list of brands with product counts.
+     * Only Main Admin and Supervisor can manage brands
      */
     public function index(Request $request)
     {
@@ -29,11 +33,13 @@ class BrandAdminController extends Controller
 
     public function create()
     {
+        $this->ensureNotStaffAdmin('Staff Admin cannot create brands.');
         return view('brands.create');
     }
 
     public function store(Request $request)
     {
+        $this->ensureNotStaffAdmin('Staff Admin cannot create brands.');
         $data = $request->validate([
             'name' => 'required|string|max:255|unique:brands,name',
             'logo' => 'nullable|image|max:2048',

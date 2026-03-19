@@ -4,110 +4,45 @@
 
 @section('content')
 <!-- Hero Section -->
-<div style="background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%); padding: 60px 20px; text-align: center; margin-bottom: 50px;">
-    <h1 style="font-size: 40px; color: #333; margin: 0 0 15px 0; font-weight: 700;">Brands We Trust & Carry</h1>
-    <p style="font-size: 16px; color: #666; margin: 0;">Partnering with industry leaders committed to quality and safety</p>
+<div class="brands-hero">
+    <h1 class="brands-hero-title">Brands We Trust & Carry</h1>
+    <p class="brands-hero-desc">Partnering with industry leaders committed to quality and safety</p>
 </div>
 
 <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
     <!-- Brand Category Tabs -->
-    <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 50px; flex-wrap: wrap;">
-        <a href="#all" style="padding-bottom: 10px; border-bottom: 3px solid var(--ud-orange, #FF8C42); color: var(--ud-orange, #FF8C42); text-decoration: none; font-weight: 600; cursor: pointer;">All Brands</a>
-        <a href="#premium" style="padding-bottom: 10px; color: #666; text-decoration: none; font-weight: 600; cursor: pointer; transition: all 0.3s;">Premium</a>
-        <a href="#budget" style="padding-bottom: 10px; color: #666; text-decoration: none; font-weight: 600; cursor: pointer; transition: all 0.3s;">Budget-Friendly</a>
-        <a href="#eco" style="padding-bottom: 10px; color: #666; text-decoration: none; font-weight: 600; cursor: pointer; transition: all 0.3s;">Eco-Conscious</a>
-        <a href="#specialty" style="padding-bottom: 10px; color: #666; text-decoration: none; font-weight: 600; cursor: pointer; transition: all 0.3s;">Specialty Brands</a>
+    <div class="brand-tabs-container">
+        <div class="brand-tabs">
+            <a href="#all" class="brand-tab active">All Brands</a>
+            <a href="#premium" class="brand-tab">Premium</a>
+            <a href="#budget" class="brand-tab">Budget-Friendly</a>
+            <a href="#eco" class="brand-tab">Eco-Conscious</a>
+            <a href="#specialty" class="brand-tab">Specialty Brands</a>
+        </div>
     </div>
 
     <!-- Brands Grid -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 25px; margin-bottom: 60px;">
-        <!-- Brand Card 1 -->
-        <div style="background: white; border-radius: 8px; padding: 30px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s;">
-            <div style="height: 100px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-                <img src="https://via.placeholder.com/150x80?text=Royal+Canin" alt="Royal Canin" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+    <div class="brands-grid">
+        @forelse($brands as $brand)
+        <!-- Brand Card -->
+        <div class="brand-card">
+            <div class="brand-logo-wrap">
+                @if($brand->logo_path)
+                    <img src="{{ asset('storage/' . $brand->logo_path) }}" alt="{{ $brand->name }}" class="brand-logo-img">
+                @else
+                    <img src="https://via.placeholder.com/150x80?text={{ urlencode($brand->name) }}" alt="{{ $brand->name }}" class="brand-logo-img">
+                @endif
             </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin: 0 0 10px 0;">Royal Canin</h3>
-            <p style="font-size: 14px; color: #666; margin: 0 0 15px 0;">Premium natural dog foods since 1985</p>
-            <p style="font-size: 13px; color: #999; margin: 0 0 20px 0;">45 products</p>
-            <a href="#" style="display: inline-block; padding: 10px 25px; border: 2px solid var(--ud-orange, #FF8C42); color: var(--ud-orange, #FF8C42); text-decoration: none; border-radius: 6px; font-weight: 600; transition: all 0.3s;">View Products</a>
+            <h3 class="brand-name">{{ $brand->name }}</h3>
+            <p class="brand-tagline">Quality products from {{ $brand->name }}</p>
+            <p class="brand-product-count">{{ $brand->products_count }} products</p>
+            <a href="{{ route('shop.all', ['brand' => $brand->name]) }}" class="btn-view-brand">View Products</a>
         </div>
-
-        <!-- Brand Card 2 -->
-        <div style="background: white; border-radius: 8px; padding: 30px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s;">
-            <div style="height: 100px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-                <img src="https://via.placeholder.com/150x80?text=Blue+Buffalo" alt="Blue Buffalo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+        @empty
+            <div class="no-brands-msg">
+                No brands available at the moment.
             </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin: 0 0 10px 0;">Blue Buffalo</h3>
-            <p style="font-size: 14px; color: #666; margin: 0 0 15px 0;">Natural ingredients for healthier pets</p>
-            <p style="font-size: 13px; color: #999; margin: 0 0 20px 0;">32 products</p>
-            <a href="#" style="display: inline-block; padding: 10px 25px; border: 2px solid var(--ud-orange, #FF8C42); color: var(--ud-orange, #FF8C42); text-decoration: none; border-radius: 6px; font-weight: 600; transition: all 0.3s;">View Products</a>
-        </div>
-
-        <!-- Brand Card 3 -->
-        <div style="background: white; border-radius: 8px; padding: 30px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s;">
-            <div style="height: 100px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-                <img src="https://via.placeholder.com/150x80?text=Kong" alt="Kong" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin: 0 0 10px 0;">Kong</h3>
-            <p style="font-size: 14px; color: #666; margin: 0 0 15px 0;">Durable toys for active pets</p>
-            <p style="font-size: 13px; color: #999; margin: 0 0 20px 0;">78 products</p>
-            <a href="#" style="display: inline-block; padding: 10px 25px; border: 2px solid var(--ud-orange, #FF8C42); color: var(--ud-orange, #FF8C42); text-decoration: none; border-radius: 6px; font-weight: 600; transition: all 0.3s;">View Products</a>
-        </div>
-
-        <!-- Brand Card 4 -->
-        <div style="background: white; border-radius: 8px; padding: 30px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s;">
-            <div style="height: 100px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-                <img src="https://via.placeholder.com/150x80?text=Fluval" alt="Fluval" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin: 0 0 10px 0;">Fluval</h3>
-            <p style="font-size: 14px; color: #666; margin: 0 0 15px 0;">Premium aquarium equipment</p>
-            <p style="font-size: 13px; color: #999; margin: 0 0 20px 0;">56 products</p>
-            <a href="#" style="display: inline-block; padding: 10px 25px; border: 2px solid var(--ud-orange, #FF8C42); color: var(--ud-orange, #FF8C42); text-decoration: none; border-radius: 6px; font-weight: 600; transition: all 0.3s;">View Products</a>
-        </div>
-
-        <!-- Brand Card 5 -->
-        <div style="background: white; border-radius: 8px; padding: 30px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s;">
-            <div style="height: 100px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-                <img src="https://via.placeholder.com/150x80?text=Zoo+Med" alt="Zoo Med" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin: 0 0 10px 0;">Zoo Med</h3>
-            <p style="font-size: 14px; color: #666; margin: 0 0 15px 0;">Complete reptile care solutions</p>
-            <p style="font-size: 13px; color: #999; margin: 0 0 20px 0;">41 products</p>
-            <a href="#" style="display: inline-block; padding: 10px 25px; border: 2px solid var(--ud-orange, #FF8C42); color: var(--ud-orange, #FF8C42); text-decoration: none; border-radius: 6px; font-weight: 600; transition: all 0.3s;">View Products</a>
-        </div>
-
-        <!-- Brand Card 6 -->
-        <div style="background: white; border-radius: 8px; padding: 30px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s;">
-            <div style="height: 100px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-                <img src="https://via.placeholder.com/150x80?text=Petco" alt="Petco" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin: 0 0 10px 0;">Petco</h3>
-            <p style="font-size: 14px; color: #666; margin: 0 0 15px 0;">Trusted general pet supplies</p>
-            <p style="font-size: 13px; color: #999; margin: 0 0 20px 0;">73 products</p>
-            <a href="#" style="display: inline-block; padding: 10px 25px; border: 2px solid var(--ud-orange, #FF8C42); color: var(--ud-orange, #FF8C42); text-decoration: none; border-radius: 6px; font-weight: 600; transition: all 0.3s;">View Products</a>
-        </div>
-
-        <!-- Brand Card 7 -->
-        <div style="background: white; border-radius: 8px; padding: 30px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s;">
-            <div style="height: 100px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-                <img src="https://via.placeholder.com/150x80?text=Oxbow" alt="Oxbow" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin: 0 0 10px 0;">Oxbow</h3>
-            <p style="font-size: 14px; color: #666; margin: 0 0 15px 0;">Nutrition for small pets</p>
-            <p style="font-size: 13px; color: #999; margin: 0 0 20px 0;">24 products</p>
-            <a href="#" style="display: inline-block; padding: 10px 25px; border: 2px solid var(--ud-orange, #FF8C42); color: var(--ud-orange, #FF8C42); text-decoration: none; border-radius: 6px; font-weight: 600; transition: all 0.3s;">View Products</a>
-        </div>
-
-        <!-- Brand Card 8 -->
-        <div style="background: white; border-radius: 8px; padding: 30px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s;">
-            <div style="height: 100px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-                <img src="https://via.placeholder.com/150x80?text=API" alt="API" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-            </div>
-            <h3 style="font-size: 18px; font-weight: 700; color: #333; margin: 0 0 10px 0;">API</h3>
-            <p style="font-size: 14px; color: #666; margin: 0 0 15px 0;">Aquatic care products</p>
-            <p style="font-size: 13px; color: #999; margin: 0 0 20px 0;">39 products</p>
-            <a href="#" style="display: inline-block; padding: 10px 25px; border: 2px solid var(--ud-orange, #FF8C42); color: var(--ud-orange, #FF8C42); text-decoration: none; border-radius: 6px; font-weight: 600; transition: all 0.3s;">View Products</a>
-        </div>
+        @endforelse
     </div>
 
     <!-- Why These Brands Section -->
@@ -139,49 +74,314 @@
     </div>
 
     <!-- Featured Brand Section -->
-    <div style="background: white; border-radius: 12px; padding: 50px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;">
+    @if($featuredBrand)
+    <div style="background: white; border-radius: 12px; padding: 50px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);" class="featured-brand-card">
+        <div class="featured-brand-grid">
             <!-- Left: Image -->
             <div>
-                <div style="background: linear-gradient(135deg, #7fb3a3 0%, #6a9e8f 100%); border-radius: 12px; height: 400px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                    <img src="https://via.placeholder.com/300x400?text=Royal+Canin+Featured" alt="Royal Canin" style="width: 100%; height: 100%; object-fit: cover;">
+                <div style="background: linear-gradient(135deg, #7fb3a3 0%, #6a9e8f 100%); border-radius: 12px; height: 400px; display: flex; align-items: center; justify-content: center; overflow: hidden;" class="featured-brand-img-wrap">
+                    @if($featuredBrand->logo_path)
+                        <img src="{{ asset('storage/' . $featuredBrand->logo_path) }}" alt="{{ $featuredBrand->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    @else
+                        <img src="https://via.placeholder.com/300x400?text={{ urlencode($featuredBrand->name) }}" alt="{{ $featuredBrand->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    @endif
                 </div>
             </div>
 
             <!-- Right: Info -->
-            <div>
+            <div class="featured-brand-info">
                 <div style="display: inline-block; background-color: var(--ud-orange, #FF8C42); color: white; padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 20px;">Featured Brand</div>
                 
-                <h2 style="font-size: 32px; color: #333; margin: 0 0 15px 0; font-weight: 700;">Royal Canin</h2>
+                <h2 style="font-size: 32px; color: #333; margin: 0 0 15px 0; font-weight: 700;">{{ $featuredBrand->name }}</h2>
                 
-                <p style="font-size: 14px; color: #666; line-height: 1.6; margin: 0 0 15px 0;">Royal Canin has been a pioneer in pet nutrition since 1968, creating breed-specific and health-focused formulas that veterinarians and pet owners trust worldwide.</p>
+                <p style="font-size: 14px; color: #666; line-height: 1.6; margin: 0 0 15px 0;">{{ $featuredBrand->name }} is one of our trusted partners, providing high-quality products for your pets.</p>
 
-                <p style="font-size: 14px; color: #666; line-height: 1.6; margin: 0 0 20px 0;">Their scientific approach to nutrition combines precise nutrients with high-quality ingredients to support optimal health at every life stage.</p>
+                <p style="font-size: 14px; color: #666; line-height: 1.6; margin: 0 0 20px 0;">We work closely with {{ $featuredBrand->name }} to ensure that you get the best value and quality for your pet care needs.</p>
 
-                <p style="font-size: 14px; color: #666; line-height: 1.6; margin: 0 0 25px 0;">From puppy to senior, Royal Canin offers tailored nutrition solutions that veterinarians trust and pet owners love.</p>
+                <p style="font-size: 14px; color: #666; line-height: 1.6; margin: 0 0 25px 0;">Explore the full range of {{ $featuredBrand->name }} products available in our shop today.</p>
 
                 <!-- Features List -->
                 <ul style="list-style: none; padding: 0; margin: 0 0 30px 0;">
-                    <li style="padding: 8px 0; font-size: 14px; color: #333;">✓ Breed-specific formulas</li>
-                    <li style="padding: 8px 0; font-size: 14px; color: #333;">✓ Veterinary diet options</li>
-                    <li style="padding: 8px 0; font-size: 14px; color: #333;">✓ Life stage nutrition</li>
-                    <li style="padding: 8px 0; font-size: 14px; color: #333;">✓ Scientific research backing</li>
+                    <li style="padding: 8px 0; font-size: 14px; color: #333;">✓ Quality assured</li>
+                    <li style="padding: 8px 0; font-size: 14px; color: #333;">✓ Trusted by experts</li>
+                    <li style="padding: 8px 0; font-size: 14px; color: #333;">✓ Pet-friendly materials</li>
+                    <li style="padding: 8px 0; font-size: 14px; color: #333;">✓ Sustainable practices</li>
                 </ul>
 
-                <a href="#" style="display: inline-block; padding: 12px 35px; background-color: var(--ud-orange, #FF8C42); color: white; text-decoration: none; border-radius: 6px; font-weight: 600; transition: background-color 0.3s;">Shop Brand</a>
+                <a href="{{ route('shop.all', ['brand' => $featuredBrand->name]) }}" style="display: inline-block; padding: 12px 35px; background-color: var(--ud-orange, #FF8C42); color: white; text-decoration: none; border-radius: 6px; font-weight: 600; transition: background-color 0.3s;" class="btn-shop-brand">Shop Brand</a>
             </div>
         </div>
     </div>
+    @endif
 </div>
 
 <style>
-    a:hover {
-        opacity: 0.9;
+    /* Hero */
+    .brands-hero {
+        background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%); 
+        padding: 60px 20px; 
+        text-align: center; 
+        margin-bottom: 50px;
+    }
+    .brands-hero-title {
+        font-size: 40px; 
+        color: #333; 
+        margin: 0 0 15px 0; 
+        font-weight: 700;
+    }
+    .brands-hero-desc {
+        font-size: 16px; 
+        color: #666; 
+        margin: 0;
     }
 
-    [style*="border: 2px solid var(--ud-orange"]]:hover {
+    /* Tabs Container */
+    .brand-tabs-container {
+        margin-bottom: 50px;
+    }
+    .brand-tabs {
+        display: flex; 
+        justify-content: center; 
+        gap: 30px; 
+        flex-wrap: wrap;
+    }
+    .brand-tab {
+        padding-bottom: 10px; 
+        color: #666; 
+        text-decoration: none; 
+        font-weight: 600; 
+        cursor: pointer; 
+        transition: all 0.3s;
+        border-bottom: 3px solid transparent;
+        white-space: nowrap;
+    }
+    .brand-tab.active {
+        border-bottom-color: var(--ud-orange, #FF8C42); 
+        color: var(--ud-orange, #FF8C42);
+    }
+    .brand-tab:hover {
+        opacity: 0.8;
+    }
+
+    /* Brand Cards Grid */
+    .brands-grid {
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); 
+        gap: 25px; 
+        margin-bottom: 60px;
+    }
+    .brand-card {
+        background: white; 
+        border-radius: 8px; 
+        padding: 30px; 
+        text-align: center; 
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+        transition: transform 0.3s, box-shadow 0.3s;
+        display: flex;
+        flex-direction: column;
+    }
+    .brand-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    .brand-logo-wrap {
+        height: 100px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        margin-bottom: 20px;
+    }
+    .brand-logo-img {
+        max-width: 100%; 
+        max-height: 100%; 
+        object-fit: contain;
+    }
+    .brand-name {
+        font-size: 18px; 
+        font-weight: 700; 
+        color: #333; 
+        margin: 0 0 10px 0;
+    }
+    .brand-tagline {
+        font-size: 14px; 
+        color: #666; 
+        margin: 0 0 15px 0;
+    }
+    .brand-product-count {
+        font-size: 13px; 
+        color: #999; 
+        margin: 0 0 20px 0;
+        flex-grow: 1;
+    }
+    .btn-view-brand {
+        display: inline-block; 
+        padding: 10px 25px; 
+        border: 2px solid var(--ud-orange, #FF8C42); 
+        color: var(--ud-orange, #FF8C42); 
+        text-decoration: none; 
+        border-radius: 6px; 
+        font-weight: 600; 
+        transition: all 0.3s;
+        width: 100%;
+    }
+    .btn-view-brand:hover {
         background-color: var(--ud-orange, #FF8C42);
         color: white !important;
+        opacity: 0.9;
+    }
+    .no-brands-msg {
+        grid-column: 1 / -1; 
+        text-align: center; 
+        padding: 40px; 
+        color: #999;
+    }
+
+    /* Featured Brand Layout */
+    .featured-brand-grid {
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 40px; 
+        align-items: center;
+    }
+
+    /* =========================================
+       Mobile Responsive
+       ========================================= */
+    @media (max-width: 768px) {
+        .brands-hero {
+            padding: 28px 16px;
+            margin-bottom: 20px;
+            margin-left: -0.8rem;
+            margin-right: -0.8rem;
+            border-radius: 0;
+        }
+        .brands-hero-title {
+            font-size: 22px;
+        }
+        .brands-hero-desc {
+            font-size: 13px;
+        }
+
+        .brand-tabs-container {
+            margin-bottom: 20px;
+        }
+        .brand-tabs {
+            justify-content: flex-start;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            gap: 8px;
+            padding-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .brand-tabs::-webkit-scrollbar {
+            display: none;
+        }
+        .brand-tab {
+            font-size: 13px;
+            padding: 7px 14px;
+            background: #fcfcfc;
+            border: 1px solid #e0e0e0;
+            border-bottom: none;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+        .brand-tab.active {
+            background: var(--ud-orange-light, #FFF3E0);
+            border: 1px solid var(--ud-orange, #FF8C42);
+            color: var(--ud-orange, #FF8C42);
+        }
+
+        .brands-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .brand-card {
+            padding: 16px 12px;
+            border-radius: 8px;
+        }
+        .brand-logo-wrap {
+            height: 60px;
+            margin-bottom: 10px;
+        }
+        .brand-name {
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+        .brand-tagline {
+            display: none;
+        }
+        .brand-product-count {
+            font-size: 11px;
+            margin-bottom: 10px;
+        }
+        .btn-view-brand {
+            padding: 7px 10px;
+            font-size: 12px;
+            border-radius: 5px;
+        }
+
+        /* Why These Brands */
+        div[style*="background-color: #fef5f0"] {
+            padding: 30px 16px !important;
+            border-radius: 8px !important;
+            margin-bottom: 30px !important;
+        }
+        div[style*="background-color: #fef5f0"] h2 {
+            font-size: 22px !important;
+            margin-bottom: 24px !important;
+        }
+        div[style*="font-size: 40px"] {
+            font-size: 28px !important;
+        }
+        div[style*="background-color: #fef5f0"] h3 {
+            font-size: 15px !important;
+        }
+        div[style*="background-color: #fef5f0"] p {
+            font-size: 12.5px !important;
+        }
+
+        .featured-brand-grid {
+            grid-template-columns: 1fr;
+            text-align: center;
+            gap: 20px;
+        }
+        .featured-brand-card {
+            padding: 20px !important;
+            margin-bottom: 30px;
+        }
+        .featured-brand-img-wrap {
+            height: 200px !important;
+        }
+        .featured-brand-info ul {
+            text-align: left;
+            display: inline-block;
+        }
+        .featured-brand-info h2 {
+            font-size: 22px !important;
+        }
+        .featured-brand-info p {
+            font-size: 13px !important;
+        }
+        .btn-shop-brand {
+            width: 100%;
+            text-align: center;
+            padding: 10px 20px !important;
+            font-size: 14px !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .brands-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .brand-card { padding: 12px 10px; }
+        .brand-logo-wrap { height: 50px; }
+        .brand-name { font-size: 12px; }
+        .btn-view-brand { font-size: 11px; padding: 6px 8px; }
+        .featured-brand-img-wrap { height: 160px !important; }
     }
 </style>
 @endsection

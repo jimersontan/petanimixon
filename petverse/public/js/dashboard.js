@@ -20,6 +20,7 @@
         initRevenueChart();
         initChartTabs();
         initSidebarNav();
+        initSidebarToggle();
         initDateFilter();
         initRestockButtons();
         initProfileDropdown();
@@ -136,6 +137,36 @@
                 }
             });
         });
+    }
+
+    function initSidebarToggle() {
+        var toggleBtn = document.getElementById('sidebarToggle');
+        var sidebar = document.getElementById('adminSidebar');
+        var overlay = document.getElementById('sidebarOverlay');
+
+        if (!toggleBtn || !sidebar || !overlay) return;
+
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        toggleBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+
+            // Prevent body scroll when sidebar is open on mobile
+            if (sidebar.classList.contains('open')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        });
+
+        overlay.addEventListener('click', closeSidebar);
     }
 
     function initDateFilter() {

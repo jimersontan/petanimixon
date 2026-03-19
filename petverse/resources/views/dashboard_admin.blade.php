@@ -37,11 +37,11 @@
                     <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></span>
                     <span class="nav-label">Reviews</span>
                 </a>
-                <a href="{{ route('categories.admin') }}" class="nav-item" data-page="categories">
+                <a href="{{ route('categories.admin') }}" class="nav-item {{ request()->routeIs('categories.*') ? 'active' : '' }}" data-page="categories">
                     <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M3 3v8h8V3H3zm6 6H5V5h4v4zm-6 4v8h8v-8H3zm6 6H5v-4h4v4zm4-16v8h8V3h-8zm6 6h-4V5h4v4zm-6 4v8h8v-8h-8zm6 6h-4v-4h4v4z"/></svg></span>
                     <span class="nav-label">Categories</span>
                 </a>
-                <a href="{{ route('brands.admin') }}" class="nav-item" data-page="brands">
+                <a href="{{ route('brands.admin') }}" class="nav-item {{ request()->routeIs('brands.*') ? 'active' : '' }}" data-page="brands">
                     <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></svg></span>
                     <span class="nav-label">Brands</span>
                 </a>

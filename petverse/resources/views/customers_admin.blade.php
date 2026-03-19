@@ -104,7 +104,6 @@
                             <option value="90" {{ ($days ?? 30) == 90 ? 'selected' : '' }}>Last 90 days</option>
                         </select>
                     </form>
-                    <button type="button" class="btn-primary">+ Add Customer</button>
                 </div>
             </div>
 

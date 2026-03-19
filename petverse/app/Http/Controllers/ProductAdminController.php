@@ -57,8 +57,9 @@ class ProductAdminController extends Controller
 
         $categories = \App\Models\Category::where('is_active', true)->orderBy('category_name')->get();
         $brands = \App\Models\Brand::where('is_active', true)->orderBy('name')->get();
+        $animal_types = \Illuminate\Support\Facades\DB::table('animal_types')->where('status', 'Active')->orderBy('name')->get();
 
-        return view('products_admin', compact('stats', 'products', 'days', 'status', 'categories', 'brands'));
+        return view('products_admin', compact('stats', 'products', 'days', 'status', 'categories', 'brands', 'animal_types'));
     }
 
     /**
@@ -68,7 +69,8 @@ class ProductAdminController extends Controller
     {
         $categories = \App\Models\Category::where('is_active', true)->orderBy('category_name')->get();
         $brands = \App\Models\Brand::where('is_active', true)->orderBy('name')->get();
-        return view('products.create', compact('categories', 'brands'));
+        $animal_types = \Illuminate\Support\Facades\DB::table('animal_types')->where('status', 'Active')->orderBy('name')->get();
+        return view('products.create', compact('categories', 'brands', 'animal_types'));
     }
 
     /**
@@ -78,7 +80,7 @@ class ProductAdminController extends Controller
     {
         $data = $request->validate([
             'product_name' => 'required|string|max:255',
-            'animal_type' => 'nullable|string|max:255',
+            'animal_type_id' => 'required|integer|exists:animal_types,id',
             'animal_category_id' => 'required|exists:categories,id',
             'price' => 'required|numeric|min:0',
             'sku' => 'required|string|unique:products,sku',
@@ -124,7 +126,8 @@ class ProductAdminController extends Controller
         $product = Product::findOrFail($id);
         $categories = \App\Models\Category::where('is_active', true)->orderBy('category_name')->get();
         $brands = \App\Models\Brand::where('is_active', true)->orderBy('name')->get();
-        return view('products.edit', compact('product', 'categories', 'brands'));
+        $animal_types = \Illuminate\Support\Facades\DB::table('animal_types')->where('status', 'Active')->orderBy('name')->get();
+        return view('products.edit', compact('product', 'categories', 'brands', 'animal_types'));
     }
 
     /**
@@ -135,7 +138,7 @@ class ProductAdminController extends Controller
         $product = Product::findOrFail($id);
         $data = $request->validate([
             'product_name' => 'required|string|max:255',
-            'animal_type' => 'nullable|string|max:255',
+            'animal_type_id' => 'required|integer|exists:animal_types,id',
             'animal_category_id' => 'required|exists:categories,id',
             'price' => 'required|numeric|min:0',
             'sku' => 'required|string|unique:products,sku,' . $product->id,

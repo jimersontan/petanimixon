@@ -15,6 +15,10 @@ class Category extends Model
         'category_name',
         'parent_category_id',
         'is_active',
+        'description',
+        'image_url',
+        'sort_order',
+        'is_featured',
     ];
 
     public function products()

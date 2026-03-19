@@ -52,17 +52,32 @@
     // Add to cart
     function initAddToCart() {
         const cartBtns = document.querySelectorAll('.ud-add-cart');
-        const cartCount = document.querySelector('.ud-cart-count');
-        let count = parseInt(localStorage.getItem('petverse_cart_count') || '0', 10);
-
-        if (cartCount) cartCount.textContent = count;
+        const cartCounts = document.querySelectorAll('.ud-cart-count, .ud-cart-count-mobile');
+        
+        // Fetch real count from server
+        fetch('/cart/count')
+            .then(response => response.json())
+            .then(data => {
+                cartCounts.forEach(el => el.textContent = data.count);
+            });
 
         cartBtns.forEach(function(btn) {
             btn.addEventListener('click', function() {
-                count++;
-                if (cartCount) cartCount.textContent = count;
-                localStorage.setItem('petverse_cart_count', String(count));
-                showNotification('Added to cart!');
+                const productId = btn.getAttribute('data-id');
+                // Submit form or use AJAX
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/cart/add';
+                const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+                
+                const html = `
+                    <input type="hidden" name="_token" value="${csrf}">
+                    <input type="hidden" name="product_id" value="${productId}">
+                    <input type="hidden" name="quantity" value="1">
+                `;
+                form.innerHTML = html;
+                document.body.appendChild(form);
+                form.submit();
             });
         });
     }

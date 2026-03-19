@@ -13,10 +13,22 @@
             @forelse($products as $product)
                 <div class="ud-product-card">
                     <button type="button" class="ud-wishlist-btn" aria-label="Add to wishlist">♡</button>
-                    <img src="{{ $product->animal_image_url ?: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=200&h=200&fit=crop' }}" alt="{{ $product->product_name }}">
+                    <img src="{{ $product->image_url }}" alt="{{ $product->product_name }}"
+                         onerror="this.src='{{ asset('images/placeholder.png') }}'">
                     <h4>{{ $product->product_name }}</h4>
                     <p class="ud-price">₱{{ number_format($product->price, 2) }}</p>
-                    <button type="button" class="ud-add-cart">Add to Cart</button>
+                    @auth
+                    <form action="{{ route('cart.add') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="ud-add-cart" {{ $product->stock > 0 ? '' : 'disabled' }}>
+                            {{ $product->stock > 0 ? 'Add to Cart' : 'Out of Stock' }}
+                        </button>
+                    </form>
+                    @else
+                    <a href="{{ route('login') }}" class="ud-add-cart" style="text-decoration:none; text-align:center; display:block;">Add to Cart</a>
+                    @endauth
                 </div>
             @empty
                 <p>No products found in this category yet.</p>

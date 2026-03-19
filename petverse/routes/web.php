@@ -25,6 +25,9 @@ use App\Http\Controllers\ShopController;
 |
 */
 
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
+
 // Public storefront
 Route::get('/', [ShopController::class, 'index'])->name('shop');
 Route::get('/shop', [ShopController::class, 'shop'])->name('shop.all');
@@ -32,12 +35,22 @@ Route::get('/shop/all', [ShopController::class, 'shop']);
 Route::get('/categories', [ShopController::class, 'categories'])->name('categories');
 Route::get('/categories/{id}', [ShopController::class, 'showCategory'])->name('categories.show');
 Route::get('/product/{id}', [ShopController::class, 'showProduct'])->name('product.show');
-Route::get('/brands', function () {
-    return view('frontend.brands');
-})->name('brands');
-Route::get('/checkout', function () {
-    return view('frontend.checkout');
-})->name('checkout');
+Route::get('/brands', [ShopController::class, 'brands'])->name('brands');
+
+// Cart Routes
+Route::middleware(['auth', 'client'])->group(function () {
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+    Route::get('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::get('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+    Route::get('/cart/count', [CartController::class, 'getCount'])->name('cart.count');
+
+    // Checkout Routes
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
+    Route::get('/checkout/success/{order_id}', [CheckoutController::class, 'success'])->name('checkout.success');
+});
 
 // Login Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -226,4 +239,14 @@ Route::get('/admin/profile', [AdminUserController::class, 'profile'])
 Route::post('/admin/profile', [AdminUserController::class, 'profileUpdate'])
     ->middleware(['auth', 'admin'])
     ->name('admin.profile.update');
+
+// Animal Types AJAX API
+use App\Http\Controllers\AnimalTypeController;
+Route::middleware(['auth', 'admin'])->prefix('admin/api/animal-types')->group(function () {
+    Route::get('/', [AnimalTypeController::class, 'index'])->name('animal-types.index');
+    Route::post('/', [AnimalTypeController::class, 'store'])->name('animal-types.store');
+    Route::put('/{id}', [AnimalTypeController::class, 'update'])->name('animal-types.update');
+    Route::delete('/{id}', [AnimalTypeController::class, 'destroy'])->name('animal-types.destroy');
+    Route::patch('/{id}/status', [AnimalTypeController::class, 'toggleStatus'])->name('animal-types.toggle-status');
+});
 

@@ -2,7 +2,7 @@
 
 @section('title','Petverse - Everything Your Pet Needs')
 
-@section('content')3
+@section('content')
     @if(session('message'))
         <div class="ud-msg">{{ session('message') }}</div>
     @endif
@@ -13,7 +13,7 @@
             <div class="ud-hero-left">
                 <h1 class="ud-hero-title">Everything your pet needs is here, just wait!</h1>
                 <div class="ud-hero-btns">
-                    <a href="{{ route('shop') }}" class="ud-btn ud-btn-primary">Shop Now</a>
+                    <a href="{{ route('shop.all') }}" class="ud-btn ud-btn-primary">Shop Now</a>
                     <a href="{{ route('categories') }}" class="ud-btn ud-btn-outline">View Categories</a>
                 </div>
             </div>
@@ -23,33 +23,63 @@
                 </div>
             </div>
         </div>
-        <div class="ud-hero-sub">
-            <p class="ud-hero-tagline">We Sell Products Only — We Love Animals</p>
-            <p class="ud-hero-desc">Shop the finest selection of pet products with care, quality, and love for every furry friend.</p>
+        <div class="ud-purple-banner">
+            <div class="ud-banner-header">
+                <div class="ud-banner-icon">
+                    <svg viewBox="0 0 24 24" fill="#6B46C1" width="28" height="28">
+                        <path d="M19 6h-4a3 3 0 0 0-6 0H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2zm-7-2a1 1 0 0 1 1 1h-2a1 1 0 0 1 1-1z"/>
+                    </svg>
+                </div>
+                <h2 class="ud-banner-title">We Sell Products Only, No Live Animals</h2>
+            </div>
+            <p class="ud-banner-desc">Pet Animixon is your trusted source for premium pet supplies, food, toys, and accessories. We're dedicated to providing quality products that keep your pets happy and healthy.</p>
+            <a href="#" class="ud-banner-link">Learn More About Us &rarr;</a>
         </div>
     </section>
 
-    <!-- Key Features -->
+    <!-- Key Features (Trust Strip) -->
     <section class="ud-features">
-        <div class="ud-feature-card" style="--bg: #E3F2FD;">
-            <div class="ud-feature-icon">🎁</div>
-            <h3>Amazing Offers</h3>
-            <p>Enjoy amazing offers to buy for your pet</p>
+        <div class="ud-feature-card">
+            <div class="ud-feature-icon-wrapper icon-blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </svg>
+            </div>
+            <h3>All Pets Welcome</h3>
+            <p>Support for every species, from dogs to birds</p>
         </div>
-        <div class="ud-feature-card" style="--bg: #E8F5E9;">
-            <div class="ud-feature-icon">✨</div>
-            <h3>Handpicked Products</h3>
-            <p>Handpicked items for your family & pet</p>
+        <div class="ud-feature-card">
+            <div class="ud-feature-icon-wrapper icon-green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            <h3>Family-Safe Products</h3>
+            <p>Vetted for safety and quality standards</p>
         </div>
-        <div class="ud-feature-card" style="--bg: #FFF3E0;">
-            <div class="ud-feature-icon">🚚</div>
+        <div class="ud-feature-card">
+            <div class="ud-feature-icon-wrapper icon-orange">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
+            </div>
             <h3>Fast Shipping</h3>
-            <p>Get your delivery fast & safely</p>
+            <p>Quick, reliable delivery to your door</p>
         </div>
-        <div class="ud-feature-card" style="--bg: #F3E5F5;">
-            <div class="ud-feature-icon">�</div>
-            <h3>Hyper Customer Service</h3>
-            <p>Amazing customer service for you</p>
+        <div class="ud-feature-card">
+            <div class="ud-feature-icon-wrapper icon-purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+            </div>
+            <h3>Expert Guides</h3>
+            <p>Free care resources and pet tips</p>
         </div>
     </section>
 

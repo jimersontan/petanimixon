@@ -36,6 +36,8 @@ class BrandAdminController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255|unique:brands,name',
+            'description' => 'nullable|string',
+            'website_url' => 'nullable|url|max:255',
             'logo' => 'nullable|image|max:2048',
             'is_active' => 'sometimes|boolean',
             'is_featured' => 'sometimes|boolean',
@@ -61,6 +63,8 @@ class BrandAdminController extends Controller
         $brand = Brand::findOrFail($id);
         $data = $request->validate([
             'name' => 'required|string|max:255|unique:brands,name,' . $brand->id,
+            'description' => 'nullable|string',
+            'website_url' => 'nullable|url|max:255',
             'logo' => 'nullable|image|max:2048',
             'is_active' => 'sometimes|boolean',
             'is_featured' => 'sometimes|boolean',

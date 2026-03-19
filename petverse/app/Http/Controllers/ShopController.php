@@ -27,7 +27,12 @@ class ShopController extends Controller
      */
     public function shop(Request $request)
     {
-        $query = Product::where('is_active', 1);
+        $query = Product::where('product_status', 'active');
+
+        // Filter by brand
+        if ($request->has('brand') && !empty($request->input('brand'))) {
+            $query->where('brand_name', $request->input('brand'));
+        }
 
         // Filter by pet type
         if ($request->has('pet_type') && !empty($request->input('pet_type'))) {
@@ -80,12 +85,52 @@ class ShopController extends Controller
         }
 
         $products = $query->paginate(24);
-        $categories = Category::where('is_active', 1)->orderBy('category_name')->get();
+        
+        $categories = Category::where('is_active', true)
+            ->withCount(['products' => function($q) {
+                $q->where('product_status', 'active');
+            }])
+            ->orderBy('category_name')
+            ->get();
+            
+        $brands = \App\Models\Brand::where('is_active', true)
+            ->withCount(['products' => function($q) {
+                $q->where('product_status', 'active');
+            }])
+            ->orderBy('name')
+            ->get();
+            
+        $petTypes = Product::where('product_status', 'active')
+            ->select('animal_type', \DB::raw('count(*) as count'))
+            ->groupBy('animal_type')
+            ->orderBy('animal_type')
+            ->get();
 
         return view('frontend.shop', [
             'products' => $products,
             'categories' => $categories,
+            'brands' => $brands,
+            'petTypes' => $petTypes,
         ]);
+    }
+
+    /**
+     * Show the list of brands.
+     */
+    public function brands()
+    {
+        $brands = \App\Models\Brand::where('is_active', true)
+            ->withCount(['products' => function($q) {
+                $q->where('product_status', 'active');
+            }])
+            ->orderBy('name')
+            ->get();
+
+        $featuredBrand = \App\Models\Brand::where('is_active', true)
+            ->where('is_featured', true)
+            ->first() ?? $brands->first();
+
+        return view('frontend.brands', compact('brands', 'featuredBrand'));
     }
 
     /**

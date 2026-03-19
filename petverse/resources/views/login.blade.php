@@ -11,24 +11,14 @@
         <div class="login-left gradient-orange">
             <div class="left-content">
                 <div class="brand-logo"><h1>🐾 Pet Animixon</h1></div>
+                <div class="welcome-section" style="margin-bottom: 30px;">
+                    <h2 style="font-size: 36px; margin-bottom: 10px;">Welcome Back!</h2>
+                    <p style="font-size: 16px; opacity: 0.9;">Log in to continue shopping for your furry, feathered, and scaly friends!</p>
+                </div>
                 <div class="illustration-box">
                     <div class="pet-illustration">
-                        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                            <!-- Pet mascot: friendly dog face (orange/red/green palette) -->
-                            <ellipse cx="100" cy="145" rx="42" ry="18" fill="#4CAF50"/>
-                            <circle cx="100" cy="95" r="38" fill="#FFB366"/>
-                            <circle cx="83" cy="88" r="6" fill="#1f1f1f"/>
-                            <circle cx="117" cy="88" r="6" fill="#1f1f1f"/>
-                            <ellipse cx="100" cy="105" rx="5" ry="3" fill="#FF4444"/>
-                            <path d="M62 68 Q55 50 72 62 Q68 75 62 68" fill="#FF8844"/>
-                            <path d="M138 68 Q145 50 128 62 Q132 75 138 68" fill="#FF8844"/>
-                            <path d="M70 115 Q85 125 100 122 Q115 125 130 115" stroke="#FF8844" stroke-width="3" fill="none"/>
-                        </svg>
+                        <img src="{{ asset('images/auth_pets.png') }}" alt="Pet Mascot" style="width: 100%; height: 100%; object-fit: cover; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
                     </div>
-                </div>
-                <div class="welcome-section">
-                    <h2>Welcome Back!</h2>
-                    <p>Log in to continue shopping for your furry, feathered, and scaly friends!</p>
                 </div>
             </div>
         </div>

@@ -47,9 +47,16 @@ class CategoryAdminController extends Controller
     {
         $data = $request->validate([
             'category_name' => 'required|string|max:255',
-            'parent_category_id' => 'nullable|exists:categories,id',
             'is_active' => 'sometimes|boolean',
+            'description' => 'nullable|string',
+            'sort_order' => 'nullable|integer',
+            'is_featured' => 'sometimes|boolean',
+            'image' => 'nullable|image|max:2048',
         ]);
+
+        if ($request->hasFile('image')) {
+            $data['image_url'] = $request->file('image')->store('categories', 'public');
+        }
 
         Category::create($data);
         return redirect()->route('categories.admin')->with('success', 'Category created');
@@ -61,8 +68,7 @@ class CategoryAdminController extends Controller
     public function edit($id)
     {
         $category = Category::findOrFail($id);
-        $parents = Category::where('id', '!=', $id)->orderBy('category_name')->get();
-        return view('categories.edit', compact('category', 'parents'));
+        return view('categories.edit', compact('category'));
     }
 
     /**
@@ -73,9 +79,16 @@ class CategoryAdminController extends Controller
         $category = Category::findOrFail($id);
         $data = $request->validate([
             'category_name' => 'required|string|max:255',
-            'parent_category_id' => 'nullable|exists:categories,id',
             'is_active' => 'sometimes|boolean',
+            'description' => 'nullable|string',
+            'sort_order' => 'nullable|integer',
+            'is_featured' => 'sometimes|boolean',
+            'image' => 'nullable|image|max:2048',
         ]);
+
+        if ($request->hasFile('image')) {
+            $data['image_url'] = $request->file('image')->store('categories', 'public');
+        }
 
         $category->update($data);
         return redirect()->route('categories.admin')->with('success', 'Category updated');

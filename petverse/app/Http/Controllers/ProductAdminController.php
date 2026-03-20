@@ -99,6 +99,14 @@ class ProductAdminController extends Controller
             $data['animal_image_url'] = $request->file('image')->store('products', 'public');
         }
 
+        // Look up the name of the animal type to save it in animal_type column
+        if (!empty($data['animal_type_id'])) {
+            $animalType = \Illuminate\Support\Facades\DB::table('animal_types')->find($data['animal_type_id']);
+            if ($animalType) {
+                $data['animal_type'] = $animalType->name;
+            }
+        }
+
         $product = Product::create($data + ['seller_id' => 0]);
 
         // create a simple default variant using stock & price if stock provided
@@ -157,6 +165,14 @@ class ProductAdminController extends Controller
         }
         if ($request->hasFile('image')) {
             $data['animal_image_url'] = $request->file('image')->store('products', 'public');
+        }
+
+        // Look up the name of the animal type to save it in animal_type column
+        if (!empty($data['animal_type_id'])) {
+            $animalType = \Illuminate\Support\Facades\DB::table('animal_types')->find($data['animal_type_id']);
+            if ($animalType) {
+                $data['animal_type'] = $animalType->name;
+            }
         }
 
         $product->update($data);

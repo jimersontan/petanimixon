@@ -4,23 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Log In - Pet Animixon</title>
-    <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
+    <link rel="stylesheet" href="<?php echo e(asset('css/auth.css')); ?>">
 </head>
 <body>
     <div class="login-container">
         <div class="login-left gradient-orange">
             <div class="left-content">
                 <div class="brand-logo" style="display:flex; align-items:center; gap:12px;">
-                    <img src="{{ asset('images/logo.png') }}" alt="Pet Animixon Logo" style="max-height: 48px;">
-                    <h1 style="margin:0;">Pet Animixon</h1>
-                </div>
+                <img src="<?php echo e(asset('images/logo.png')); ?>" alt="Pet Animixon Logo" style="max-height: 48px;">
+                <h1 style="margin:0;">Pet Animixon</h1>
+            </div>
                 <div class="welcome-section" style="margin-bottom: 30px;">
                     <h2 style="font-size: 36px; margin-bottom: 10px;">Welcome Back!</h2>
                     <p style="font-size: 16px; opacity: 0.9;">Log in to continue shopping for your furry, feathered, and scaly friends!</p>
                 </div>
                 <div class="illustration-box">
                     <div class="pet-illustration">
-                        <img src="{{ asset('images/auth_pets.png') }}" alt="Pet Mascot" style="width: 100%; height: 100%; object-fit: cover; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+                        <img src="<?php echo e(asset('images/auth_pets.png')); ?>" alt="Pet Mascot" style="width: 100%; height: 100%; object-fit: cover; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
                     </div>
                 </div>
             </div>
@@ -31,8 +31,8 @@
                 <h2 class="form-title">Log In</h2>
                 <p class="form-subtitle">Enter your credentials to access your account</p>
 
-                <form id="loginForm" method="POST" action="{{ route('login.submit') }}">
-                    @csrf
+                <form id="loginForm" method="POST" action="<?php echo e(route('login.submit')); ?>">
+                    <?php echo csrf_field(); ?>
                     <div class="form-group">
                         <label for="email">Email Address*</label>
                         <div class="input-wrapper">
@@ -78,9 +78,9 @@
                 <div class="form-footer">
                     <div>
                         <span>Don't have an account?</span>
-                        <a href="{{ route('register') }}">Sign up</a>
+                        <a href="<?php echo e(route('register')); ?>">Sign up</a>
                     </div>
-                    <a href="{{ route('admin.login') }}" class="forgot-password">Log In As Admin</a>
+                    <a href="<?php echo e(route('admin.login')); ?>" class="forgot-password">Log In As Admin</a>
                 </div>
 
                 <div class="security-note">
@@ -92,10 +92,10 @@
 
     <script>
         window.routes = window.routes || {};
-        window.routes.loginSubmit = "{{ route('login.submit') }}";
-        window.routes.adminLogin = "{{ route('admin.login') }}";
+        window.routes.loginSubmit = "<?php echo e(route('login.submit')); ?>";
+        window.routes.adminLogin = "<?php echo e(route('admin.login')); ?>";
     </script>
-    <script src="{{ asset('js/auth.js') }}"></script>
-    <script src="{{ asset('js/login.js') }}"></script>
+    <script src="<?php echo e(asset('js/auth.js')); ?>"></script>
+    <script src="<?php echo e(asset('js/login.js')); ?>"></script>
 </body>
-</html>
+</html><?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\petverse\resources\views/login.blade.php ENDPATH**/ ?>

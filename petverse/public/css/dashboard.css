@@ -1,8 +1,9 @@
 /* Pet Animixon Admin Dashboard - Styles */
 
 :root {
-    --sidebar-bg: #0e2433;
-    --header-bg: #0e2433;
+    --sidebar-bg: #1c2536;
+    /* Darker blue-grey to contrast with white header */
+    --header-bg: #ffffff;
     --accent: #ff6b35;
     --accent-hover: #e85a2e;
     --text-dark: #1f2937;
@@ -41,6 +42,7 @@
     justify-content: space-between;
     padding: 0 24px;
     z-index: 100;
+    border-bottom: 1px solid var(--border);
 }
 
 .header-left .logo {
@@ -77,27 +79,30 @@
 .search-bar .search-icon {
     position: absolute;
     left: 12px;
-    color: #9ca3af;
+    color: #6b7280;
     pointer-events: none;
 }
 
 .search-input {
     width: 100%;
     padding: 10px 12px 10px 40px;
-    border: none;
+    border: 1px solid var(--border);
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.12);
-    color: #fff;
+    background: #ffffff;
+    color: var(--text-dark);
     font-size: 14px;
+    transition: all 0.2s;
 }
 
 .search-input::placeholder {
-    color: rgba(255, 255, 255, 0.6);
+    color: #9ca3af;
 }
 
 .search-input:focus {
     outline: none;
-    background: rgba(255, 255, 255, 0.18);
+    background: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
 }
 
 .header-right {
@@ -111,16 +116,18 @@
     height: 40px;
     border: none;
     background: transparent;
-    color: #fff;
+    color: #6b7280;
     cursor: pointer;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.2s;
 }
 
 .icon-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: #f3f4f6;
+    color: #374151;
 }
 
 /* ========== Layout ========== */
@@ -517,8 +524,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0.96);
-    width: min(95vw, 900px);
-    /* Expanded width from 700px to 900px */
+    width: min(95vw, 1000px);
+    /* Expanded width from 700px to 1000px */
     max-height: 95vh;
     /* Expanded height from 90vh to 95vh */
     background: #fff;
@@ -624,7 +631,7 @@
 }
 
 .modal-body {
-    padding: 18px;
+    padding: 16px 20px;
     overflow: auto;
 }
 
@@ -955,8 +962,8 @@
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin-bottom: 16px;
+    gap: 4px;
+    margin-bottom: 12px;
 }
 
 .form-group label {
@@ -985,7 +992,7 @@
 }
 
 .form-group textarea {
-    min-height: 90px;
+    min-height: 56px;
     resize: vertical;
 }
 

@@ -44,6 +44,10 @@ class RegisterController extends Controller
 
         Auth::login($user);
 
-        return response()->json(['success' => true, 'redirect' => route('home')]);
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'redirect' => route('home')]);
+        }
+
+        return redirect()->route('home')->with('success', 'Account created successfully.');
     }
 }

@@ -36,18 +36,18 @@ class ShopController extends Controller
 
         // Filter by pet type
         if ($request->has('pet_type') && !empty($request->input('pet_type'))) {
-            $query->whereIn('pet_type', $request->input('pet_type'));
+            $query->whereIn('animal_type', $request->input('pet_type'));
         }
 
         // Filter by category
         if ($request->has('category') && !empty($request->input('category'))) {
-            $query->whereIn('category_id', $request->input('category'));
+            $query->whereIn('animal_category_id', $request->input('category'));
         }
 
         // Filter by price range
-        $priceMin = $request->input('price_min', 0);
-        if ($priceMin > 0) {
-            $query->where('price', '>=', $priceMin);
+        $priceMax = $request->input('price_max');
+        if ($priceMax > 0) {
+            $query->where('price', '<=', $priceMax);
         }
 
         // Filter by rating
@@ -57,12 +57,14 @@ class ShopController extends Controller
 
         // Filter by stock
         if ($request->input('in_stock')) {
-            $query->where('stock', '>', 0);
+            $query->whereHas('variants', function($q) {
+                $q->where('variant_quantity', '>', 0);
+            });
         }
 
         // Filter by sale
         if ($request->input('on_sale')) {
-            $query->where('is_on_sale', 1);
+            $query->where('is_reduced', 1);
         }
 
         // Sort
@@ -81,7 +83,7 @@ class ShopController extends Controller
                 $query->orderBy('sales_count', 'desc');
                 break;
             default:
-                $query->where('is_featured', 1)->orderBy('created_at', 'desc');
+                $query->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc');
         }
 
         $products = $query->paginate(24);

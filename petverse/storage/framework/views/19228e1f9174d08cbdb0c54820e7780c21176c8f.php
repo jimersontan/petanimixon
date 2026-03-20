@@ -4,7 +4,7 @@
             <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
         </button>
         <div class="logo" style="display:flex; align-items:center; gap:8px;">
-            <img src="{{ asset('images/logo.png') }}" alt="Pet Animixon Logo" style="max-height: 28px;">
+            <img src="<?php echo e(asset('images/logo.png')); ?>" alt="Pet Animixon Logo" style="max-height: 28px;">
             <span class="logo-text" style="color:#1f2937;">Pet <span style="color: #ea580c;">Animixon</span></span>
         </div>
     </div>
@@ -23,10 +23,10 @@
                 <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             </button>
             <div class="dropdown-menu" aria-labelledby="profileMenuButton">
-                <a href="{{ route('admin.profile') }}">Your Profile</a>
+                <a href="<?php echo e(route('admin.profile')); ?>">Your Profile</a>
                 <a href="#" id="logoutLink">Logout</a>
-                <form id="logoutForm" method="post" action="{{ route('logout') }}" style="display:none;">
-                    @csrf
+                <form id="logoutForm" method="post" action="<?php echo e(route('logout')); ?>" style="display:none;">
+                    <?php echo csrf_field(); ?>
                 </form>
             </div>
         </div>
@@ -34,4 +34,4 @@
             <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M11.4 24H0V12.6h2.4v9.4h9v2.4zm12-12H12.6V0H24v2.4h-9.6v9.6H24V12zM2.4 9.6V0h2.4v9.6H2.4zm19.2 0V0H24v9.6h-2.4zM9.6 2.4V0h4.8v2.4H9.6zm4.8 19.2v-2.4h4.8V24h-4.8z"/></svg>
         </button>
     </div>
-</header>
+</header><?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\petverse\resources\views/partials/admin_header.blade.php ENDPATH**/ ?>

@@ -120,18 +120,20 @@
     <!-- ===== RIGHT PANEL: Media and Extra Details ===== -->
     <div class="form-panel-right">
 
-        <!-- Field: Product Image (file upload with preview) -->
+        <!-- Field: Product Image (file upload with paste + drag support) -->
         <div class="form-group">
             <label for="image">Product Image</label>
-            <div class="image-upload-wrapper">
-                <input type="file" name="image" id="image" class="form-control" accept="image/*">
-                <!-- Conditional: Show existing image preview if editing -->
-                @if(!empty($product->animal_image_url))
-                    <div class="image-preview mt-2">
-                        <img src="{{ $product->image_url }}" alt="{{ $product->product_name }} image" style="max-height: 100px; border-radius: 8px; border: 1px solid #e5e7eb; padding: 4px;">
-                    </div>
-                @endif
-                <!-- End: Image Preview -->
+            <div class="paste-upload-zone" tabindex="0">
+                <button type="button" class="remove-file-btn" title="Remove">✕</button>
+                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 18h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <div class="upload-title">Click to upload or paste image</div>
+                <div class="upload-hint">Drag & drop, browse, or press <kbd>Ctrl</kbd>+<kbd>V</kbd> to paste</div>
+                <input type="file" name="image" id="image" accept="image/*" style="display:none;">
+                <div class="upload-preview">
+                    @if(!empty($product->animal_image_url))
+                        <img src="{{ $product->image_url }}" alt="{{ $product->product_name }} image">
+                    @endif
+                </div>
             </div>
         </div>
         <!-- End: Product Image -->

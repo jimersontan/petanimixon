@@ -42,14 +42,17 @@
 <!-- Logo Upload Field -->
 <div class="form-group">
     <label for="logo">Brand Logo</label>
-    <div class="image-upload-wrapper">
-        <input type="file" name="logo" id="logo" class="form-control" accept="image/*">
-        <!-- Logo Preview (if existing logo) -->
-        @if(!empty($brand->logo_path))
-            <div class="image-preview mt-2">
-                <img src="{{ asset('storage/'.$brand->logo_path) }}" alt="{{ $brand->name }} logo" style="max-height: 80px; border-radius: 8px; border: 1px solid #e5e7eb; padding: 4px; background: #fff;">
-            </div>
-        @endif
+    <div class="paste-upload-zone" tabindex="0">
+        <button type="button" class="remove-file-btn" title="Remove">✕</button>
+        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 18h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="upload-title">Click to upload or paste image</div>
+        <div class="upload-hint">Drag & drop, browse, or press <kbd>Ctrl</kbd>+<kbd>V</kbd> to paste</div>
+        <input type="file" name="logo" id="logo" accept="image/*" style="display:none;">
+        <div class="upload-preview">
+            @if(!empty($brand->logo_path))
+                <img src="{{ asset('storage/'.$brand->logo_path) }}" alt="{{ $brand->name }} logo">
+            @endif
+        </div>
     </div>
 </div>
 

@@ -13,6 +13,7 @@ use App\Http\Controllers\BrandAdminController;
 use App\Http\Controllers\RevenueAdminController;
 use App\Http\Controllers\AnalyticsAdminController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -95,9 +96,11 @@ Route::get('/admin/orders', [OrdersController::class, 'index'])
     ->name('admin.orders');
 
 // Admin routes (dashboard and all admin pages - admin only)
-Route::get('/dashboard', function () {
-    return view('dashboard_admin');
-})->middleware(['auth', 'admin'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'admin'])->name('dashboard');
+
+Route::get('/admin/api/dashboard-chart', [DashboardController::class, 'chartData'])
+    ->middleware(['auth', 'admin'])->name('admin.chart');
 
 Route::get('/admin/products', [ProductAdminController::class, 'index'])
     ->middleware(['auth', 'admin'])

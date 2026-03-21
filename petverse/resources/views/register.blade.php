@@ -24,7 +24,7 @@
 
                 <div class="sidebar-inner-content">
                     <div class="main-illustration">
-                        <img src="{{ asset('images/pet_community.png') }}" alt="Pet Community">
+                        <img src="{{ asset('images/register_pets.png') }}" alt="Pet Community">
                     </div>
                     
                     <h2 class="community-title">Join Our Pet-Loving Community! 🎉</h2>

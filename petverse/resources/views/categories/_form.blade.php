@@ -31,14 +31,17 @@
 <!-- Image Upload Field -->
 <div class="form-group">
     <label for="image">Category Image</label>
-    <div class="image-upload-wrapper">
-        <input type="file" name="image" id="image" class="form-control" accept="image/*">
-        <!-- Image Preview (if existing image) -->
-        @if(!empty($category->image_url))
-            <div class="image-preview mt-2">
-                <img src="{{ asset('storage/'.$category->image_url) }}" alt="{{ $category->category_name }}" style="max-height: 80px; border-radius: 8px; border: 1px solid #e5e7eb; padding: 4px;">
-            </div>
-        @endif
+    <div class="paste-upload-zone" tabindex="0">
+        <button type="button" class="remove-file-btn" title="Remove">✕</button>
+        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 18h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="upload-title">Click to upload or paste image</div>
+        <div class="upload-hint">Drag & drop, browse, or press <kbd>Ctrl</kbd>+<kbd>V</kbd> to paste</div>
+        <input type="file" name="image" id="image" accept="image/*" style="display:none;">
+        <div class="upload-preview">
+            @if(!empty($category->image_url))
+                <img src="{{ asset('storage/'.$category->image_url) }}" alt="{{ $category->category_name }}">
+            @endif
+        </div>
     </div>
 </div>
 

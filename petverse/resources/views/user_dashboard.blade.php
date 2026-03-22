@@ -17,9 +17,31 @@
                     <a href="{{ route('categories') }}" class="ud-btn ud-btn-outline">View Categories</a>
                 </div>
             </div>
-            <div class="ud-hero-right">
+            {{-- Desktop: dog image --}}
+            <div class="ud-hero-right ud-hide-mobile">
                 <div class="ud-hero-image">
                     <img src="https://images.unsplash.com/photo-1544568100-847a948585b9?w=600&h=400&fit=crop" alt="Happy pets - dog, cat, and rabbit">
+                </div>
+            </div>
+
+            {{-- Mobile: best-selling + random product cards --}}
+            <div class="ud-hero-products ud-show-mobile">
+                <h3 class="hero-prod-heading">🔥 Popular Products</h3>
+                <div class="hero-prod-grid">
+                    @foreach(($heroProducts ?? collect()) as $hp)
+                    <a href="{{ route('product.show', $hp->id) }}" class="hero-prod-card">
+                        <div class="hero-prod-img-wrap">
+                            <img src="{{ $hp->image_url }}" alt="{{ $hp->product_name }}" onerror="this.src='https://via.placeholder.com/150x150?text=No+Image'">
+                            @if($loop->index < 2)
+                            <span class="hero-prod-badge">Best Seller</span>
+                            @endif
+                        </div>
+                        <div class="hero-prod-info">
+                            <div class="hero-prod-name">{{ Str::limit($hp->product_name, 28) }}</div>
+                            <div class="hero-prod-price">₱{{ number_format($hp->price, 2) }}</div>
+                        </div>
+                    </a>
+                    @endforeach
                 </div>
             </div>
         </div>

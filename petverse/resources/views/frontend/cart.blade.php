@@ -67,11 +67,13 @@
     .each-label  { font-size: 11.5px; color: #aaa; }
     .item-total  { font-size: 17px; font-weight: 800; color: #FF8C42; }
     .delete-btn  {
-        background: none; border: none; cursor: pointer;
-        font-size: 18px; color: #bbb; padding: 4px;
-        transition: color .2s; margin-left: 12px;
+        background: #fee2e2; border: none; cursor: pointer;
+        font-size: 15px; color: #ef4444; 
+        width: 36px; height: 36px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        transition: all .2s; margin-left: auto;
     }
-    .delete-btn:hover { color: #e44; }
+    .delete-btn:hover { background: #fecaca; color: #dc2626; }
 
     /* ========== ORDER SUMMARY ========== */
     .order-summary-card {
@@ -127,15 +129,21 @@
         display: flex; justify-content: space-between;
         align-items: center; margin-top: 16px;
     }
-    .continue-link { font-size: 13px; color: #FF8C42; text-decoration: none; font-weight: 600; }
-    .continue-link:hover { text-decoration: underline; }
-    .btn-clear-cart {
-        padding: 8px 20px;
-        border: 1.5px solid #ddd; background: white;
-        border-radius: 20px; font-size: 13px; color: #666;
-        cursor: pointer; transition: all .2s;
+    .continue-link { 
+        padding: 8px 20px; border-radius: 20px;
+        font-size: 13px; color: #FF8C42; text-decoration: none; font-weight: 600; 
+        background: #fff4ec; transition: all .2s;
+        display: inline-flex; align-items: center; justify-content: center;
     }
-    .btn-clear-cart:hover { border-color: #FF8C42; color: #FF8C42; }
+    .continue-link:hover { background: #ffe6d5; }
+    .btn-clear-cart {
+        padding: 8px 16px;
+        border: 1.5px solid #ffcdd2; background: white;
+        border-radius: 20px; font-size: 13px; color: #ef4444;
+        cursor: pointer; transition: all .2s;
+        display: inline-flex; align-items: center; justify-content: center; text-decoration: none;
+    }
+    .btn-clear-cart:hover { background: #fee2e2; border-color: #fca5a5; }
 
     /* ========== YOU MIGHT ALSO LIKE ========== */
     .ymal-section { margin-top: 48px; }

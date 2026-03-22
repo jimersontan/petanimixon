@@ -84,7 +84,7 @@
         <div class="form-group">
             <label for="brand_name">Brand</label>
             <select name="brand_name" id="brand_name" class="form-control">
-                <option value="">-- none --</option>
+                <option value="">No Brand / Unbranded</option>
                 <!-- Loop: Render each active brand -->
                 @foreach($brands as $brand)
                     <option value="{{ $brand->name }}" {{ (old('brand_name', $product->brand_name) == $brand->name) ? 'selected' : '' }}>{{ $brand->name }}</option>

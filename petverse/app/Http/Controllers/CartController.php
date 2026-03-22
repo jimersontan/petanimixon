@@ -58,7 +58,11 @@ class CartController extends Controller
         $cartItem->subtotal = $cartItem->quantity * $cartItem->unit_price;
         $cartItem->save();
 
-        return response()->json(['message' => 'Cart updated successfully', 'subtotal' => $cartItem->subtotal]);
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Cart updated successfully', 'subtotal' => $cartItem->subtotal]);
+        }
+
+        return redirect()->route('cart.index')->with('message', 'Cart updated successfully!');
     }
 
     public function remove($id)

@@ -51,15 +51,28 @@ class ProductAdminController extends Controller
             $productsQuery->where('created_at', '>=', $from);
         }
 
+        if ($request->filled('brand')) {
+            if ($request->brand === 'unbranded') {
+                $productsQuery->where(function($q) {
+                    $q->whereNull('brand_name')->orWhere('brand_name', '');
+                });
+            } else {
+                $productsQuery->where('brand_name', $request->brand);
+            }
+        }
+
         $products = $productsQuery
             ->orderByDesc('created_at')
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
         $categories = \App\Models\Category::where('is_active', true)->orderBy('category_name')->get();
         $brands = \App\Models\Brand::where('is_active', true)->orderBy('name')->get();
         $animal_types = \Illuminate\Support\Facades\DB::table('animal_types')->where('status', 'Active')->orderBy('name')->get();
 
-        return view('products_admin', compact('stats', 'products', 'days', 'status', 'categories', 'brands', 'animal_types'));
+        $selectedBrand = $request->get('brand', '');
+
+    return view('products_admin', compact('stats', 'products', 'days', 'status', 'categories', 'brands', 'animal_types', 'selectedBrand'));
     }
 
     /**

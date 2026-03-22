@@ -436,12 +436,12 @@
                     <span>∨</span>
                 </div>
                 <input type="range" class="price-slider" name="price_max"
-                    min="0" max="500" step="10"
-                    value="{{ request()->input('price_max', 500) }}"
+                    min="0" max="5000" step="50"
+                    value="{{ request()->input('price_max', 5000) }}"
                     id="priceSlider" oninput="updatePriceLabel(this.value)">
                 <div class="price-range-labels">
                     <span>₱0</span>
-                    <span>₱<span id="priceMaxLabel">{{ request()->input('price_max', 500) }}</span></span>
+                    <span>₱<span id="priceMaxLabel">{{ request()->input('price_max', 5000) }}</span></span>
                 </div>
                 <button type="button" class="btn-apply" onclick="document.getElementById('filterForm').submit()">Apply</button>
             </div>

@@ -1,0 +1,12 @@
+ID: 14 | Name: Indoor 27 | is_featured: 0 | status: draft | category: 2 | animal_type:  | Variants: No
+ID: 15 | Name: Indoor 27 | is_featured: 0 | status: active | category: 2 | animal_type: Cat | Variants: Yes
+ID: 16 | Name: Intense Beauty Jelly | is_featured: 0 | status: active | category: 2 | animal_type: Cat | Variants: Yes
+ID: 17 | Name: Hairball Care Gravy | is_featured: 0 | status: active | category: 2 | animal_type: Cat | Variants: Yes
+ID: 18 | Name: Kitten | is_featured: 0 | status: draft | category: 2 | animal_type:  | Variants: Yes
+ID: 19 | Name: Urinary Care | is_featured: 0 | status: active | category: 2 | animal_type: Cat | Variants: Yes
+ID: 20 | Name: Mini Adult | is_featured: 0 | status: active | category: 2 | animal_type: Dog | Variants: Yes
+ID: 21 | Name: Maxi Puppy | is_featured: 0 | status: active | category: 2 | animal_type: Dog | Variants: Yes
+ID: 22 | Name: Mother & Babycat | is_featured: 0 | status: active | category: 2 | animal_type: Cat | Variants: Yes
+ID: 23 | Name: Pomeranian Adult | is_featured: 0 | status: active | category: 2 | animal_type: Dog | Variants: Yes
+ID: 24 | Name: Persian Adult | is_featured: 0 | status: active | category: 2 | animal_type: Cat | Variants: Yes
+ID: 25 | Name: Recovery Liquid | is_featured: 0 | status: active | category: 2 | animal_type: Cat | Variants: Yes

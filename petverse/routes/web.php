@@ -11,6 +11,7 @@ use App\Http\Controllers\CategoryAdminController;
 use App\Http\Controllers\ReviewAdminController;
 use App\Http\Controllers\BrandAdminController;
 use App\Http\Controllers\RevenueAdminController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\AnalyticsAdminController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\DashboardController;
@@ -38,6 +39,13 @@ Route::get('/categories/{id}', [ShopController::class, 'showCategory'])->name('c
 Route::get('/product/{id}', [ShopController::class, 'showProduct'])->name('product.show');
 Route::get('/brands', [ShopController::class, 'brands'])->name('brands');
 
+// Static info pages
+Route::view('/faq', 'frontend.faq')->name('faq');
+Route::view('/about', 'frontend.about')->name('about');
+Route::view('/contact', 'frontend.contact')->name('contact');
+Route::view('/shipping', 'frontend.shipping')->name('shipping');
+Route::view('/trial', 'frontend.trial')->name('trial');
+
 // Cart Routes
 Route::middleware(['auth', 'client'])->group(function () {
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
@@ -50,7 +58,14 @@ Route::middleware(['auth', 'client'])->group(function () {
     // Checkout Routes
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
+    Route::post('/checkout/apply-voucher', [CheckoutController::class, 'applyVoucher'])->name('checkout.voucher');
     Route::get('/checkout/success/{order_id}', [CheckoutController::class, 'success'])->name('checkout.success');
+    Route::get('/order/{order_id}/track', [CheckoutController::class, 'tracking'])->name('order.track');
+
+    // Reviews
+    Route::post('/product/{product}/review', [ReviewController::class, 'store'])->name('review.store');
+    Route::post('/review/{review}/like', [ReviewController::class, 'toggleLike'])->name('review.like');
+    Route::post('/review/{review}/reply', [ReviewController::class, 'reply'])->name('review.reply');
 });
 
 // Login Routes

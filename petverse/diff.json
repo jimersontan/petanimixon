@@ -1,0 +1,58 @@
+{
+    "id": {
+        "ID15": 15,
+        "ID16": 16
+    },
+    "product_name": {
+        "ID15": "Indoor 27",
+        "ID16": "Intense Beauty Jelly"
+    },
+    "animal_description": {
+        "ID15": null,
+        "ID16": "NULL"
+    },
+    "animal_image_url": {
+        "ID15": "products\/vO7wSGrcvNgc6XNpMNMs3BqdlFGcX5O91GHjk6K4.png",
+        "ID16": "products\/FFzb4TPMl1AN5YGndkKY6Di74basvYJtruekazrz.png"
+    },
+    "animal_specifications": {
+        "ID15": null,
+        "ID16": "NULL"
+    },
+    "price": {
+        "ID15": "1250.00",
+        "ID16": "85.00"
+    },
+    "cost_price": {
+        "ID15": null,
+        "ID16": "NULL"
+    },
+    "cost_plus_price": {
+        "ID15": null,
+        "ID16": "NULL"
+    },
+    "sku": {
+        "ID15": "RC-INS0ZJ",
+        "ID16": "RC-OVNFDR"
+    },
+    "short_description": {
+        "ID15": "Dry Food For Cat",
+        "ID16": "Wet Food For Cat"
+    },
+    "full_description": {
+        "ID15": "ROYAL CANIN\u00ae Indoor 27 is specially formulated with the nutritional needs of your indoor, adult cat in mind. Suitable for cats aged 1 to 7 years old.",
+        "ID16": "ROYAL CANIN\u00ae Intense Beauty in Jelly contains high levels of omega-3 & omega-6 fatty acids to help your cat maintain a beautiful coat and healthy skin."
+    },
+    "weight_in_grams": {
+        "ID15": null,
+        "ID16": "NULL"
+    },
+    "low_stock_threshold": {
+        "ID15": null,
+        "ID16": "NULL"
+    },
+    "updated_at": {
+        "ID15": "2026-03-22T15:15:49.000000Z",
+        "ID16": "2026-03-22T15:17:01.000000Z"
+    }
+}

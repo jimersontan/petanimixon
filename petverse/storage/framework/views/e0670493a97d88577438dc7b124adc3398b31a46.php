@@ -20,7 +20,19 @@
     <div class="date-filter">
         <!-- Date Range Filter Form: Filters products by time period -->
         <form method="get" action="<?php echo e(route('products.admin')); ?>" class="date-filter-form" id="productsDateForm">
-            <select name="days" id="productsDateRange" class="filter-select" aria-label="Date range">
+            <!-- Brand Filter -->
+            <select name="brand" class="filter-select" aria-label="Brand" onchange="this.form.submit()">
+                <option value="">All Brands</option>
+                <option value="unbranded" <?php echo e(($selectedBrand ?? '') == 'unbranded' ? 'selected' : ''); ?>>Unbranded/No Brand</option>
+                <?php $__currentLoopData = $brands; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $b): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($b->name); ?>" <?php echo e(($selectedBrand ?? '') == $b->name ? 'selected' : ''); ?>>
+                        <?php echo e($b->name); ?>
+
+                    </option>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </select>
+            <!-- Date Range Filter -->
+            <select name="days" id="productsDateRange" class="filter-select" aria-label="Date range" onchange="this.form.submit()">
                 <option value="7" <?php echo e(($days ?? 30) == 7 ? 'selected' : ''); ?>>Last 7 days</option>
                 <option value="30" <?php echo e(($days ?? 30) == 30 ? 'selected' : ''); ?>>Last 30 days</option>
                 <option value="90" <?php echo e(($days ?? 30) == 90 ? 'selected' : ''); ?>>Last 90 days</option>
@@ -171,7 +183,7 @@
                     <!-- Product Name and SKU -->
                     <td>
                         <div class="product-cell">
-                            <span class="product-thumb-sm"></span>
+                            <img src="<?php echo e($product->image_url); ?>" alt="Product Thumb" class="product-thumb-sm" style="object-fit: cover;">
                             <span class="product-meta">
                                 <span class="product-name"><?php echo e($product->product_name ?? ''); ?></span>
                                 <span class="product-sku">SKU: <?php echo e($product->sku ?? ''); ?></span>

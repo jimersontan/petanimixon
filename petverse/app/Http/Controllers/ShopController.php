@@ -16,9 +16,27 @@ class ShopController extends Controller
         $categories = Category::where('is_active', 1)->orderBy('category_name')->get();
         $featured = Product::where('is_featured', 1)->limit(12)->get();
 
+        // Top 2 best-sellers by order count
+        $bestSellers = Product::where('product_status', 'active')
+            ->withCount('orderItems')
+            ->orderByDesc('order_items_count')
+            ->limit(2)
+            ->get();
+
+        // Fill with random products if not enough best-sellers
+        $randomProducts = Product::where('product_status', 'active')
+            ->whereNotIn('id', $bestSellers->pluck('id'))
+            ->inRandomOrder()
+            ->limit(2)
+            ->get();
+
+        // Merge: best-sellers first, then random
+        $heroProducts = $bestSellers->merge($randomProducts);
+
         return view('user_dashboard', [
             'categories' => $categories,
             'featuredProducts' => $featured,
+            'heroProducts' => $heroProducts,
         ]);
     }
 
@@ -140,7 +158,7 @@ class ShopController extends Controller
      */
     public function categories(Request $request)
     {
-        $categories = Category::where('is_active', 1)->orderBy('category_name')->get();
+        $categories = Category::where('is_active', 1)->orderBy('sort_order')->get();
         return view('frontend.categories', [
             'categories' => $categories,
         ]);
@@ -163,9 +181,25 @@ class ShopController extends Controller
      */
     public function showProduct($id)
     {
-        $product = Product::with('category')->findOrFail($id);
+        $product = Product::with('category', 'variants')->findOrFail($id);
+
+        $reviews = $product->reviews()
+            ->with(['user', 'replies.user', 'likes'])
+            ->orderByDesc('created_at')
+            ->get();
+
+        $reviewStats = [
+            'count' => $reviews->count(),
+            'average' => $reviews->count() ? round($reviews->avg('rating'), 1) : 0,
+            'distribution' => collect([5, 4, 3, 2, 1])->mapWithKeys(function ($star) use ($reviews) {
+                return [$star => $reviews->where('rating', $star)->count()];
+            }),
+        ];
+
         return view('frontend.product', [
             'product' => $product,
+            'reviews' => $reviews,
+            'reviewStats' => $reviewStats,
         ]);
     }
 }

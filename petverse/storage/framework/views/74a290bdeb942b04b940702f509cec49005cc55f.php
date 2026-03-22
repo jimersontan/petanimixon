@@ -84,7 +84,7 @@
         <div class="form-group">
             <label for="brand_name">Brand</label>
             <select name="brand_name" id="brand_name" class="form-control">
-                <option value="">-- none --</option>
+                <option value="">No Brand / Unbranded</option>
                 <!-- Loop: Render each active brand -->
                 <?php $__currentLoopData = $brands; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $brand): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <option value="<?php echo e($brand->name); ?>" <?php echo e((old('brand_name', $product->brand_name) == $brand->name) ? 'selected' : ''); ?>><?php echo e($brand->name); ?></option>

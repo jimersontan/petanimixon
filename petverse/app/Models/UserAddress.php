@@ -21,6 +21,8 @@ class UserAddress extends Model
         'city_municipality',
         'province',
         'zip_code',
+        'region',
+        'barangay',
         'delivery_notes'
     ];
 

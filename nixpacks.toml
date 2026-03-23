@@ -1,2 +1,5 @@
 [phases.setup]
 nixPkgs = ["php81", "php81Packages.composer", "nodejs_18", "npm-9_x", "nginx", "libmysqlclient"]
+
+[start]
+cmd = "php artisan migrate --force && node /assets/scripts/prestart.mjs /assets/nginx.template.conf /nginx.conf && (php-fpm -y /assets/php-fpm.conf & nginx -c /nginx.conf)"

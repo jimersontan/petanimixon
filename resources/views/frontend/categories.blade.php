@@ -67,7 +67,6 @@
 @php
 // Map category names to icon + color
 $iconMap = [
-    'Food & Nutrition'      => ['icon' => '🍖', 'color' => 'orange'],
     'Food and Nutritions'   => ['icon' => '🍖', 'color' => 'orange'],
     'Habitats & Housing'    => ['icon' => '🏠', 'color' => 'blue'],
     'Health & Care'         => ['icon' => '➕', 'color' => 'red'],

@@ -14,7 +14,7 @@
                 <div class="ud-product-card">
                     <button type="button" class="ud-wishlist-btn" aria-label="Add to wishlist">♡</button>
                     <img src="<?php echo e($product->image_url); ?>" alt="<?php echo e($product->product_name); ?>"
-                         onerror="this.src='<?php echo e(asset('images/placeholder.png')); ?>'">
+                         onerror="this.onerror=null; this.src='<?php echo e(asset('images/placeholder.png')); ?>'">
                     <h4><?php echo e($product->product_name); ?></h4>
                     <p class="ud-price">₱<?php echo e(number_format($product->price, 2)); ?></p>
                     <?php if(auth()->guard()->check()): ?>

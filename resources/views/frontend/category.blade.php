@@ -14,7 +14,7 @@
                 <div class="ud-product-card">
                     <button type="button" class="ud-wishlist-btn" aria-label="Add to wishlist">♡</button>
                     <img src="{{ $product->image_url }}" alt="{{ $product->product_name }}"
-                         onerror="this.src='{{ asset('images/placeholder.png') }}'">
+                         onerror="this.onerror=null; this.src='{{ asset('images/placeholder.png') }}'">
                     <h4>{{ $product->product_name }}</h4>
                     <p class="ud-price">₱{{ number_format($product->price, 2) }}</p>
                     @auth

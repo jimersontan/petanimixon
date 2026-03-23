@@ -87,7 +87,6 @@
             <thead>
                 <tr>
                     <th>Category</th>
-                    <th>Parent</th>
                     <th>Products</th>
                     <th>Status</th>
                     <th class="col-actions">Actions</th>
@@ -102,8 +101,6 @@
                 <tr>
                     <!-- Category Name -->
                     <td>{{ $category->category_name ?? '' }}</td>
-                    <!-- Parent Category Name (if hierarchical) -->
-                    <td>{{ optional($category->parent)->category_name ?? '' }}</td>
                     <!-- Number of Products in this Category -->
                     <td>{{ $category->products_count ?? 0 }}</td>
                     <!-- Active/Inactive Status -->
@@ -128,7 +125,7 @@
                 @empty
                 <!-- Empty State: Shown when no categories exist -->
                 <tr>
-                    <td colspan="5" class="text-center empty-orders">No categories defined yet.</td>
+                    <td colspan="4" class="text-center empty-orders">No categories defined yet.</td>
                 </tr>
                 @endforelse
                 <!-- End: Category Rows Loop -->

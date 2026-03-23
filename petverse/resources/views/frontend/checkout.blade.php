@@ -210,28 +210,28 @@
                         <div class="co-form-group">
                             <label>Region</label>
                             <div class="ph-dd-wrap">
-                                <input type="text" name="new_address[region]" id="ph-region-input" required autocomplete="off" placeholder="Type or select...">
+                                <input type="text" name="new_address[region]" id="ph-region-input" autocomplete="off" placeholder="Type or select...">
                                 <ul class="ph-dd-list" id="ph-region-list"></ul>
                             </div>
                         </div>
                         <div class="co-form-group">
                             <label>Province *</label>
                             <div class="ph-dd-wrap">
-                                <input type="text" name="new_address[province]" id="ph-province-input" required autocomplete="off" placeholder="Type or select..." disabled>
+                                <input type="text" name="new_address[province]" id="ph-province-input" autocomplete="off" placeholder="Type or select..." disabled>
                                 <ul class="ph-dd-list" id="ph-province-list"></ul>
                             </div>
                         </div>
                         <div class="co-form-group">
                             <label>City / Municipality *</label>
                             <div class="ph-dd-wrap">
-                                <input type="text" name="new_address[city_municipality]" id="ph-city-input" required autocomplete="off" placeholder="Type or select..." disabled>
+                                <input type="text" name="new_address[city_municipality]" id="ph-city-input" autocomplete="off" placeholder="Type or select..." disabled>
                                 <ul class="ph-dd-list" id="ph-city-list"></ul>
                             </div>
                         </div>
                         <div class="co-form-group">
                             <label>Barangay</label>
                             <div class="ph-dd-wrap">
-                                <input type="text" name="new_address[barangay]" id="ph-barangay-input" required autocomplete="off" placeholder="Type or select..." disabled>
+                                <input type="text" name="new_address[barangay]" id="ph-barangay-input" autocomplete="off" placeholder="Type or select..." disabled>
                                 <ul class="ph-dd-list" id="ph-barangay-list"></ul>
                             </div>
                         </div>

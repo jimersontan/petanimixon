@@ -46,7 +46,7 @@
                         <option value="">Search Animal Type...</option>
                         <!-- Loop: Render each active animal type as a dropdown option -->
                         @foreach($animal_types as $at)
-                            <option value="{{ $at->id }}" {{ (old('animal_type_id', $product->animal_type_id ?? '') == $at->id) ? 'selected' : '' }}>{{ $at->animal_type }}</option>
+                            <option value="{{ $at->id }}" {{ (old('animal_type_id') == $at->id || (!old('animal_type_id') && ($product->animal_type ?? '') === $at->animal_type)) ? 'selected' : '' }}>{{ $at->animal_type }}</option>
                         @endforeach
                         <!-- End: Animal Types Loop -->
                     </select>

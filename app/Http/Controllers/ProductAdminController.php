@@ -68,7 +68,7 @@ class ProductAdminController extends Controller
 
         $categories = \App\Models\Category::where('is_active', true)->orderBy('category_name')->get();
         $brands = \App\Models\Brand::where('is_active', true)->orderBy('name')->get();
-        $animal_types = \Illuminate\Support\Facades\DB::table('animal_types')->where('status', 'Active')->orderBy('name')->get();
+        $animal_types = \Illuminate\Support\Facades\DB::table('animal_types')->orderBy('animal_type')->get();
 
         $selectedBrand = $request->get('brand', '');
 
@@ -82,7 +82,7 @@ class ProductAdminController extends Controller
     {
         $categories = \App\Models\Category::where('is_active', true)->orderBy('category_name')->get();
         $brands = \App\Models\Brand::where('is_active', true)->orderBy('name')->get();
-        $animal_types = \Illuminate\Support\Facades\DB::table('animal_types')->where('status', 'Active')->orderBy('name')->get();
+        $animal_types = \Illuminate\Support\Facades\DB::table('animal_types')->orderBy('animal_type')->get();
         return view('products.create', compact('categories', 'brands', 'animal_types'));
     }
 
@@ -116,7 +116,7 @@ class ProductAdminController extends Controller
         if (!empty($data['animal_type_id'])) {
             $animalType = \Illuminate\Support\Facades\DB::table('animal_types')->find($data['animal_type_id']);
             if ($animalType) {
-                $data['animal_type'] = $animalType->name;
+                $data['animal_type'] = $animalType->animal_type;
             }
         }
 
@@ -147,7 +147,7 @@ class ProductAdminController extends Controller
         $product = Product::findOrFail($id);
         $categories = \App\Models\Category::where('is_active', true)->orderBy('category_name')->get();
         $brands = \App\Models\Brand::where('is_active', true)->orderBy('name')->get();
-        $animal_types = \Illuminate\Support\Facades\DB::table('animal_types')->where('status', 'Active')->orderBy('name')->get();
+        $animal_types = \Illuminate\Support\Facades\DB::table('animal_types')->orderBy('animal_type')->get();
         return view('products.edit', compact('product', 'categories', 'brands', 'animal_types'));
     }
 
@@ -184,7 +184,7 @@ class ProductAdminController extends Controller
         if (!empty($data['animal_type_id'])) {
             $animalType = \Illuminate\Support\Facades\DB::table('animal_types')->find($data['animal_type_id']);
             if ($animalType) {
-                $data['animal_type'] = $animalType->name;
+                $data['animal_type'] = $animalType->animal_type;
             }
         }
 

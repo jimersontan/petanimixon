@@ -16,6 +16,9 @@ class DatabaseSeeder extends Seeder
         // Seed example users (admin + test user)
         $this->call([
             CreateAdminSeeder::class,
+            BrandSeeder::class,
+            CategorySeeder::class,
+            RoyalCaninSeeder::class,
         ]);
     }
 }

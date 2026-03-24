@@ -115,6 +115,8 @@ class ProductAdminController extends Controller
         // Look up the name of the animal type to save it in animal_type column
         if (!empty($data['animal_type_id'])) {
             $animalType = \Illuminate\Support\Facades\DB::table('animal_types')->find($data['animal_type_id']);
+            if ($animalType) {
+                $data['animal_type'] = $animalType->animal_type;
             }
         }
         unset($data['animal_type_id']);
@@ -182,6 +184,8 @@ class ProductAdminController extends Controller
         // Look up the name of the animal type to save it in animal_type column
         if (!empty($data['animal_type_id'])) {
             $animalType = \Illuminate\Support\Facades\DB::table('animal_types')->find($data['animal_type_id']);
+            if ($animalType) {
+                $data['animal_type'] = $animalType->animal_type;
             }
         }
         unset($data['animal_type_id']);

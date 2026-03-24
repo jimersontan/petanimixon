@@ -19,7 +19,7 @@
     <!-- Date Range Filter and Add New Product Button -->
     <div class="date-filter">
         <!-- Date Range Filter Form: Filters products by time period -->
-        <form method="get" action="{{ route('products.admin') }}" class="date-filter-form" id="productsDateForm">
+        <form method="get" action="{{ route('products.readonly') }}" class="date-filter-form" id="productsDateForm">
             <!-- Brand Filter -->
             <select name="brand" class="filter-select" aria-label="Brand" onchange="this.form.submit()">
                 <option value="">All Brands</option>
@@ -39,11 +39,7 @@
         </form>
         <!-- End: Date Range Filter -->
 
-        <!-- Add New Product Button: Opens the product creation modal -->
-        <button type="button" class="btn-primary" data-modal-open="add-product-modal">
-            <span class="btn-icon">+</span>
-            <span>Add New Product</span>
-        </button>
+        <!-- Action Button Removed for Read-Only View -->
     </div>
     <!-- End: Date Filter and Action Button -->
 </div>
@@ -123,19 +119,19 @@
     <!-- Status Filter Tabs: All, Active, Draft, Out of Stock -->
     <div class="order-status-tabs" role="tablist">
         @php $currentStatus = $status ?? 'all'; @endphp
-        <a href="{{ route('products.admin', array_merge(request()->all(), ['status' => 'all'])) }}"
+        <a href="{{ route('products.readonly', array_merge(request()->all(), ['status' => 'all'])) }}"
            class="order-tab {{ $currentStatus === 'all' ? 'active' : '' }}"
            role="tab"
            aria-selected="{{ $currentStatus === 'all' ? 'true' : 'false' }}">All</a>
-        <a href="{{ route('products.admin', array_merge(request()->all(), ['status' => 'active'])) }}"
+        <a href="{{ route('products.readonly', array_merge(request()->all(), ['status' => 'active'])) }}"
            class="order-tab {{ $currentStatus === 'active' ? 'active' : '' }}"
            role="tab"
            aria-selected="{{ $currentStatus === 'active' ? 'true' : 'false' }}">Active</a>
-        <a href="{{ route('products.admin', array_merge(request()->all(), ['status' => 'draft'])) }}"
+        <a href="{{ route('products.readonly', array_merge(request()->all(), ['status' => 'draft'])) }}"
            class="order-tab {{ $currentStatus === 'draft' ? 'active' : '' }}"
            role="tab"
            aria-selected="{{ $currentStatus === 'draft' ? 'true' : 'false' }}">Draft</a>
-        <a href="{{ route('products.admin', array_merge(request()->all(), ['status' => 'out_of_stock'])) }}"
+        <a href="{{ route('products.readonly', array_merge(request()->all(), ['status' => 'out_of_stock'])) }}"
            class="order-tab {{ $currentStatus === 'out_of_stock' ? 'active' : '' }}"
            role="tab"
            aria-selected="{{ $currentStatus === 'out_of_stock' ? 'true' : 'false' }}">Out of Stock</a>
@@ -156,7 +152,6 @@
                     <th>Price</th>
                     <th>Stock</th>
                     <th>Status</th>
-                    <th class="col-actions">Actions</th>
                 </tr>
             </thead>
             <!-- End: Table Header -->
@@ -200,22 +195,7 @@
                         @php $status = $product->product_status ?? 'active'; @endphp
                         <span class="badge {{ $statusBadge[$status] ?? 'badge-pending' }}">{{ ucfirst(str_replace('_', ' ', $status)) }}</span>
                     </td>
-                    <!-- Action Buttons: Edit and Delete -->
-                    <td class="col-actions">
-                        <!-- Edit Button -->
-                        <a href="{{ route('products.edit', $product) }}" class="action-btn" title="Edit" aria-label="Edit product">
-                            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-                        </a>
-                        <!-- Delete Button: Submits DELETE form to move product to draft -->
-                        <form method="POST" action="{{ route('products.destroy', $product) }}" style="display:inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="action-btn" title="Move to draft" onclick="return confirm('Move this product to draft?')">
-                                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-4.5l-1-1z"/></svg>
-                            </button>
-                        </form>
-                    </td>
-                    <!-- End: Action Buttons -->
+                    <!-- Action Buttons: Removed for Read-Only View -->
                 </tr>
                 @empty
                 <!-- Empty State: Shown when no products exist -->
@@ -243,42 +223,7 @@
 
 @endsection
 
-<!-- ===== ADD NEW PRODUCT MODAL ===== -->
-<!-- Modal popup for creating a new product -->
-@push('modals')
-<!-- Modal Backdrop: Dark overlay behind the modal -->
-<div class="modal-backdrop {{ $errors->any() ? 'open' : '' }}" data-modal-id="add-product-modal"></div>
-
-<!-- Modal Container -->
-<div id="add-product-modal" class="modal {{ $errors->any() ? 'open' : '' }}" role="dialog" aria-modal="true" aria-labelledby="addProductTitle" tabindex="-1">
-
-    <!-- Modal Header: Title and Close Button -->
-    <div class="modal-header">
-        <h2 id="addProductTitle" class="modal-title">Add New Product</h2>
-        <button type="button" class="modal-close" data-modal-close="add-product-modal" aria-label="Close modal">&times;</button>
-    </div>
-    <!-- End: Modal Header -->
-
-    <!-- Modal Body: Contains the product form -->
-    <div class="modal-body">
-        <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            <!-- Include the reusable product form partial -->
-            @include('products._form', ['product' => new \App\Models\Product()])
-
-            <!-- Modal Footer: Cancel and Save Buttons -->
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" data-modal-close="add-product-modal">Cancel</button>
-                <button type="submit" class="btn-primary">Save product</button>
-            </div>
-            <!-- End: Modal Footer -->
-        </form>
-    </div>
-    <!-- End: Modal Body -->
-
-</div>
-<!-- ===== END ADD NEW PRODUCT MODAL ===== -->
-@endpush
+<!-- Modals Removed for Read-Only View -->
 
 <!-- Page-Specific Scripts -->
 @push('scripts')

@@ -10,7 +10,7 @@ class ProductAdminController extends Controller
     /**
      * Display a list of products with stats.
      */
-    public function index(Request $request)
+    private function prepareProductList(Request $request)
     {
         $days = (int) $request->get('days', 30);
         $from = now()->subDays($days);
@@ -72,7 +72,17 @@ class ProductAdminController extends Controller
 
         $selectedBrand = $request->get('brand', '');
 
-    return view('products_admin', compact('stats', 'products', 'days', 'status', 'categories', 'brands', 'animal_types', 'selectedBrand'));
+        return compact('stats', 'products', 'days', 'status', 'categories', 'brands', 'animal_types', 'selectedBrand');
+    }
+
+    public function index(Request $request)
+    {
+        return view('inventory_admin', $this->prepareProductList($request));
+    }
+
+    public function readOnlyIndex(Request $request)
+    {
+        return view('products_readonly', $this->prepareProductList($request));
     }
 
     /**
@@ -137,7 +147,7 @@ class ProductAdminController extends Controller
             ]);
         }
 
-        return redirect()->route('products.admin')->with('success', 'Product created');
+        return redirect()->route('inventory.admin')->with('success', 'Product created');
     }
 
     /**
@@ -214,7 +224,7 @@ class ProductAdminController extends Controller
                 ]);
             }
         }
-        return redirect()->route('products.admin')->with('success', 'Product updated');
+        return redirect()->route('inventory.admin')->with('success', 'Product updated');
     }
 
     /**
@@ -225,6 +235,6 @@ class ProductAdminController extends Controller
         $product = Product::findOrFail($id);
         // Instead of hard-deleting, mark as draft so it can be edited later
         $product->update(['product_status' => 'draft']);
-        return redirect()->route('products.admin')->with('success', 'Product moved to draft');
+        return redirect()->route('inventory.admin')->with('success', 'Product moved to draft');
     }
 }

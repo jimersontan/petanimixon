@@ -11,12 +11,12 @@
 </div>
 
 <div class="card form-card">
-    <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('inventory.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         @include('products._form')
         <div class="form-actions">
             <button type="submit" class="btn-primary">Save product</button>
-            <a href="{{ route('products.admin') }}" class="btn-secondary">Cancel</a>
+            <a href="{{ route('inventory.admin') }}" class="btn-secondary">Cancel</a>
         </div>
     </form>
 </div>

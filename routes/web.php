@@ -117,30 +117,35 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::get('/admin/api/dashboard-chart', [DashboardController::class, 'chartData'])
     ->middleware(['auth', 'admin'])->name('admin.chart');
 
-Route::get('/admin/products', [ProductAdminController::class, 'index'])
+// Read-only Products View
+Route::get('/admin/products', [ProductAdminController::class, 'readOnlyIndex'])
     ->middleware(['auth', 'admin'])
-    ->name('products.admin');
+    ->name('products.readonly');
 
-// product CRUD
-Route::get('/admin/products/create', [ProductAdminController::class, 'create'])
+// inventory CRUD (formerly products)
+Route::get('/admin/inventory', [ProductAdminController::class, 'index'])
     ->middleware(['auth', 'admin'])
-    ->name('products.create');
+    ->name('inventory.admin');
 
-Route::post('/admin/products', [ProductAdminController::class, 'store'])
+Route::get('/admin/inventory/create', [ProductAdminController::class, 'create'])
     ->middleware(['auth', 'admin'])
-    ->name('products.store');
+    ->name('inventory.create');
 
-Route::get('/admin/products/{id}/edit', [ProductAdminController::class, 'edit'])
+Route::post('/admin/inventory', [ProductAdminController::class, 'store'])
     ->middleware(['auth', 'admin'])
-    ->name('products.edit');
+    ->name('inventory.store');
 
-Route::put('/admin/products/{id}', [ProductAdminController::class, 'update'])
+Route::get('/admin/inventory/{id}/edit', [ProductAdminController::class, 'edit'])
     ->middleware(['auth', 'admin'])
-    ->name('products.update');
+    ->name('inventory.edit');
 
-Route::delete('/admin/products/{id}', [ProductAdminController::class, 'destroy'])
+Route::put('/admin/inventory/{id}', [ProductAdminController::class, 'update'])
     ->middleware(['auth', 'admin'])
-    ->name('products.destroy');
+    ->name('inventory.update');
+
+Route::delete('/admin/inventory/{id}', [ProductAdminController::class, 'destroy'])
+    ->middleware(['auth', 'admin'])
+    ->name('inventory.destroy');
 
 Route::get('/admin/customers', [CustomerAdminController::class, 'index'])
     ->middleware(['auth', 'admin'])

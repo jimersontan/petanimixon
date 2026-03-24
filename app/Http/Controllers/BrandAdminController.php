@@ -27,10 +27,6 @@ class BrandAdminController extends Controller
         return view('brands_admin', compact('stats', 'brands'));
     }
 
-    public function create()
-    {
-        return view('brands.create');
-    }
 
     public function store(Request $request)
     {
@@ -52,11 +48,6 @@ class BrandAdminController extends Controller
         return redirect()->route('brands.admin')->with('success', 'Brand created');
     }
 
-    public function edit($id)
-    {
-        $brand = Brand::findOrFail($id);
-        return view('brands.edit', compact('brand'));
-    }
 
     public function update(Request $request, $id)
     {

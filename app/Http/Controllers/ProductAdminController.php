@@ -85,16 +85,7 @@ class ProductAdminController extends Controller
         return view('products_readonly', $this->prepareProductList($request));
     }
 
-    /**
-     * Show form to create a new product.
-     */
-    public function create()
-    {
-        $categories = \App\Models\Category::where('is_active', true)->orderBy('category_name')->get();
-        $brands = \App\Models\Brand::where('is_active', true)->orderBy('name')->get();
-        $animal_types = \Illuminate\Support\Facades\DB::table('animal_types')->orderBy('animal_type')->get();
-        return view('products.create', compact('categories', 'brands', 'animal_types'));
-    }
+
 
     /**
      * Persist a new product to the database.
@@ -150,17 +141,7 @@ class ProductAdminController extends Controller
         return redirect()->route('inventory.admin')->with('success', 'Product created');
     }
 
-    /**
-     * Edit form for an existing product.
-     */
-    public function edit($id)
-    {
-        $product = Product::findOrFail($id);
-        $categories = \App\Models\Category::where('is_active', true)->orderBy('category_name')->get();
-        $brands = \App\Models\Brand::where('is_active', true)->orderBy('name')->get();
-        $animal_types = \Illuminate\Support\Facades\DB::table('animal_types')->orderBy('animal_type')->get();
-        return view('products.edit', compact('product', 'categories', 'brands', 'animal_types'));
-    }
+
 
     /**
      * Update a product.

@@ -41,7 +41,7 @@
         <!-- End: Date Range Filter -->
 
         <!-- Add New Product Button: Opens the product creation modal -->
-        <button type="button" class="btn-primary" data-modal-open="add-product-modal">
+        <button type="button" class="btn-primary" onclick="openProductModal('add')">
             <span class="btn-icon">+</span>
             <span>Add New Product</span>
         </button>
@@ -204,9 +204,27 @@
                     <!-- Action Buttons: Edit and Delete -->
                     <td class="col-actions">
                         <!-- Edit Button -->
-                        <a href="<?php echo e(route('inventory.edit', $product)); ?>" class="action-btn" title="Edit" aria-label="Edit product">
+                        <?php
+                            $prodData = [
+                                "id" => $product->id,
+                                "product_name" => $product->product_name,
+                                "animal_type_id" => $product->animal_type_id,
+                                "animal_category_id" => $product->animal_category_id,
+                                "brand_name" => $product->brand_name,
+                                "price" => $product->price,
+                                "stock" => $product->stock,
+                                "sku" => $product->sku,
+                                "product_status" => $product->product_status,
+                                "short_description" => $product->short_description,
+                                "full_description" => $product->full_description,
+                                "image_url" => $product->image_url,
+                                "animal_image_url" => $product->animal_image_url
+                            ];
+                        ?>
+                        <button type="button" class="action-btn" title="Edit" aria-label="Edit product"
+                            onclick='openProductModal("edit", <?php echo json_encode($prodData, 15, 512) ?>)'>
                             <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-                        </a>
+                        </button>
                         <!-- Delete Button: Submits DELETE form to move product to draft -->
                         <form method="POST" action="<?php echo e(route('inventory.destroy', $product)); ?>" style="display:inline">
                             <?php echo csrf_field(); ?>
@@ -245,33 +263,34 @@
 
 <?php $__env->stopSection(); ?>
 
-<!-- ===== ADD NEW PRODUCT MODAL ===== -->
-<!-- Modal popup for creating a new product -->
+<!-- ===== PRODUCT MODAL (ADD/EDIT) ===== -->
+<!-- Modal popup for creating or editing a product -->
 <?php $__env->startPush('modals'); ?>
 <!-- Modal Backdrop: Dark overlay behind the modal -->
-<div class="modal-backdrop <?php echo e($errors->any() ? 'open' : ''); ?>" data-modal-id="add-product-modal"></div>
+<div class="modal-backdrop <?php echo e($errors->any() ? 'open' : ''); ?>" data-modal-id="product-modal"></div>
 
 <!-- Modal Container -->
-<div id="add-product-modal" class="modal <?php echo e($errors->any() ? 'open' : ''); ?>" role="dialog" aria-modal="true" aria-labelledby="addProductTitle" tabindex="-1">
+<div id="product-modal" class="modal <?php echo e($errors->any() ? 'open' : ''); ?>" style="max-width: 800px; width: 95%;" role="dialog" aria-modal="true" aria-labelledby="productModalTitle" tabindex="-1">
 
     <!-- Modal Header: Title and Close Button -->
     <div class="modal-header">
-        <h2 id="addProductTitle" class="modal-title">Add New Product</h2>
-        <button type="button" class="modal-close" data-modal-close="add-product-modal" aria-label="Close modal">&times;</button>
+        <h2 id="productModalTitle" class="modal-title">Add New Product</h2>
+        <button type="button" class="modal-close" data-modal-close="product-modal" aria-label="Close modal">&times;</button>
     </div>
     <!-- End: Modal Header -->
 
     <!-- Modal Body: Contains the product form -->
     <div class="modal-body">
-        <form action="<?php echo e(route('inventory.store')); ?>" method="POST" enctype="multipart/form-data">
+        <form id="productModalForm" action="<?php echo e(route('inventory.store')); ?>" method="POST" enctype="multipart/form-data">
             <?php echo csrf_field(); ?>
+            <div id="productMethodContainer"></div>
             <!-- Include the reusable product form partial -->
             <?php echo $__env->make('products._form', ['product' => new \App\Models\Product()], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
             <!-- Modal Footer: Cancel and Save Buttons -->
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" data-modal-close="add-product-modal">Cancel</button>
-                <button type="submit" class="btn-primary">Save product</button>
+            <div class="modal-footer" style="padding-top: 20px; border-top: 1px solid #f3f4f6; margin-top: 20px;">
+                <button type="button" class="btn-secondary" data-modal-close="product-modal">Cancel</button>
+                <button type="submit" id="productModalSubmitBtn" class="btn-primary">Save Product</button>
             </div>
             <!-- End: Modal Footer -->
         </form>
@@ -279,13 +298,80 @@
     <!-- End: Modal Body -->
 
 </div>
-<!-- ===== END ADD NEW PRODUCT MODAL ===== -->
+<!-- ===== END PRODUCT MODAL ===== -->
 <?php $__env->stopPush(); ?>
 
 <!-- Page-Specific Scripts -->
 <?php $__env->startPush('scripts'); ?>
 <!-- Orders JS: Additional table interaction scripts for this page -->
 <script src="<?php echo e(asset('js/orders.js')); ?>"></script>
+<script>
+    function openProductModal(mode, data = null) {
+        const modal = document.getElementById('product-modal');
+        const backdrop = document.querySelector('.modal-backdrop[data-modal-id="product-modal"]');
+        const form = document.getElementById('productModalForm');
+        const title = document.getElementById('productModalTitle');
+        const submitBtn = document.getElementById('productModalSubmitBtn');
+        const methodContainer = document.getElementById('productMethodContainer');
+        
+        // Reset form
+        form.reset();
+        
+        // Reset image preview in paste zone
+        const preview = form.querySelector('.upload-preview');
+        const pasteZone = form.querySelector('.paste-upload-zone');
+        if (pasteZone) pasteZone.classList.remove('has-file');
+        if (preview) preview.innerHTML = '';
+        
+        // Reset Select2 properly
+        if ($.fn.select2) {
+            $('#animal_type_id').val('').trigger('change');
+        }
+        
+        if (mode === 'add') {
+            title.textContent = 'Add New Product';
+            submitBtn.textContent = 'Save Product';
+            form.action = "<?php echo e(route('inventory.store')); ?>";
+            methodContainer.innerHTML = '';
+            
+            // Set simple defaults
+            document.getElementById('product_status').value = 'active';
+            
+        } else if (mode === 'edit' && data) {
+            title.textContent = 'Edit Product';
+            submitBtn.textContent = 'Save Changes';
+            form.action = `/admin/inventory/${data.id}`;
+            methodContainer.innerHTML = '<input type="hidden" name="_method" value="PUT">';
+            
+            // Set text and select inputs
+            document.getElementById('product_name').value = data.product_name || '';
+            document.getElementById('animal_category_id').value = data.animal_category_id || '';
+            document.getElementById('brand_name').value = data.brand_name || '';
+            document.getElementById('price').value = data.price || '';
+            document.getElementById('stock').value = data.stock || '';
+            document.getElementById('sku').value = data.sku || '';
+            document.getElementById('product_status').value = data.product_status || 'active';
+            document.getElementById('short_description').value = data.short_description || '';
+            document.getElementById('full_description').value = data.full_description || '';
+            
+            // Set Select2 specifically
+            if ($.fn.select2 && data.animal_type_id) {
+                $('#animal_type_id').val(data.animal_type_id).trigger('change');
+            }
+            
+            // Handle image preview
+            if (data.animal_image_url) {
+                if (pasteZone) pasteZone.classList.add('has-file');
+                if (preview) {
+                    preview.innerHTML = `<img src="${data.image_url}" alt="Preview"><div class="upload-filename">Current Image</div>`;
+                }
+            }
+        }
+        
+        modal.classList.add('open');
+        backdrop.classList.add('open');
+    }
+</script>
 <?php $__env->stopPush(); ?>
 
 <?php echo $__env->make('layouts.admin', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views/inventory_admin.blade.php ENDPATH**/ ?>

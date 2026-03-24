@@ -1,0 +1,15 @@
+﻿5cf69c0 Fix production image upload storage link
+10ca07d Separate Products readonly view from Inventory CRUD page
+1c38902 Auto-select animal type by name in product edit form
+6063b12 Fix AnimalType API crash targeting removed column
+930e395 Fix syntax error in Product admin logic
+e99222f Remove animal_type_id from Product save process
+4bc2cb8 Fix syntax error in TrustProxies
+3011680 Fix trusted proxies for Railway HTTPS
+78a377e Fix animal_types property names and add status migration
+a7531a1 Fix admin product controller animal_types column error
+e4c4cb8 fix: force HTTPS in production
+4af6521 fix: separate nixpacks build phase, remove DATABASE_URL override
+7083d30 Update nixpacks to use artisan serve and clear config
+8f5bb45 Allow PHP 7.3/8.0 locally alongside 8.1 for dev environment
+faad542 Run migrations on startup via nixpacks.toml

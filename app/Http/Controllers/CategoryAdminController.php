@@ -31,14 +31,6 @@ class CategoryAdminController extends Controller
         return view('categories_admin', compact('stats', 'categories', 'parents'));
     }
 
-    /**
-     * Show form for new category.
-     */
-    public function create()
-    {
-        $parents = Category::orderBy('category_name')->get();
-        return view('categories.create', compact('parents'));
-    }
 
     /**
      * Persist new category.
@@ -62,14 +54,6 @@ class CategoryAdminController extends Controller
         return redirect()->route('categories.admin')->with('success', 'Category created');
     }
 
-    /**
-     * Edit existing category.
-     */
-    public function edit($id)
-    {
-        $category = Category::findOrFail($id);
-        return view('categories.edit', compact('category'));
-    }
 
     /**
      * Update category.

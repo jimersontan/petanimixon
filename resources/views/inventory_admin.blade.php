@@ -204,10 +204,20 @@
                     <td class="col-actions">
                         <!-- Edit Button -->
                         @php
+                            $animalTypeId = null;
+                            if (isset($animal_types) && $product->animal_type) {
+                                foreach ($animal_types as $at) {
+                                    if ($at->animal_type === $product->animal_type) {
+                                        $animalTypeId = $at->id;
+                                        break;
+                                    }
+                                }
+                            }
+                            
                             $prodData = [
                                 "id" => $product->id,
                                 "product_name" => $product->product_name,
-                                "animal_type_id" => $product->animal_type_id,
+                                "animal_type_id" => $animalTypeId,
                                 "animal_category_id" => $product->animal_category_id,
                                 "brand_name" => $product->brand_name,
                                 "price" => $product->price,

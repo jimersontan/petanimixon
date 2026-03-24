@@ -17,9 +17,10 @@ class AnimalTypeController extends Controller
 
         // Attach usage count for each type
         $types->transform(function ($t) {
-            $t->product_count = Product::where('animal_type', $t->name)
+            $t->product_count = Product::where('animal_type', $t->animal_type)
                 ->orWhere('animal_type_id', $t->id)
                 ->count();
+            $t->name = $t->animal_type;
             return $t;
         });
 
@@ -39,7 +40,7 @@ class AnimalTypeController extends Controller
 
         // Case-insensitive duplicate check
         $exists = DB::table('animal_types')
-            ->whereRaw('LOWER(name) = ?', [strtolower($name)])
+            ->whereRaw('LOWER(animal_type) = ?', [strtolower($name)])
             ->exists();
 
         if ($exists) {
@@ -47,7 +48,7 @@ class AnimalTypeController extends Controller
         }
 
         $id = DB::table('animal_types')->insertGetId([
-            'name' => $name,
+            'animal_type' => $name,
             'status' => 'Active',
             'created_at' => now(),
             'updated_at' => now(),
@@ -78,9 +79,8 @@ class AnimalTypeController extends Controller
             return response()->json(['error' => 'Animal type not found.'], 404);
         }
 
-        // Case-insensitive duplicate check (exclude self)
         $exists = DB::table('animal_types')
-            ->whereRaw('LOWER(name) = ?', [strtolower($name)])
+            ->whereRaw('LOWER(animal_type) = ?', [strtolower($name)])
             ->where('id', '!=', $id)
             ->exists();
 
@@ -89,7 +89,7 @@ class AnimalTypeController extends Controller
         }
 
         DB::table('animal_types')->where('id', $id)->update([
-            'name' => $name,
+            'animal_type' => $name,
             'updated_at' => now(),
         ]);
 
@@ -106,8 +106,7 @@ class AnimalTypeController extends Controller
             return response()->json(['error' => 'Animal type not found.'], 404);
         }
 
-        // Check usage
-        $usedCount = Product::where('animal_type', $type->name)
+        $usedCount = Product::where('animal_type', $type->animal_type)
             ->orWhere('animal_type_id', $type->id)
             ->count();
 

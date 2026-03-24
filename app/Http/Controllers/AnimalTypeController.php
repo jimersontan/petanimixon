@@ -17,9 +17,7 @@ class AnimalTypeController extends Controller
 
         // Attach usage count for each type
         $types->transform(function ($t) {
-            $t->product_count = Product::where('animal_type', $t->animal_type)
-                ->orWhere('animal_type_id', $t->id)
-                ->count();
+            $t->product_count = Product::where('animal_type', $t->animal_type)->count();
             $t->name = $t->animal_type;
             return $t;
         });
@@ -106,9 +104,7 @@ class AnimalTypeController extends Controller
             return response()->json(['error' => 'Animal type not found.'], 404);
         }
 
-        $usedCount = Product::where('animal_type', $type->animal_type)
-            ->orWhere('animal_type_id', $type->id)
-            ->count();
+        $usedCount = Product::where('animal_type', $type->animal_type)->count();
 
         if ($usedCount > 0) {
             return response()->json([

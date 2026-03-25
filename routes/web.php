@@ -37,6 +37,7 @@ Route::get('/shop/all', [ShopController::class, 'shop']);
 Route::get('/categories', [ShopController::class, 'categories'])->name('categories');
 Route::get('/categories/{id}', [ShopController::class, 'showCategory'])->name('categories.show');
 Route::get('/product/{id}', [ShopController::class, 'showProduct'])->name('product.show');
+Route::get('/product/{id}/modal', [ShopController::class, 'productModal'])->name('product.modal');
 Route::get('/brands', [ShopController::class, 'brands'])->name('brands');
 
 // Static info pages

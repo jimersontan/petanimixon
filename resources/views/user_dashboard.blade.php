@@ -29,7 +29,7 @@
                 <h3 class="hero-prod-heading">🔥 Popular Products</h3>
                 <div class="hero-prod-grid">
                     @foreach(($heroProducts ?? collect()) as $hp)
-                    <a href="{{ route('product.show', $hp->id) }}" class="hero-prod-card">
+                    <a href="{{ route('product.show', $hp->id) }}" onclick="window.openProductModal({{ $hp->id }}, event)" class="hero-prod-card">
                         <div class="hero-prod-img-wrap">
                             <img src="{{ $hp->image_url }}" alt="{{ $hp->product_name }}" onerror="this.src='https://via.placeholder.com/150x150?text=No+Image'">
                             @if($loop->index < 2)

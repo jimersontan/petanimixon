@@ -1,8 +1,8 @@
-@extends('frontend.layouts.app')
 
-@section('title', 'Shop - Pet Animixon')
 
-@push('styles')
+<?php $__env->startSection('title', 'Shop - Pet Animixon'); ?>
+
+<?php $__env->startPush('styles'); ?>
 <style>
     /* ── Hero Banner ───────────────────────────── */
     .shop-hero {
@@ -344,11 +344,11 @@
         .shop-sidebar .sidebar-section { min-width: 100%; }
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 
-{{-- Hero Banner --}}
+
 <div class="shop-hero">
     <div class="shop-hero-wave"></div>
     <h1 class="shop-hero-title">All Products</h1>
@@ -358,78 +358,81 @@
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
 <div class="shop-layout">
-    {{-- ══════════════════ SIDEBAR ══════════════════ --}}
+    
     <aside class="shop-sidebar" id="shopSidebar">
         <button type="button" class="sidebar-close-btn" onclick="toggleSidebar()" aria-label="Close filters">✕</button>
         <div class="mobile-filter-header">Filters</div>
-        <form method="GET" action="{{ route('shop.all') }}" id="filterForm">
+        <form method="GET" action="<?php echo e(route('shop.all')); ?>" id="filterForm">
 
-            {{-- Pet Type --}}
+            
             <div class="sidebar-section">
                 <div class="sidebar-section-header">
                     <h3>Pet Type</h3>
                     <span>∨</span>
                 </div>
-                @php
+                <?php
                     $petIcons = ['dogs'=>'🐕', 'cats'=>'🐱', 'birds'=>'🐦', 'fish'=>'🐠', 'smallmammals'=>'🐹', 'reptiles'=>'🦎'];
-                @endphp
-                @foreach($petTypes ?? [] as $pt)
-                    @php
+                ?>
+                <?php $__currentLoopData = $petTypes ?? []; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pt): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php
                         $rawVal = strtolower($pt->animal_type);
                         $formattedVal = preg_replace('/[^a-z]/', '', $rawVal); // Make 'small-mammals' and 'small mammals' map to 'smallmammals'
                         $emoji = $petIcons[$formattedVal] ?? '🐾';
-                    @endphp
+                    ?>
                     <label class="filter-label">
                         <div class="filter-label-left">
-                            <input type="checkbox" name="pet_type[]" value="{{ $pt->animal_type }}"
-                                {{ in_array($pt->animal_type, request()->input('pet_type', [])) ? 'checked' : '' }}
+                            <input type="checkbox" name="pet_type[]" value="<?php echo e($pt->animal_type); ?>"
+                                <?php echo e(in_array($pt->animal_type, request()->input('pet_type', [])) ? 'checked' : ''); ?>
+
                                 onchange="document.getElementById('filterForm').submit()">
-                            <span>{{ $emoji }} {{ ucfirst($pt->animal_type) }}</span>
+                            <span><?php echo e($emoji); ?> <?php echo e(ucfirst($pt->animal_type)); ?></span>
                         </div>
-                        <span class="filter-count">({{ $pt->count }})</span>
+                        <span class="filter-count">(<?php echo e($pt->count); ?>)</span>
                     </label>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
 
-            {{-- Category --}}
+            
             <div class="sidebar-section">
                 <div class="sidebar-section-header">
                     <h3>Category</h3>
                     <span>∨</span>
                 </div>
-                @foreach($categories as $cat)
+                <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $cat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <label class="filter-label">
                         <div class="filter-label-left">
-                            <input type="checkbox" name="category[]" value="{{ $cat->id }}"
-                                {{ in_array($cat->id, request()->input('category', [])) ? 'checked' : '' }}
+                            <input type="checkbox" name="category[]" value="<?php echo e($cat->id); ?>"
+                                <?php echo e(in_array($cat->id, request()->input('category', [])) ? 'checked' : ''); ?>
+
                                 onchange="document.getElementById('filterForm').submit()">
-                            <span>{{ $cat->category_name }}</span>
+                            <span><?php echo e($cat->category_name); ?></span>
                         </div>
-                        <span class="filter-count">({{ $cat->products_count ?? 0 }})</span>
+                        <span class="filter-count">(<?php echo e($cat->products_count ?? 0); ?>)</span>
                     </label>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
 
-            {{-- Brand --}}
+            
             <div class="sidebar-section">
                 <div class="sidebar-section-header">
                     <h3>Brand</h3>
                     <span>∨</span>
                 </div>
-                @foreach(($brands ?? []) as $brand)
+                <?php $__currentLoopData = ($brands ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $brand): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <label class="filter-label">
                         <div class="filter-label-left">
-                            <input type="checkbox" name="brand[]" value="{{ $brand->name }}"
-                                {{ in_array($brand->name, (array)request()->input('brand', [])) ? 'checked' : '' }}
+                            <input type="checkbox" name="brand[]" value="<?php echo e($brand->name); ?>"
+                                <?php echo e(in_array($brand->name, (array)request()->input('brand', [])) ? 'checked' : ''); ?>
+
                                 onchange="document.getElementById('filterForm').submit()">
-                            <span>{{ $brand->name }}</span>
+                            <span><?php echo e($brand->name); ?></span>
                         </div>
-                        <span class="filter-count">({{ $brand->products_count ?? 0 }})</span>
+                        <span class="filter-count">(<?php echo e($brand->products_count ?? 0); ?>)</span>
                     </label>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
 
-            {{-- Price Range --}}
+            
             <div class="sidebar-section">
                 <div class="sidebar-section-header">
                     <h3>Price Range</h3>
@@ -437,32 +440,32 @@
                 </div>
                 <input type="range" class="price-slider" name="price_max"
                     min="0" max="5000" step="50"
-                    value="{{ request()->input('price_max', 5000) }}"
+                    value="<?php echo e(request()->input('price_max', 5000)); ?>"
                     id="priceSlider" oninput="updatePriceLabel(this.value)">
                 <div class="price-range-labels">
                     <span>₱0</span>
-                    <span>₱<span id="priceMaxLabel">{{ request()->input('price_max', 5000) }}</span></span>
+                    <span>₱<span id="priceMaxLabel"><?php echo e(request()->input('price_max', 5000)); ?></span></span>
                 </div>
                 <button type="button" class="btn-apply" onclick="document.getElementById('filterForm').submit()">Apply</button>
             </div>
 
-            {{-- Ratings --}}
+            
             <div class="sidebar-section">
                 <div class="sidebar-section-header">
                     <h3>Ratings</h3>
                     <span>∨</span>
                 </div>
-                @foreach([5 => '5 stars & up', 4 => '4 stars & up', 3 => '3 stars & up'] as $r => $lbl)
+                <?php $__currentLoopData = [5 => '5 stars & up', 4 => '4 stars & up', 3 => '3 stars & up']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $r => $lbl): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <label class="rating-label">
-                        <input type="radio" name="rating" value="{{ $r }}"
-                            {{ request()->input('rating') == $r ? 'checked' : '' }}>
-                        <span class="stars">{{ str_repeat('★', $r) }}{{ str_repeat('☆', 5-$r) }}</span>
-                        <span>{{ $lbl }}</span>
+                        <input type="radio" name="rating" value="<?php echo e($r); ?>"
+                            <?php echo e(request()->input('rating') == $r ? 'checked' : ''); ?>>
+                        <span class="stars"><?php echo e(str_repeat('★', $r)); ?><?php echo e(str_repeat('☆', 5-$r)); ?></span>
+                        <span><?php echo e($lbl); ?></span>
                     </label>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
 
-            {{-- Availability --}}
+            
             <div class="sidebar-section">
                 <div class="sidebar-section-header">
                     <h3>Availability</h3>
@@ -472,58 +475,59 @@
                     <label>In Stock Only</label>
                     <label class="toggle-switch">
                         <input type="checkbox" name="in_stock" value="1"
-                            {{ request()->input('in_stock') ? 'checked' : '' }}
+                            <?php echo e(request()->input('in_stock') ? 'checked' : ''); ?>
+
                             onchange="document.getElementById('filterForm').submit()">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
                 <label class="filter-label-on-sale">
                     <input type="checkbox" name="on_sale" value="1"
-                        {{ request()->input('on_sale') ? 'checked' : '' }}>
+                        <?php echo e(request()->input('on_sale') ? 'checked' : ''); ?>>
                     <span>On Sale</span>
                 </label>
             </div>
 
-            <a href="{{ route('shop.all') }}" class="btn-clear-filters">Clear All Filters</a>
+            <a href="<?php echo e(route('shop.all')); ?>" class="btn-clear-filters">Clear All Filters</a>
         </form>
     </aside>
 
-    {{-- ══════════════════ MAIN ══════════════════ --}}
+    
     <main class="shop-main">
-        {{-- Toolbar --}}
+        
         <div class="shop-toolbar">
             <button type="button" class="mobile-filter-btn" onclick="toggleSidebar()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
                 Filters
             </button>
             <div class="shop-count">
-                Showing <strong>1–{{ min(24, $products->count()) }}</strong>
-                of <strong>{{ $products->total() ?? $products->count() }}</strong> products
+                Showing <strong>1–<?php echo e(min(24, $products->count())); ?></strong>
+                of <strong><?php echo e($products->total() ?? $products->count()); ?></strong> products
             </div>
             <div class="toolbar-right">
                 <span class="sort-label">Sort by:</span>
                 <select class="sort-select" name="sort" onchange="applySort(this.value)">
-                    <option value="featured"   {{ request('sort','featured')=='featured'   ? 'selected':'' }}>Featured</option>
-                    <option value="price_low"  {{ request('sort')=='price_low'  ? 'selected':'' }}>Price: Low to High</option>
-                    <option value="price_high" {{ request('sort')=='price_high' ? 'selected':'' }}>Price: High to Low</option>
-                    <option value="newest"     {{ request('sort')=='newest'     ? 'selected':'' }}>Newest</option>
+                    <option value="featured"   <?php echo e(request('sort','featured')=='featured'   ? 'selected':''); ?>>Featured</option>
+                    <option value="price_low"  <?php echo e(request('sort')=='price_low'  ? 'selected':''); ?>>Price: Low to High</option>
+                    <option value="price_high" <?php echo e(request('sort')=='price_high' ? 'selected':''); ?>>Price: High to Low</option>
+                    <option value="newest"     <?php echo e(request('sort')=='newest'     ? 'selected':''); ?>>Newest</option>
                 </select>
             </div>
         </div>
 
-        {{-- Products Grid --}}
+        
         <div class="products-grid">
-            @forelse($products as $product)
+            <?php $__empty_1 = true; $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                 <div class="product-card">
                     <div class="product-img-wrap">
                         <img
-                            src="{{ $product->image_url }}"
-                            alt="{{ $product->product_name }}"
+                            src="<?php echo e($product->image_url); ?>"
+                            alt="<?php echo e($product->product_name); ?>"
                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22280%22 height=%22220%22%3E%3Crect fill=%22%23f5f5f5%22 width=%22280%22 height=%22220%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-family=%22Arial%22 font-size=%2215%22 fill=%22%23bbb%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo Image%3C/text%3E%3C/svg%3E'"
-                            onclick="window.openProductModal({{ $product->id }}, event)" style="cursor:pointer;">
-                        @if($product->is_featured)
+                            onclick="window.openProductModal(<?php echo e($product->id); ?>, event)" style="cursor:pointer;">
+                        <?php if($product->is_featured): ?>
                             <span class="product-badge badge-new">FEATURED</span>
-                        @endif
+                        <?php endif; ?>
                     </div>
 
                     <div class="product-body">
@@ -531,54 +535,54 @@
                             <span class="stars">★★★★★</span>
                             <span class="count">(0)</span>
                         </div>
-                        <div style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: 700; margin-bottom: 2px;">{{ $product->brand_name }}</div>
-                        <h3 class="product-name" style="min-height: auto; margin-bottom: 4px; cursor:pointer; transition:color 0.2s;" onmouseover="this.style.color='#FF8C42'" onmouseout="this.style.color='inherit'" onclick="window.openProductModal({{ $product->id }}, event)">{{ $product->product_name }}</h3>
+                        <div style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: 700; margin-bottom: 2px;"><?php echo e($product->brand_name); ?></div>
+                        <h3 class="product-name" style="min-height: auto; margin-bottom: 4px; cursor:pointer; transition:color 0.2s;" onmouseover="this.style.color='#FF8C42'" onmouseout="this.style.color='inherit'" onclick="window.openProductModal(<?php echo e($product->id); ?>, event)"><?php echo e($product->product_name); ?></h3>
 
-                        @php
+                        <?php
                             $petIcons = ['dogs'=>'🐕','cats'=>'🐱','birds'=>'🐦','fish'=>'🐠','small-mammals'=>'🐹','reptiles'=>'🦎'];
                             $petIcon = $petIcons[$product->animal_type ?? ''] ?? '🐾';
-                        @endphp
-                        <span class="product-pet-icon">{{ $petIcon }}</span>
+                        ?>
+                        <span class="product-pet-icon"><?php echo e($petIcon); ?></span>
 
                         <div class="product-price-row">
-                            <span class="product-price">₱{{ number_format($product->price, 0) }}</span>
+                            <span class="product-price">₱<?php echo e(number_format($product->price, 0)); ?></span>
                         </div>
 
                         <div class="product-stock">
-                            @if($product->stock > 0)
+                            <?php if($product->stock > 0): ?>
                                 <span class="stock-in">✓ In Stock</span>
-                            @else
+                            <?php else: ?>
                                 <span class="stock-out">✗ Out of Stock</span>
-                            @endif
+                            <?php endif; ?>
                         </div>
 
-                        <form action="{{ route('cart.add') }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                        <form action="<?php echo e(route('cart.add')); ?>" method="POST">
+                            <?php echo csrf_field(); ?>
+                            <input type="hidden" name="product_id" value="<?php echo e($product->id); ?>">
                             <input type="hidden" name="quantity" value="1">
                             <button
                                 type="submit"
                                 class="btn-add-to-cart"
-                                {{ $product->stock > 0 ? '' : 'disabled' }}>
+                                <?php echo e($product->stock > 0 ? '' : 'disabled'); ?>>
                                 Add to Cart
                             </button>
                         </form>
                     </div>
                 </div>
-            @empty
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                 <div class="no-products">
                     <p>No products found. Try adjusting your filters.</p>
                 </div>
-            @endforelse
+            <?php endif; ?>
         </div>
 
-        @if(method_exists($products, 'hasPages') && $products->hasPages())
-            <div class="pagination-wrap">{{ $products->links() }}</div>
-        @endif
+        <?php if(method_exists($products, 'hasPages') && $products->hasPages()): ?>
+            <div class="pagination-wrap"><?php echo e($products->links()); ?></div>
+        <?php endif; ?>
     </main>
 </div>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
     function toggleSidebar() {
         const sidebar = document.getElementById('shopSidebar');
@@ -605,6 +609,8 @@
         document.getElementById('priceMaxLabel').textContent = val;
     }
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('frontend.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views/frontend/shop.blade.php ENDPATH**/ ?>

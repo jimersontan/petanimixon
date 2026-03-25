@@ -202,4 +202,31 @@ class ShopController extends Controller
             'reviewStats' => $reviewStats,
         ]);
     }
+
+    /**
+     * Return product modal content via AJAX.
+     */
+    public function productModal($id)
+    {
+        $product = Product::with('category', 'variants')->findOrFail($id);
+
+        $reviews = $product->reviews()
+            ->with(['user', 'replies.user', 'likes'])
+            ->orderByDesc('created_at')
+            ->get();
+
+        $reviewStats = [
+            'count' => $reviews->count(),
+            'average' => $reviews->count() ? round($reviews->avg('rating'), 1) : 0,
+            'distribution' => collect([5, 4, 3, 2, 1])->mapWithKeys(function ($star) use ($reviews) {
+                return [$star => $reviews->where('rating', $star)->count()];
+            }),
+        ];
+
+        return view('frontend.partials.product_modal_content', [
+            'product' => $product,
+            'reviews' => $reviews,
+            'reviewStats' => $reviewStats,
+        ]);
+    }
 }

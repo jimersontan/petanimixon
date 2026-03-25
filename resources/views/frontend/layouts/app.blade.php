@@ -171,6 +171,16 @@
         @endauth
     </nav>
 
+    {{-- Global Product Modal --}}
+    <div id="globalProductModal" class="ud-modal-overlay" style="display:none;" onclick="if(event.target===this) window.closeProductModal()">
+        <div class="ud-modal-container">
+            <button class="ud-modal-close" onclick="window.closeProductModal()">&times;</button>
+            <div id="globalProductModalContent" class="ud-modal-body">
+                <!-- AJAX Content Injected Here -->
+            </div>
+        </div>
+    </div>
+
     <script src="{{ asset('js/user_dashboard.js') }}"></script>
     @stack('scripts')
 </body>

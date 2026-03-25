@@ -29,7 +29,7 @@
                 <h3 class="hero-prod-heading">🔥 Popular Products</h3>
                 <div class="hero-prod-grid">
                     <?php $__currentLoopData = ($heroProducts ?? collect()); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $hp): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <a href="<?php echo e(route('product.show', $hp->id)); ?>" class="hero-prod-card">
+                    <a href="<?php echo e(route('product.show', $hp->id)); ?>" onclick="window.openProductModal(<?php echo e($hp->id); ?>, event)" class="hero-prod-card">
                         <div class="hero-prod-img-wrap">
                             <img src="<?php echo e($hp->image_url); ?>" alt="<?php echo e($hp->product_name); ?>" onerror="this.src='https://via.placeholder.com/150x150?text=No+Image'">
                             <?php if($loop->index < 2): ?>

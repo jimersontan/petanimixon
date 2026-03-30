@@ -17,7 +17,7 @@
                          onerror="this.onerror=null; this.src='{{ asset('images/placeholder.png') }}'"
                          onclick="window.openProductModal({{ $product->id }}, event)" style="cursor:pointer;">
                     <h4 onclick="window.openProductModal({{ $product->id }}, event)" style="cursor:pointer; transition:color 0.2s;" onmouseover="this.style.color='#FF8C42'" onmouseout="this.style.color='inherit'">{{ $product->product_name }}</h4>
-                    <p class="ud-price">₱{{ number_format($product->price, 2) }}</p>
+                    <p class="ud-price">₱{{ number_format((float)$product->price, 2) }}</p>
                     @auth
                     <form action="{{ route('cart.add') }}" method="POST">
                         @csrf

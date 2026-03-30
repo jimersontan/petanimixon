@@ -1,8 +1,8 @@
-@extends('frontend.layouts.app')
 
-@section('title', 'Free Trial - Pet Animixon')
 
-@push('styles')
+<?php $__env->startSection('title', 'Free Trial - Pet Animixon'); ?>
+
+<?php $__env->startPush('styles'); ?>
 <style>
     .trial-hero {
         background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
@@ -154,9 +154,9 @@
         color: #991b1b;
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="trial-hero">
     <div class="trial-hero-wave"></div>
     <h1>Try Before You <span>Buy</span> 🎁</h1>
@@ -220,12 +220,12 @@
     <div class="trial-cta">
         <h3>Ready to get started?</h3>
         <p>Browse our shop and look for products with the "Trial Available" badge.</p>
-        <a href="{{ route('shop.all') }}">Browse Products</a>
+        <a href="<?php echo e(route('shop.all')); ?>">Browse Products</a>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 (function () {
   var input = document.getElementById('domInput');
@@ -301,4 +301,6 @@
   updateCount();
 })();
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('frontend.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views\frontend\trial.blade.php ENDPATH**/ ?>

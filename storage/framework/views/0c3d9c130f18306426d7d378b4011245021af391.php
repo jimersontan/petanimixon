@@ -1,10 +1,10 @@
 <!-- ===== CATEGORIES ADMIN PAGE ===== -->
 <!-- Extends the main admin layout -->
-@extends('layouts.admin')
 
-@section('title','Categories')
 
-@section('content')
+<?php $__env->startSection('title','Categories'); ?>
+
+<?php $__env->startSection('content'); ?>
 
 <!-- ===== PAGE HEADER SECTION ===== -->
 <!-- Title and Add Category button -->
@@ -30,7 +30,7 @@
             <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M3 3v8h8V3H3zm10 0v8h8V3h-8zM3 13v8h8v-8H3zm10 0v8h8v-8h-8z"/></svg>
         </div>
         <div class="metric-content">
-            <div class="metric-value">{{ number_format($stats['total_categories'] ?? 0) }}</div>
+            <div class="metric-value"><?php echo e(number_format($stats['total_categories'] ?? 0)); ?></div>
             <div class="metric-label">Total Categories</div>
         </div>
     </div>
@@ -42,7 +42,7 @@
             <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
         </div>
         <div class="metric-content">
-            <div class="metric-value">{{ number_format($stats['active_categories'] ?? 0) }}</div>
+            <div class="metric-value"><?php echo e(number_format($stats['active_categories'] ?? 0)); ?></div>
             <div class="metric-label">Active Categories</div>
         </div>
     </div>
@@ -54,7 +54,7 @@
             <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M20 2H4c-1 0-2 .9-2 2v3.01c0 .72.43 1.34 1 1.69V20c0 1.1 1.1 2 2 2h14c.9 0 2-.9 2-2V8.7c.57-.35 1-.97 1-1.69V4c0-1.1-1-2-2-2zm-5 12H9v-2h6v2zm5-7H4V4h16v3z"/></svg>
         </div>
         <div class="metric-content">
-            <div class="metric-value">{{ number_format($stats['total_products'] ?? 0) }}</div>
+            <div class="metric-value"><?php echo e(number_format($stats['total_products'] ?? 0)); ?></div>
             <div class="metric-label">Total Products</div>
         </div>
     </div>
@@ -66,7 +66,7 @@
             <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
         </div>
         <div class="metric-content">
-            <div class="metric-value">{{ number_format($stats['avg_products_per_category'] ?? 0) }}</div>
+            <div class="metric-value"><?php echo e(number_format($stats['avg_products_per_category'] ?? 0)); ?></div>
             <div class="metric-label">Avg Products/Category</div>
         </div>
     </div>
@@ -97,33 +97,33 @@
             <!-- Table Body: Category Rows -->
             <tbody>
                 <!-- Loop: Render each category row -->
-                @forelse($categories as $category)
+                <?php $__empty_1 = true; $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                 <tr>
                     <!-- Category Name -->
-                    <td>{{ $category->category_name ?? '' }}</td>
+                    <td><?php echo e($category->category_name ?? ''); ?></td>
                     <!-- Number of Products in this Category -->
-                    <td>{{ $category->products_count ?? 0 }}</td>
+                    <td><?php echo e($category->products_count ?? 0); ?></td>
                     <!-- Active/Inactive Status -->
-                    <td>{{ ($category->is_active ?? true) ? 'Active' : 'Inactive' }}</td>
+                    <td><?php echo e(($category->is_active ?? true) ? 'Active' : 'Inactive'); ?></td>
                     <!-- Action Buttons: Edit and Deactivate -->
                     <td class="col-actions">
                         <!-- Edit Button -->
                         <button type="button" class="action-btn" title="Edit" aria-label="Edit category"
                             onclick="openCategoryModal('edit', {
-                                id: {{ $category->id }},
-                                name: '{{ addslashes($category->category_name) }}',
-                                description: '{{ addslashes($category->description ?? '') }}',
-                                sort_order: {{ $category->sort_order ?? 0 }},
-                                is_featured: {{ $category->is_featured ? 'true' : 'false' }},
-                                is_active: {{ $category->is_active ? '1' : '0' }},
-                                image_url: '{{ $category->image_url ? asset('storage/'.$category->image_url) : '' }}'
+                                id: <?php echo e($category->id); ?>,
+                                name: '<?php echo e(addslashes($category->category_name)); ?>',
+                                description: '<?php echo e(addslashes($category->description ?? '')); ?>',
+                                sort_order: <?php echo e($category->sort_order ?? 0); ?>,
+                                is_featured: <?php echo e($category->is_featured ? 'true' : 'false'); ?>,
+                                is_active: <?php echo e($category->is_active ? '1' : '0'); ?>,
+                                image_url: '<?php echo e($category->image_url ? asset('storage/'.$category->image_url) : ''); ?>'
                             })">
                             <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                         </button>
                         <!-- Deactivate Button: Submits DELETE form to soft-deactivate -->
-                        <form method="POST" action="{{ route('categories.destroy', $category) }}" style="display:inline">
-                            @csrf
-                            @method('DELETE')
+                        <form method="POST" action="<?php echo e(route('categories.destroy', $category)); ?>" style="display:inline">
+                            <?php echo csrf_field(); ?>
+                            <?php echo method_field('DELETE'); ?>
                             <button type="submit" class="action-btn" title="Deactivate" onclick="return confirm('Deactivate this category?')">
                                 <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-4.5l-1-1z"/></svg>
                             </button>
@@ -131,12 +131,12 @@
                     </td>
                     <!-- End: Action Buttons -->
                 </tr>
-                @empty
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                 <!-- Empty State: Shown when no categories exist -->
                 <tr>
                     <td colspan="4" class="text-center empty-orders">No categories defined yet.</td>
                 </tr>
-                @endforelse
+                <?php endif; ?>
                 <!-- End: Category Rows Loop -->
             </tbody>
             <!-- End: Table Body -->
@@ -147,16 +147,16 @@
 </div>
 <!-- ===== END CATEGORIES TABLE SECTION ===== -->
 
-@endsection
+<?php $__env->stopSection(); ?>
 
 <!-- ===== CATEGORY MODAL (ADD/EDIT) ===== -->
 <!-- Modal popup for creating or editing a category -->
-@push('modals')
+<?php $__env->startPush('modals'); ?>
 <!-- Modal Backdrop: Dark overlay -->
-<div class="modal-backdrop {{ $errors->any() ? 'open' : '' }}" data-modal-id="category-modal"></div>
+<div class="modal-backdrop <?php echo e($errors->any() ? 'open' : ''); ?>" data-modal-id="category-modal"></div>
 
 <!-- Modal Container -->
-<div id="category-modal" class="modal {{ $errors->any() ? 'open' : '' }}" role="dialog" aria-modal="true" aria-labelledby="categoryModalTitle" tabindex="-1">
+<div id="category-modal" class="modal <?php echo e($errors->any() ? 'open' : ''); ?>" role="dialog" aria-modal="true" aria-labelledby="categoryModalTitle" tabindex="-1">
 
     <!-- Modal Header: Title and Close Button -->
     <div class="modal-header">
@@ -167,11 +167,11 @@
 
     <!-- Modal Body: Form for entering category details -->
     <div class="modal-body">
-        <form id="categoryModalForm" action="{{ route('categories.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
+        <form id="categoryModalForm" action="<?php echo e(route('categories.store')); ?>" method="POST" enctype="multipart/form-data">
+            <?php echo csrf_field(); ?>
             <div id="categoryMethodContainer"></div>
             <!-- Include the reusable category form partial -->
-            @include('categories._form', ['category' => new \App\Models\Category()])
+            <?php echo $__env->make('categories._form', ['category' => new \App\Models\Category()], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
             <!-- Modal Footer: Cancel and Save Buttons -->
             <div class="modal-footer">
@@ -185,12 +185,12 @@
 
 </div>
 <!-- ===== END CATEGORY MODAL ===== -->
-@endpush
+<?php $__env->stopPush(); ?>
 
 <!-- Page-Specific Scripts -->
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <!-- Orders JS: Table interaction scripts -->
-<script src="{{ asset('js/orders.js') }}"></script>
+<script src="<?php echo e(asset('js/orders.js')); ?>"></script>
 <script>
     function openCategoryModal(mode, data = null) {
         const modal = document.getElementById('category-modal');
@@ -212,7 +212,7 @@
         if (mode === 'add') {
             title.textContent = 'Add Category';
             submitBtn.textContent = 'Save Category';
-            form.action = "{{ route('categories.store') }}";
+            form.action = "<?php echo e(route('categories.store')); ?>";
             methodContainer.innerHTML = '';
             
             // Set defaults
@@ -243,4 +243,6 @@
         backdrop.classList.add('open');
     }
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layouts.admin', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views\categories_admin.blade.php ENDPATH**/ ?>

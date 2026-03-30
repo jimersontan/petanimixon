@@ -13,7 +13,7 @@ class ShopController extends Controller
      */
     public function index(Request $request)
     {
-        $categories = Category::where('is_active', 1)->orderBy('category_name')->get();
+        $categories = Category::where('is_active', 1)->withCount('products')->orderBy('category_name')->get();
         $featured = Product::where('is_featured', 1)->limit(12)->get();
 
         // Top 2 best-sellers by order count
@@ -45,7 +45,7 @@ class ShopController extends Controller
      */
     public function shop(Request $request)
     {
-        $query = Product::where('product_status', 'active');
+        $query = Product::with('variants')->where('product_status', 'active');
 
         // Filter by brand
         if ($request->has('brand') && !empty($request->input('brand'))) {

@@ -1,53 +1,53 @@
-@extends('frontend.layouts.app')
 
-@section('title','Petverse - Everything Your Pet Needs')
 
-@section('content')
-    @if(session('message'))
-        <div class="ud-msg">{{ session('message') }}</div>
-    @endif
+<?php $__env->startSection('title','Petverse - Everything Your Pet Needs'); ?>
+
+<?php $__env->startSection('content'); ?>
+    <?php if(session('message')): ?>
+        <div class="ud-msg"><?php echo e(session('message')); ?></div>
+    <?php endif; ?>
 
     <!-- Hero Section -->
     <section class="ud-hero">
         <div class="ud-hero-inner">
-            {{-- Popular Products (Desktop & Mobile) --}}
+            
             <div class="ud-hero-products">
                 <h3 class="hero-prod-heading" style="text-align: left; font-size: 20px; margin-bottom: 15px;">🔥 Popular Products</h3>
                 <div class="hero-prod-grid">
-                    @foreach(($heroProducts ?? collect()) as $hp)
-                    <a href="{{ route('product.show', $hp->id) }}" onclick="window.openProductModal({{ $hp->id }}, event)" class="hero-prod-card">
+                    <?php $__currentLoopData = ($heroProducts ?? collect()); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $hp): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <a href="<?php echo e(route('product.show', $hp->id)); ?>" onclick="window.openProductModal(<?php echo e($hp->id); ?>, event)" class="hero-prod-card">
                         <div class="hero-prod-img-wrap">
-                            <img src="{{ $hp->image_url }}" alt="{{ $hp->product_name }}" onerror="this.src='https://via.placeholder.com/150x150?text=No+Image'">
-                            @if($loop->index < 2)
+                            <img src="<?php echo e($hp->image_url); ?>" alt="<?php echo e($hp->product_name); ?>" onerror="this.src='https://via.placeholder.com/150x150?text=No+Image'">
+                            <?php if($loop->index < 2): ?>
                             <span class="hero-prod-badge">Best Seller</span>
-                            @endif
+                            <?php endif; ?>
                         </div>
                         <div class="hero-prod-info">
-                            <div class="hero-prod-name">{{ Str::limit($hp->product_name, 28) }}</div>
-                            <div class="hero-prod-price">₱{{ number_format($hp->price, 2) }}</div>
+                            <div class="hero-prod-name"><?php echo e(Str::limit($hp->product_name, 28)); ?></div>
+                            <div class="hero-prod-price">₱<?php echo e(number_format($hp->price, 2)); ?></div>
                         </div>
                     </a>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
             </div>
             <div class="ud-hero-right ud-hero-products-right">
                 <h3 class="hero-prod-heading" style="text-align: left; font-size: 20px; margin-bottom: 15px;">✨ Featured Products</h3>
                 <div class="hero-prod-grid-3">
-                    @foreach($featuredProducts->take(6) as $product)
+                    <?php $__currentLoopData = $featuredProducts->take(6); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <div class="ud-product-card" style="padding: 12px; display: flex; flex-direction: column; background: #fff; border: 1px solid rgba(255,136,68,.2); box-shadow: 0 2px 6px rgba(0,0,0,.03);">
-                        <a href="{{ route('product.show', $product->id) }}" style="text-decoration: none; color: inherit; flex-grow: 1;">
-                            <img src="{{ $product->image_url }}" alt="{{ $product->product_name }}" onerror="this.src='https://via.placeholder.com/150x150?text=No+Image'" style="height: 120px; width: 100%; object-fit: cover; border-radius: 8px; margin-bottom: 8px;">
-                            <h4 style="margin: 0 0 6px; font-size: 12px; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3;">{{ $product->product_name }}</h4>
-                            <div class="ud-price" style="margin: 0 0 8px; font-size: 14px; font-weight: 700; color: var(--ud-orange);">₱{{ number_format($product->price, 2) }}</div>
+                        <a href="<?php echo e(route('product.show', $product->id)); ?>" style="text-decoration: none; color: inherit; flex-grow: 1;">
+                            <img src="<?php echo e($product->image_url); ?>" alt="<?php echo e($product->product_name); ?>" onerror="this.src='https://via.placeholder.com/150x150?text=No+Image'" style="height: 120px; width: 100%; object-fit: cover; border-radius: 8px; margin-bottom: 8px;">
+                            <h4 style="margin: 0 0 6px; font-size: 12px; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3;"><?php echo e($product->product_name); ?></h4>
+                            <div class="ud-price" style="margin: 0 0 8px; font-size: 14px; font-weight: 700; color: var(--ud-orange);">₱<?php echo e(number_format($product->price, 2)); ?></div>
                         </a>
-                        <form action="{{ route('cart.add') }}" method="POST" style="margin-top: auto;">
-                            @csrf
-                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                        <form action="<?php echo e(route('cart.add')); ?>" method="POST" style="margin-top: auto;">
+                            <?php echo csrf_field(); ?>
+                            <input type="hidden" name="product_id" value="<?php echo e($product->id); ?>">
                             <input type="hidden" name="quantity" value="1">
                             <button type="submit" class="ud-add-cart" style="padding: 6px; width: 100%; font-size: 11px; font-weight: 700; background: var(--ud-orange); color: #fff; border: none; border-radius: 6px; cursor: pointer;">Add to Cart</button>
                         </form>
                     </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
             </div>
         </div>
@@ -119,14 +119,14 @@
             <span class="ud-paw">🐾</span>
         </h2>
         <div class="ud-category-grid" id="udCategoryGrid">
-            @forelse($categories as $category)
-                <a href="{{ route('categories.show', $category->id) }}" class="ud-category-card">
-                    <div class="ud-category-card-title">{{ $category->category_name }}</div>
-                    <div class="ud-category-card-meta">{{ collect($category->getAttributes())->has('products_count') ? $category->products_count : $category->products()->count() }} products</div>
+            <?php $__empty_1 = true; $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                <a href="<?php echo e(route('categories.show', $category->id)); ?>" class="ud-category-card">
+                    <div class="ud-category-card-title"><?php echo e($category->category_name); ?></div>
+                    <div class="ud-category-card-meta"><?php echo e(collect($category->getAttributes())->has('products_count') ? $category->products_count : $category->products()->count()); ?> products</div>
                 </a>
-            @empty
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                 <div class="ud-category-card">No categories available yet.</div>
-            @endforelse
+            <?php endif; ?>
         </div>
     </section>
 
@@ -170,4 +170,6 @@
             </div>
         </div>
     </section>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('frontend.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views\user_dashboard.blade.php ENDPATH**/ ?>

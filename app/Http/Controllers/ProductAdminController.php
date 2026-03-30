@@ -64,7 +64,7 @@ class ProductAdminController extends Controller
         $products = $productsQuery
             ->orderByDesc('created_at')
             ->paginate(15)
-            ->withQueryString();
+            ->appends($request->query());
 
         $categories = \App\Models\Category::where('is_active', true)->orderBy('category_name')->get();
         $brands = \App\Models\Brand::where('is_active', true)->orderBy('name')->get();

@@ -192,7 +192,7 @@
                     <!-- Category Name -->
                     <td>{{ optional($product->category)->category_name ?? '' }}</td>
                     <!-- Price -->
-                    <td>{{ isset($product->price) ? '' . number_format($product->price, 2) : '' }}</td>
+                    <td>{{ isset($product->price) ? '' . number_format((float)$product->price, 2) : '' }}</td>
                     <!-- Stock Count -->
                     <td>{{ $product->stock ?? 0 }}</td>
                     <!-- Status Badge -->

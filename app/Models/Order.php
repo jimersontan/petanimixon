@@ -20,6 +20,9 @@ class Order extends Model
         'tax_amount',
         'total_amount',
         'discount_amount',
+        'shipping_fee',
+        'shipping_method',
+        'voucher_code',
         'payment_method',
         'payment_status',
         'shipping_address_id',
@@ -33,6 +36,7 @@ class Order extends Model
         'tax_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'discount_amount' => 'decimal:2',
+        'shipping_fee' => 'decimal:2',
     ];
 
     /**
@@ -56,6 +60,11 @@ class Order extends Model
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function shippingAddress()
+    {
+        return $this->belongsTo(UserAddress::class, 'shipping_address_id');
     }
 
     /**

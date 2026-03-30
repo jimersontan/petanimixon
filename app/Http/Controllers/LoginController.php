@@ -48,17 +48,26 @@ class LoginController extends Controller
 
         if (!$user) {
             \Log::warning('Login attempt failed, user not found', ['identifier' => $identifier]);
-            return response()->json(['success' => false, 'message' => 'User not found'], 401);
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'User not found'], 401);
+            }
+            return redirect()->back()->withErrors(['email' => 'User not found'])->withInput();
         }
 
         if (!Hash::check($validated['password'], $user->password)) {
-            return response()->json(['success' => false, 'message' => 'Invalid credentials'], 401);
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Invalid credentials'], 401);
+            }
+            return redirect()->back()->withErrors(['password' => 'Invalid credentials'])->withInput();
         }
 
         Auth::login($user, $request->has('remember'));
 
-        // always JSON response; frontend handles redirect
-        return response()->json(['success' => true, 'redirect' => route('home')]);
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'redirect' => route('home')]);
+        }
+        
+        return redirect()->route('home')->with('success', 'Logged in successfully.');
     }
 
     public function logout(Request $request)

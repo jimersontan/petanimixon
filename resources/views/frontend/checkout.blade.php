@@ -2,330 +2,527 @@
 
 @section('title', 'Checkout - Pet Animixon')
 
+@push('styles')
+<style>
+/* ═══ Checkout Page ═══ */
+.co-page { max-width: 960px; margin: 0 auto; padding: 32px 20px 60px; }
+
+/* ═══ Stepper ═══ */
+.co-stepper { display: flex; justify-content: space-between; margin-bottom: 32px; position: relative; }
+.co-stepper::before { content:''; position:absolute; top:18px; left:40px; right:40px; height:3px; background:#e0e0e0; z-index:0; }
+.co-step { display:flex; flex-direction:column; align-items:center; position:relative; z-index:1; flex:1; }
+.co-step-circle {
+    width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-weight:700; background:#e0e0e0; color:#999; transition:all .3s;
+}
+.co-step.active .co-step-circle { background:#FF8C42; color:#fff; box-shadow:0 4px 12px rgba(255,140,66,.35); }
+.co-step.done .co-step-circle { background:#3DB868; color:#fff; }
+.co-step-label { font-size:11px; margin-top:6px; color:#999; font-weight:600; text-align:center; }
+.co-step.active .co-step-label, .co-step.done .co-step-label { color:#333; }
+
+/* ═══ Step Panels ═══ */
+.co-panel { display:none; }
+.co-panel.active { display:block; }
+.co-card { background:#fff; border-radius:14px; padding:28px; box-shadow:0 2px 12px rgba(0,0,0,.06); margin-bottom:20px; }
+.co-card h2 { font-size:20px; font-weight:700; color:#222; margin:0 0 18px; }
+
+/* ═══ Step 1: Order Summary ═══ */
+.co-item { display:flex; gap:14px; padding:14px 0; border-bottom:1px solid #f0f0f0; }
+.co-item:last-child { border-bottom:none; }
+.co-item-img { width:70px; height:70px; border-radius:8px; object-fit:cover; flex-shrink:0; background:#f5f5f5; }
+.co-item-info { flex:1; }
+.co-item-name { font-size:14px; font-weight:600; color:#222; margin-bottom:2px; }
+.co-item-meta { font-size:12px; color:#888; }
+.co-item-price { text-align:right; white-space:nowrap; }
+.co-item-unit { font-size:12px; color:#888; }
+.co-item-total { font-size:15px; font-weight:700; color:#FF8C42; }
+
+/* ═══ Step 2: Address ═══ */
+.co-addr-card {
+    border:2px solid #e0e0e0; border-radius:12px; padding:16px; margin-bottom:12px;
+    cursor:pointer; position:relative; transition:all .2s;
+}
+.co-addr-card.selected { border-color:#FF8C42; background:#fffaf5; }
+.co-addr-card input[type=radio] { position:absolute; top:16px; right:16px; accent-color:#FF8C42; }
+.co-addr-name { font-weight:700; font-size:15px; color:#222; }
+.co-addr-detail { font-size:13px; color:#666; margin-top:4px; line-height:1.5; }
+.co-new-addr-toggle { display:flex; align-items:center; gap:8px; padding:14px; border:2px dashed #ddd; border-radius:12px; cursor:pointer; color:#FF8C42; font-weight:600; font-size:14px; transition:all .2s; }
+.co-new-addr-toggle:hover { border-color:#FF8C42; background:#fffaf5; }
+.co-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.co-form-group { margin-bottom:0; }
+.co-form-group label { display:block; font-size:12px; font-weight:600; color:#555; margin-bottom:4px; }
+.co-form-group input { width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:8px; font-size:14px; }
+.co-form-group input:focus { border-color:#FF8C42; outline:none; }
+.co-form-full { grid-column:1/-1; }
+
+/* ═══ Step 3: Shipping ═══ */
+.co-ship-option {
+    border:2px solid #e0e0e0; border-radius:12px; padding:18px 20px; margin-bottom:12px;
+    cursor:pointer; display:flex; align-items:center; gap:16px; transition:all .2s;
+}
+.co-ship-option.selected { border-color:#FF8C42; background:#fffaf5; }
+.co-ship-option input[type=radio] { accent-color:#FF8C42; flex-shrink:0; width:18px; height:18px; }
+.co-ship-icon { font-size:28px; flex-shrink:0; }
+.co-ship-info { flex:1; }
+.co-ship-name { font-size:15px; font-weight:700; color:#222; }
+.co-ship-desc { font-size:12px; color:#888; margin-top:2px; }
+.co-ship-price { font-size:16px; font-weight:700; color:#FF8C42; white-space:nowrap; }
+.co-ship-free { color:#3DB868; }
+
+/* ═══ Step 4: Payment ═══ */
+.co-pay-option {
+    border:2px solid #e0e0e0; border-radius:12px; padding:18px 20px; margin-bottom:12px;
+    cursor:pointer; display:flex; align-items:center; gap:16px; transition:all .2s;
+}
+.co-pay-option.selected { border-color:#FF8C42; background:#fffaf5; }
+.co-pay-option input[type=radio] { accent-color:#FF8C42; flex-shrink:0; width:18px; height:18px; }
+.co-pay-icon { font-size:28px; flex-shrink:0; }
+.co-pay-name { font-size:15px; font-weight:700; color:#222; }
+.co-pay-desc { font-size:12px; color:#888; margin-top:2px; }
+.co-voucher-row { display:flex; gap:10px; margin-top:16px; }
+.co-voucher-input { flex:1; padding:10px 14px; border:1px solid #ddd; border-radius:8px; font-size:14px; }
+.co-voucher-input:focus { border-color:#FF8C42; outline:none; }
+.co-voucher-btn { padding:10px 20px; background:#FF8C42; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:14px; white-space:nowrap; }
+.co-voucher-btn:hover { opacity:.88; }
+.co-voucher-msg { font-size:13px; margin-top:8px; }
+.co-voucher-msg.success { color:#3DB868; }
+.co-voucher-msg.error { color:#e44; }
+
+/* ═══ Step 5: Review ═══ */
+.co-review-section { margin-bottom:20px; }
+.co-review-label { font-size:12px; text-transform:uppercase; font-weight:700; color:#999; letter-spacing:.5px; margin-bottom:8px; }
+.co-review-value { font-size:14px; color:#333; line-height:1.6; }
+.co-summary-row { display:flex; justify-content:space-between; padding:8px 0; font-size:14px; color:#555; }
+.co-summary-row.total { border-top:2px solid #eee; padding-top:14px; margin-top:6px; font-size:18px; font-weight:800; color:#222; }
+.co-summary-row.total span:last-child { color:#FF8C42; }
+.co-discount-row { color:#3DB868; }
+
+/* ═══ Navigation Buttons ═══ */
+.co-nav { display:flex; justify-content:space-between; margin-top:24px; }
+.co-btn { padding:14px 32px; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; border:none; transition:all .2s; }
+.co-btn-back { background:#f0f0f0; color:#555; }
+.co-btn-back:hover { background:#e0e0e0; }
+.co-btn-next { background:#FF8C42; color:#fff; }
+.co-btn-next:hover { opacity:.9; }
+.co-btn-place { background:#FF8C42; color:#fff; padding:16px 40px; font-size:16px; }
+.co-btn-place:hover { opacity:.9; }
+
+/* ═══ Responsive ═══ */
+@media (max-width:768px) {
+    .co-page { padding:16px 12px 100px; }
+    .co-stepper::before { left:20px; right:20px; }
+    .co-step-circle { width:30px; height:30px; font-size:12px; }
+    .co-step-label { font-size:9px; }
+    .co-card { padding:18px; }
+    .co-form-grid { grid-template-columns:1fr; }
+    .co-item-img { width:56px; height:56px; }
+    .co-nav { gap:10px; }
+    .co-btn { padding:12px 20px; font-size:13px; }
+}
+</style>
+@endpush
+
 @section('content')
-<div style="max-width: 1000px; margin: 0 auto; padding: 40px 20px;">
-    <!-- Header -->
-    <div style="margin-bottom: 40px;">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-            <svg style="width: 24px; height: 24px; color: var(--ud-orange, #FF8C42);" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
-            </svg>
-            <h1 style="font-size: 24px; color: #333; margin: 0; font-weight: 700;">Secure Checkout</h1>
-        </div>
-        <p style="font-size: 14px; color: #666; margin: 0;">Your information is safe and encrypted</p>
-    </div>
-
-    <!-- Progress Steps -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 50px; padding: 0 20px;">
-        <!-- Step 1 -->
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-            <div style="width: 40px; height: 40px; background-color: var(--ud-orange, #FF8C42); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px;">1</div>
-            <span style="font-size: 12px; color: #666; font-weight: 600;">Shipping</span>
-        </div>
-
-        <!-- Line 1 -->
-        <div style="flex: 1; height: 2px; background-color: var(--ud-orange, #FF8C42); margin: 0 10px 20px 10px;"></div>
-
-        <!-- Step 2 -->
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-            <div style="width: 40px; height: 40px; background-color: var(--ud-orange, #FF8C42); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px;">2</div>
-            <span style="font-size: 12px; color: #666; font-weight: 600;">Payment</span>
-        </div>
-
-        <!-- Line 2 -->
-        <div style="flex: 1; height: 2px; background-color: #ddd; margin: 0 10px 20px 10px;"></div>
-
-        <!-- Step 3 -->
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-            <div style="width: 40px; height: 40px; background-color: #ddd; color: #999; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px;">3</div>
-            <span style="font-size: 12px; color: #999; font-weight: 600;">Review</span>
-        </div>
-    </div>
-
-    <!-- Login Section -->
-    <div style="background: white; border-radius: 8px; padding: 25px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2 style="font-size: 16px; color: #333; margin: 0; font-weight: 600;">Contact Information</h2>
-            <a href="{{ route('login') }}" style="font-size: 14px; color: var(--ud-orange, #FF8C42); text-decoration: none; font-weight: 600; cursor: pointer;">Log in</a>
-        </div>
-        
-        <div style="margin-top: 20px;">
-            <div style="margin-bottom: 15px;">
-                <label style="font-size: 14px; color: #333; font-weight: 600; display: block; margin-bottom: 8px;">Email Address *</label>
-                <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; background-color: white;">
-                    <span style="font-size: 16px; color: #666;">📧</span>
-                    <input type="email" placeholder="your@email.com" style="flex: 1; border: none; outline: none; font-size: 14px; background: transparent;" required>
-                </div>
-            </div>
-
-            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #666; cursor: pointer;">
-                <input type="checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-                <span>Email me with news, offers, and updates tips *</span>
-            </label>
-        </div>
-    </div>
-
-    <!-- Shipping Address -->
-    <div style="background: white; border-radius: 8px; padding: 25px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-        <h2 style="font-size: 16px; color: #333; margin: 0 0 20px 0; font-weight: 600;">Shipping Address</h2>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-            <div>
-                <label style="font-size: 12px; color: #333; font-weight: 600; display: block; margin-bottom: 6px;">First Name *</label>
-                <input type="text" placeholder="John" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;" required>
-            </div>
-            <div>
-                <label style="font-size: 12px; color: #333; font-weight: 600; display: block; margin-bottom: 6px;">Last Name *</label>
-                <input type="text" placeholder="Doe" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;" required>
-            </div>
-        </div>
-
-        <div style="margin-bottom: 15px;">
-            <label style="font-size: 12px; color: #333; font-weight: 600; display: block; margin-bottom: 6px;">Address Line 1 *</label>
-            <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px;">
-                <span style="font-size: 14px;">📍</span>
-                <input type="text" placeholder="Street address, P.O. box" style="flex: 1; border: none; outline: none; font-size: 14px; background: transparent;" required>
-            </div>
-        </div>
-
-        <div style="margin-bottom: 15px;">
-            <label style="font-size: 12px; color: #333; font-weight: 600; display: block; margin-bottom: 6px;">Address Line 2</label>
-            <input type="text" placeholder="Apartment, suite, unit, building, floor, etc." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-            <div>
-                <label style="font-size: 12px; color: #333; font-weight: 600; display: block; margin-bottom: 6px;">City *</label>
-                <input type="text" placeholder="Quezon City" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;" required>
-            </div>
-            <div>
-                <label style="font-size: 12px; color: #333; font-weight: 600; display: block; margin-bottom: 6px;">State *</label>
-                <select style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; background-color: white;" required>
-                    <option>Mindanao</option>
-                    <option>Luzon</option>
-                    <option>Visayas</option>
-                </select>
-            </div>
-            <div>
-                <label style="font-size: 12px; color: #333; font-weight: 600; display: block; margin-bottom: 6px;">ZIP *</label>
-                <input type="text" placeholder="8600" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;" required>
-            </div>
-        </div>
-
-        <div style="margin-bottom: 15px;">
-            <label style="font-size: 12px; color: #333; font-weight: 600; display: block; margin-bottom: 6px;">Country *</label>
-            <select style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; background-color: white;" required>
-                <option>Philippines</option>
-                <option>Other</option>
-            </select>
-        </div>
-
-        <div style="margin-bottom: 15px;">
-            <label style="font-size: 12px; color: #333; font-weight: 600; display: block; margin-bottom: 6px;">Phone Number *</label>
-            <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px;">
-                <span style="font-size: 14px;">📱</span>
-                <input type="tel" placeholder="+639*29382923" style="flex: 1; border: none; outline: none; font-size: 14px; background: transparent;" required>
-            </div>
-        </div>
-
-        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #666; cursor: pointer;">
-            <input type="checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-            <span>Save this address living my account for future orders</span>
-        </label>
-    </div>
-
-    <!-- Shipping Method -->
-    <div style="background: white; border-radius: 8px; padding: 25px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-        <h2 style="font-size: 16px; color: #333; margin: 0 0 20px 0; font-weight: 600;">Shipping Method</h2>
-
-        <!-- Option 1 -->
-        <div style="border: 2px solid var(--ud-orange, #FF8C42); border-radius: 8px; padding: 15px; margin-bottom: 12px; cursor: pointer; background-color: #fff9f5;">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <input type="radio" name="shipping" checked style="width: 18px; height: 18px; cursor: pointer;">
-                    <div>
-                        <p style="margin: 0 0 4px 0; font-weight: 600; font-size: 14px; color: #333;">🚚 Free Shipping</p>
-                        <p style="margin: 0; font-size: 12px; color: #999;">5-7 business days</p>
-                    </div>
-                </div>
-                <span style="font-weight: 700; color: #4CAF50; font-size: 14px;">FREE</span>
-            </div>
-            <span style="font-size: 11px; color: #4CAF50; margin-left: 40px;">Up to Feb 5, 2025</span>
-        </div>
-
-        <!-- Option 2 -->
-        <div style="border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 12px; cursor: pointer;">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <input type="radio" name="shipping" style="width: 18px; height: 18px; cursor: pointer;">
-                    <div>
-                        <p style="margin: 0 0 4px 0; font-weight: 600; font-size: 14px; color: #333;">📦 Standard Shipping</p>
-                        <p style="margin: 0; font-size: 12px; color: #999;">3-5 business days</p>
-                    </div>
-                </div>
-                <span style="font-weight: 700; color: var(--ud-orange, #FF8C42); font-size: 14px;">₱300</span>
-            </div>
-        </div>
-
-        <!-- Option 3 -->
-        <div style="border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 12px; cursor: pointer;">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <input type="radio" name="shipping" style="width: 18px; height: 18px; cursor: pointer;">
-                    <div>
-                        <p style="margin: 0 0 4px 0; font-weight: 600; font-size: 14px; color: #333;">⚡ Express Shipping</p>
-                        <p style="margin: 0; font-size: 12px; color: #999;">2-3 business days</p>
-                    </div>
-                </div>
-                <span style="font-weight: 700; color: var(--ud-orange, #FF8C42); font-size: 14px;">₱200</span>
-            </div>
-        </div>
-
-        <!-- Option 4 -->
-        <div style="border: 1px solid #ddd; border-radius: 8px; padding: 15px; cursor: pointer;">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <input type="radio" name="shipping" style="width: 18px; height: 18px; cursor: pointer;">
-                    <div>
-                        <p style="margin: 0 0 4px 0; font-weight: 600; font-size: 14px; color: #333;">🐾 Overnight Shipping</p>
-                        <p style="margin: 0; font-size: 12px; color: #999;">Next business day</p>
-                    </div>
-                </div>
-                <span style="font-weight: 700; color: var(--ud-orange, #FF8C42); font-size: 14px;">₱200</span>
-            </div>
-        </div>
-
-        <div style="background-color: #fffbf0; border-radius: 6px; padding: 12px 15px; margin-top: 15px; font-size: 12px; color: #666;">
-            <strong>📦 Estimated delivery: </strong>February 5-7 2025
-        </div>
-    </div>
-
-    <!-- Payment Method -->
-    <div style="background: white; border-radius: 8px; padding: 25px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-        <h2 style="font-size: 16px; color: #333; margin: 0 0 20px 0; font-weight: 600;">Payment Method</h2>
-
-        <!-- Payment Options -->
-        <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
-            <button style="padding: 10px 20px; background-color: var(--ud-orange, #FF8C42); color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;">💳 Credit/Debit Card</button>
-            <button style="padding: 10px 20px; background-color: white; color: #333; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s;">💳 PayPal</button>
-            <button style="padding: 10px 20px; background-color: white; color: #333; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s;">🍎 Apple Pay</button>
-            <button style="padding: 10px 20px; background-color: white; color: #333; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s;">🔵 Google Pay</button>
-        </div>
-
-        <!-- Card Details -->
-        <div style="margin-bottom: 15px;">
-            <label style="font-size: 12px; color: #333; font-weight: 600; display: block; margin-bottom: 6px;">Card number *</label>
-            <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px;">
-                <span style="font-size: 14px;">💳</span>
-                <input type="text" placeholder="1234 5678 9012 3456" style="flex: 1; border: none; outline: none; font-size: 14px; background: transparent;" required>
-                <span style="color: #4169E1; font-size: 12px; font-weight: 600;">Visa</span>
-            </div>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-            <div>
-                <label style="font-size: 12px; color: #333; font-weight: 600; display: block; margin-bottom: 6px;">Name on Card *</label>
-                <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px;">
-                    <span style="font-size: 14px;">👤</span>
-                    <input type="text" placeholder="John Doe" style="flex: 1; border: none; outline: none; font-size: 14px; background: transparent;" required>
-                </div>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                <div>
-                    <label style="font-size: 12px; color: #333; font-weight: 600; display: block; margin-bottom: 6px;">Expiration Date *</label>
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px;">
-                        <span style="font-size: 14px;">📅</span>
-                        <input type="text" placeholder="MM / YY" style="flex: 1; border: none; outline: none; font-size: 14px; background: transparent;" required>
-                    </div>
-                </div>
-                <div>
-                    <label style="font-size: 12px; color: #333; font-weight: 600; display: block; margin-bottom: 6px;">CVV *</label>
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px;">
-                        <span style="font-size: 14px;">🔒</span>
-                        <input type="text" placeholder="123" style="flex: 1; border: none; outline: none; font-size: 14px; background: transparent;" required>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Security Info -->
-        <div style="background-color: #f0f0f0; border-radius: 6px; padding: 12px 15px; display: flex; align-items: center; gap: 10px; font-size: 12px; color: #666; margin-bottom: 15px;">
-            <span>🔒</span>
-            <span>Encrypted</span>
-            <span style="margin-left: auto;">Never Saved</span>
-            <span>🛡️Compliant</span>
-        </div>
-
-        <!-- Checkboxes -->
-        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #333; cursor: pointer; margin-bottom: 10px;">
-            <input type="checkbox" checked style="width: 16px; height: 16px; cursor: pointer;">
-            <span>Billing address is same as shipping</span>
-        </label>
-
-        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #333; cursor: pointer;">
-            <input type="checkbox" style="width: 16px; height: 16px; cursor: pointer;">
-            <span>Save this payment method for future purchases</span>
-        </label>
-    </div>
-
-    <!-- Review Section -->
-    <div style="background: white; border-radius: 8px; padding: 25px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-        <h2 style="font-size: 16px; color: #333; margin: 0 0 20px 0; font-weight: 600;">Review Your Order</h2>
-
-        <!-- Shipping Address Review -->
-        <div style="border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
-            <div style="display: flex; justify-content: space-between; align-items: start;">
-                <div>
-                    <h3 style="font-size: 13px; color: #999; margin: 0 0 8px 0; font-weight: 600;">🏠 Shipping Address</h3>
-                    <p style="margin: 0; font-size: 14px; color: #333;">John Doe<br>P.O. Box 123<br>Quezon City, Mindanao 8600<br>Philippines</p>
-                </div>
-                <a href="#" style="font-size: 12px; color: var(--ud-orange, #FF8C42); text-decoration: none; font-weight: 600; cursor: pointer;">Edit</a>
-            </div>
-        </div>
-
-        <!-- Shipping Method Review -->
-        <div style="border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
-            <div style="display: flex; justify-content: space-between; align-items: start;">
-                <div>
-                    <h3 style="font-size: 13px; color: #999; margin: 0 0 8px 0; font-weight: 600;">📦 Shipping Method</h3>
-                    <p style="margin: 0; font-size: 14px; color: #333;">Free Shipping<br>Estimated delivery: 5-7 business days</p>
-                </div>
-                <a href="#" style="font-size: 12px; color: var(--ud-orange, #FF8C42); text-decoration: none; font-weight: 600; cursor: pointer;">Edit</a>
-            </div>
-        </div>
-
-        <!-- Payment Method Review -->
-        <div>
-            <div style="display: flex; justify-content: space-between; align-items: start;">
-                <div>
-                    <h3 style="font-size: 13px; color: #999; margin: 0 0 8px 0; font-weight: 600;">💳 Payment Method</h3>
-                    <p style="margin: 0; font-size: 14px; color: #333;">Visa ending in 3456</p>
-                </div>
-                <a href="#" style="font-size: 12px; color: var(--ud-orange, #FF8C42); text-decoration: none; font-weight: 600; cursor: pointer;">Edit</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Terms and Order Button -->
-    <div style="background: white; border-radius: 8px; padding: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-        <label style="display: flex; align-items: flex-start; gap: 10px; font-size: 12px; color: #333; cursor: pointer; margin-bottom: 20px;">
-            <input type="checkbox" required style="width: 16px; height: 16px; cursor: pointer; margin-top: 2px;">
-            <span>I understand and accept the <a href="#" style="color: var(--ud-orange, #FF8C42); text-decoration: none;">Terms & Conditions</a>, <a href="#" style="color: var(--ud-orange, #FF8C42); text-decoration: none;">Privacy Policy</a>, and <a href="#" style="color: var(--ud-orange, #FF8C42); text-decoration: none;">Return Policy</a></span>
-        </label>
-
-        <button style="width: 100%; padding: 14px; background-color: var(--ud-orange, #FF8C42); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background-color 0.3s;">Complete Purchase</button>
-    </div>
-</div>
 
 <style>
-    input:focus, select:focus, textarea:focus {
-        outline: none;
-        border-color: var(--ud-orange, #FF8C42) !important;
-        box-shadow: 0 0 0 2px rgba(255, 140, 66, 0.1);
+.ph-dd-wrap { position: relative; width: 100%; }
+.ph-dd-list {
+    position: absolute; top: calc(100% + 4px); left: 0; width: 100%;
+    background: #fff; border: 1px solid #ddd; border-radius: 6px;
+    max-height: 220px; overflow-y: auto; z-index: 9999;
+    margin: 0; padding: 0; list-style: none;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    display: none;
+}
+.ph-dd-list li {
+    padding: 10px 14px; cursor: pointer; font-size: 14px; color: #333;
+    border-bottom: 1px solid #f0f0f0;
+}
+.ph-dd-list li:last-child { border-bottom: none; }
+.ph-dd-list li:hover { background: #fdf3ed; color: #e85d04; font-weight: 500;}
+</style>
+<div class="co-page">
+    {{-- ═══ STEPPER ═══ --}}
+    <div class="co-stepper">
+        <div class="co-step active" data-step="1"><div class="co-step-circle">1</div><div class="co-step-label">Summary</div></div>
+        <div class="co-step" data-step="2"><div class="co-step-circle">2</div><div class="co-step-label">Address</div></div>
+        <div class="co-step" data-step="3"><div class="co-step-circle">3</div><div class="co-step-label">Shipping</div></div>
+        <div class="co-step" data-step="4"><div class="co-step-circle">4</div><div class="co-step-label">Payment</div></div>
+        <div class="co-step" data-step="5"><div class="co-step-circle">5</div><div class="co-step-label">Review</div></div>
+    </div>
+
+    <form id="checkoutForm" action="{{ route('checkout.process') }}" method="POST">
+        @csrf
+        <input type="hidden" name="shipping_address_id" id="hAddr">
+        <input type="hidden" name="shipping_method" id="hShip" value="standard">
+        <input type="hidden" name="payment_method" id="hPay" value="cod">
+        <input type="hidden" name="voucher_code" id="hVoucher">
+
+        {{-- ═══ STEP 1: ORDER SUMMARY ═══ --}}
+        <div class="co-panel active" id="step1">
+            <div class="co-card">
+                <h2>🛒 Order Summary</h2>
+                @foreach($cart->items as $item)
+                <div class="co-item">
+                    <img class="co-item-img" src="{{ $item->product->image_url }}" alt="{{ $item->product->product_name }}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2270%22 height=%2270%22%3E%3Crect fill=%22%23f5f5f5%22 width=%2270%22 height=%2270%22/%3E%3C/svg%3E'">
+                    <div class="co-item-info">
+                        <div class="co-item-name">{{ $item->product->product_name }}</div>
+                        <div class="co-item-meta">Qty: {{ $item->quantity }} · ₱{{ number_format($item->unit_price, 2) }} each</div>
+                    </div>
+                    <div class="co-item-price">
+                        <div class="co-item-total">₱{{ number_format($item->subtotal, 2) }}</div>
+                    </div>
+                </div>
+                @endforeach
+                <div class="co-summary-row total" style="margin-top:16px;">
+                    <span>Subtotal</span>
+                    <span>₱{{ number_format($subtotal, 2) }}</span>
+                </div>
+            </div>
+            <div class="co-nav" style="justify-content:flex-end;">
+                <button type="button" class="co-btn co-btn-next" onclick="goStep(2)">Continue to Address →</button>
+            </div>
+        </div>
+
+        {{-- ═══ STEP 2: DELIVERY ADDRESS ═══ --}}
+        <div class="co-panel" id="step2">
+            <div class="co-card">
+                <h2>📍 Delivery Address</h2>
+                @foreach($addresses as $addr)
+                <div class="co-addr-card {{ $loop->first ? 'selected' : '' }}" onclick="selectAddr(this, {{ $addr->id }})">
+                    <input type="radio" name="_addr_radio" value="{{ $addr->id }}" {{ $loop->first ? 'checked' : '' }}>
+                    <div class="co-addr-name">{{ $addr->recipient_name }}</div>
+                    <div class="co-addr-detail">{{ $addr->phone_number }}<br>{{ $addr->street_address }}, {{ $addr->barangay ? $addr->barangay . ', ' : '' }}{{ $addr->city_municipality }}, {{ $addr->province }} {{ $addr->zip_code }}</div>
+                </div>
+                @endforeach
+
+                @if($addresses->isEmpty())
+                    <p style="font-size:13px; color:#666; margin-bottom:16px;">You don't have any saved addresses yet. Please enter one below. It will be saved for future orders.</p>
+                @endif
+                <div class="co-new-addr-toggle" onclick="toggleNewAddr()" @if($addresses->isEmpty()) style="display:none;" @endif>
+                    <span style="font-size:20px;">＋</span> Add New Address
+                </div>
+                <div id="newAddrForm" style="display:{{ $addresses->isEmpty() ? 'block' : 'none' }}; margin-top:16px;">
+                    <div style="font-size:13px; color:#3DB868; font-weight:600; margin-bottom:12px;">✓ This address will be saved to your account.</div>
+                    <div class="co-form-grid">
+                        <div class="co-form-group"><label>Full Name *</label><input type="text" name="new_address[recipient_name]"></div>
+                        <div class="co-form-group"><label>Phone Number *</label><input type="text" name="new_address[phone_number]"></div>
+                        <div class="co-form-group">
+                            <label>Region</label>
+                            <div class="ph-dd-wrap">
+                                <input type="text" name="new_address[region]" id="ph-region-input" required autocomplete="off" placeholder="Type or select...">
+                                <ul class="ph-dd-list" id="ph-region-list"></ul>
+                            </div>
+                        </div>
+                        <div class="co-form-group">
+                            <label>Province *</label>
+                            <div class="ph-dd-wrap">
+                                <input type="text" name="new_address[province]" id="ph-province-input" required autocomplete="off" placeholder="Type or select..." disabled>
+                                <ul class="ph-dd-list" id="ph-province-list"></ul>
+                            </div>
+                        </div>
+                        <div class="co-form-group">
+                            <label>City / Municipality *</label>
+                            <div class="ph-dd-wrap">
+                                <input type="text" name="new_address[city_municipality]" id="ph-city-input" required autocomplete="off" placeholder="Type or select..." disabled>
+                                <ul class="ph-dd-list" id="ph-city-list"></ul>
+                            </div>
+                        </div>
+                        <div class="co-form-group">
+                            <label>Barangay</label>
+                            <div class="ph-dd-wrap">
+                                <input type="text" name="new_address[barangay]" id="ph-barangay-input" required autocomplete="off" placeholder="Type or select..." disabled>
+                                <ul class="ph-dd-list" id="ph-barangay-list"></ul>
+                            </div>
+                        </div>
+                        <div class="co-form-group co-form-full"><label>Street / House No. *</label><input type="text" name="new_address[street_address]"></div>
+                        <div class="co-form-group"><label>Zip Code</label><input type="text" name="new_address[zip_code]"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="co-nav">
+                <button type="button" class="co-btn co-btn-back" onclick="goStep(1)">← Back</button>
+                <button type="button" class="co-btn co-btn-next" onclick="goStep(3)">Continue to Shipping →</button>
+            </div>
+        </div>
+
+        {{-- ═══ STEP 3: SHIPPING ═══ --}}
+        <div class="co-panel" id="step3">
+            <div class="co-card">
+                <h2>🚚 Shipping Option</h2>
+                <div class="co-ship-option selected" onclick="selectShip(this,'standard')">
+                    <input type="radio" name="_ship_radio" value="standard" checked>
+                    <span class="co-ship-icon">📦</span>
+                    <div class="co-ship-info">
+                        <div class="co-ship-name">Standard Delivery</div>
+                        <div class="co-ship-desc">Estimated 3–5 business days</div>
+                    </div>
+                    <div class="co-ship-price" id="priceStandard">
+                        @if($subtotal >= 1500) <span class="co-ship-free">FREE</span> @elseif($subtotal >= 500) ₱59 @else ₱99 @endif
+                    </div>
+                </div>
+                <div class="co-ship-option" onclick="selectShip(this,'express')">
+                    <input type="radio" name="_ship_radio" value="express">
+                    <span class="co-ship-icon">⚡</span>
+                    <div class="co-ship-info">
+                        <div class="co-ship-name">Express Delivery</div>
+                        <div class="co-ship-desc">Estimated 1–2 business days</div>
+                    </div>
+                    <div class="co-ship-price" id="priceExpress">
+                        @if($subtotal >= 1500) ₱99 @else ₱199 @endif
+                    </div>
+                </div>
+                <div class="co-ship-option" onclick="selectShip(this,'pickup')">
+                    <input type="radio" name="_ship_radio" value="pickup">
+                    <span class="co-ship-icon">🏪</span>
+                    <div class="co-ship-info">
+                        <div class="co-ship-name">Store Pickup</div>
+                        <div class="co-ship-desc">Pick up at our Butuan, Libertad store (same day)</div>
+                    </div>
+                    <div class="co-ship-price co-ship-free">FREE</div>
+                </div>
+            </div>
+            <div class="co-nav">
+                <button type="button" class="co-btn co-btn-back" onclick="goStep(2)">← Back</button>
+                <button type="button" class="co-btn co-btn-next" onclick="goStep(4)">Continue to Payment →</button>
+            </div>
+        </div>
+
+        {{-- ═══ STEP 4: PAYMENT ═══ --}}
+        <div class="co-panel" id="step4">
+            <div class="co-card">
+                <h2>💳 Payment Method</h2>
+                <div class="co-pay-option selected" onclick="selectPay(this,'cod')">
+                    <input type="radio" name="_pay_radio" value="cod" checked>
+                    <span class="co-pay-icon">💵</span>
+                    <div>
+                        <div class="co-pay-name">Cash on Delivery (COD)</div>
+                        <div class="co-pay-desc">Pay when your order arrives</div>
+                    </div>
+                </div>
+                <div class="co-pay-option" onclick="selectPay(this,'gcash')">
+                    <input type="radio" name="_pay_radio" value="gcash">
+                    <span class="co-pay-icon">📱</span>
+                    <div>
+                        <div class="co-pay-name">GCash</div>
+                        <div class="co-pay-desc">Pay via GCash e-wallet</div>
+                    </div>
+                </div>
+            </div>
+            <div class="co-card">
+                <h2>🏷️ Voucher Code <span style="font-size:13px;color:#888;font-weight:400;">(optional)</span></h2>
+                <div class="co-voucher-row">
+                    <input type="text" class="co-voucher-input" id="voucherInput" placeholder="Enter voucher code (e.g. PETLOVE10)">
+                    <button type="button" class="co-voucher-btn" onclick="applyVoucher()">Apply</button>
+                </div>
+                <div class="co-voucher-msg" id="voucherMsg"></div>
+            </div>
+            <div class="co-nav">
+                <button type="button" class="co-btn co-btn-back" onclick="goStep(3)">← Back</button>
+                <button type="button" class="co-btn co-btn-next" onclick="goStep(5)">Review Order →</button>
+            </div>
+        </div>
+
+        {{-- ═══ STEP 5: REVIEW ═══ --}}
+        <div class="co-panel" id="step5">
+            <div class="co-card">
+                <h2>📋 Order Review</h2>
+
+                <div class="co-review-section">
+                    <div class="co-review-label">Items</div>
+                    @foreach($cart->items as $item)
+                    <div style="display:flex; justify-content:space-between; font-size:13px; padding:4px 0; color:#555;">
+                        <span>{{ $item->product->product_name }} × {{ $item->quantity }}</span>
+                        <span>₱{{ number_format($item->subtotal, 2) }}</span>
+                    </div>
+                    @endforeach
+                </div>
+
+                <div class="co-review-section">
+                    <div class="co-review-label">Delivery Address</div>
+                    <div class="co-review-value" id="reviewAddr">—</div>
+                </div>
+
+                <div class="co-review-section">
+                    <div class="co-review-label">Shipping Method</div>
+                    <div class="co-review-value" id="reviewShip">Standard Delivery</div>
+                </div>
+
+                <div class="co-review-section">
+                    <div class="co-review-label">Payment Method</div>
+                    <div class="co-review-value" id="reviewPay">Cash on Delivery</div>
+                </div>
+
+                <hr style="border:0;border-top:1px solid #eee;margin:16px 0;">
+                <div class="co-summary-row"><span>Subtotal</span><span>₱{{ number_format($subtotal, 2) }}</span></div>
+                <div class="co-summary-row"><span>Shipping</span><span id="reviewShipFee">₱0.00</span></div>
+                <div class="co-summary-row co-discount-row" id="reviewDiscountRow" style="display:none;"><span>Discount</span><span id="reviewDiscount">-₱0.00</span></div>
+                <div class="co-summary-row total"><span>Total</span><span id="reviewTotal">₱{{ number_format($subtotal, 2) }}</span></div>
+            </div>
+            <div class="co-nav">
+                <button type="button" class="co-btn co-btn-back" onclick="goStep(4)">← Back</button>
+                <button type="submit" class="co-btn co-btn-place">✓ Place Order</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@push('scripts')
+<script>
+const SUBTOTAL = {{ $subtotal }};
+let currentStep = 1;
+let shipFee = 0;
+let discount = 0;
+let freeShipping = false;
+
+// Addresses data for review
+const addresses = @json($addresses);
+
+function goStep(n) {
+    // Validation before advancing
+    if (n > currentStep) {
+        if (currentStep === 2 && !document.getElementById('hAddr').value && !document.querySelector('#newAddrForm input[name="new_address[recipient_name]"]').value) {
+            alert('Please select or enter a delivery address.');
+            return;
+        }
     }
 
-    button:hover {
-        opacity: 0.95;
+    currentStep = n;
+    document.querySelectorAll('.co-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('step' + n).classList.add('active');
+
+    document.querySelectorAll('.co-step').forEach(s => {
+        const sn = parseInt(s.dataset.step);
+        s.classList.remove('active', 'done');
+        if (sn < n) s.classList.add('done');
+        if (sn === n) s.classList.add('active');
+    });
+
+    if (n === 5) buildReview();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Address selection
+function selectAddr(el, id) {
+    document.querySelectorAll('.co-addr-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    el.querySelector('input').checked = true;
+    document.getElementById('hAddr').value = id;
+    document.getElementById('newAddrForm').style.display = 'none';
+}
+
+// Auto-select first address
+@if($addresses->isNotEmpty())
+document.getElementById('hAddr').value = {{ $addresses->first()->id }};
+@endif
+
+function toggleNewAddr() {
+    const f = document.getElementById('newAddrForm');
+    f.style.display = f.style.display === 'none' ? 'block' : 'none';
+    document.querySelectorAll('.co-addr-card').forEach(c => { c.classList.remove('selected'); c.querySelector('input').checked = false; });
+    document.getElementById('hAddr').value = '';
+}
+
+// Shipping selection
+function selectShip(el, method) {
+    document.querySelectorAll('.co-ship-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    el.querySelector('input').checked = true;
+    document.getElementById('hShip').value = method;
+    calcShipFee(method);
+}
+
+function calcShipFee(method) {
+    if (freeShipping || method === 'pickup') { shipFee = 0; return; }
+    if (method === 'express') { shipFee = SUBTOTAL >= 1500 ? 99 : 199; return; }
+    // standard
+    if (SUBTOTAL >= 1500) shipFee = 0;
+    else if (SUBTOTAL >= 500) shipFee = 59;
+    else shipFee = 99;
+}
+calcShipFee('standard');
+
+// Payment selection
+function selectPay(el, method) {
+    document.querySelectorAll('.co-pay-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    el.querySelector('input').checked = true;
+    document.getElementById('hPay').value = method;
+}
+
+// Voucher
+function applyVoucher() {
+    const code = document.getElementById('voucherInput').value.trim();
+    if (!code) return;
+    const msg = document.getElementById('voucherMsg');
+    msg.textContent = 'Checking...';
+    msg.className = 'co-voucher-msg';
+
+    fetch('{{ route("checkout.voucher") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        body: JSON.stringify({ voucher_code: code, subtotal: SUBTOTAL })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.valid) {
+            discount = data.discount;
+            freeShipping = data.free_shipping || false;
+            document.getElementById('hVoucher').value = code.toUpperCase();
+            msg.textContent = '✓ ' + data.message;
+            msg.className = 'co-voucher-msg success';
+            if (freeShipping) {
+                shipFee = 0;
+                msg.textContent += ' + Free Shipping!';
+            }
+        } else {
+            discount = 0;
+            document.getElementById('hVoucher').value = '';
+            msg.textContent = '✗ ' + data.message;
+            msg.className = 'co-voucher-msg error';
+        }
+    })
+    .catch(() => { msg.textContent = 'Error. Try again.'; msg.className = 'co-voucher-msg error'; });
+}
+
+// Build review
+function buildReview() {
+    // Address
+    const addrId = document.getElementById('hAddr').value;
+    let addrHtml = '';
+    if (addrId) {
+        const a = addresses.find(x => x.id == addrId);
+        if (a) addrHtml = `<strong>${a.recipient_name}</strong><br>${a.phone_number}<br>${a.street_address}, ${a.barangay || ''} ${a.city_municipality}, ${a.province} ${a.zip_code}`;
+    } else {
+        const n = document.querySelector('input[name="new_address[recipient_name]"]').value;
+        const p = document.querySelector('input[name="new_address[phone_number]"]').value;
+        const s = document.querySelector('input[name="new_address[street_address]"]').value;
+        const c = document.querySelector('input[name="new_address[city_municipality]"]').value;
+        addrHtml = `<strong>${n}</strong><br>${p}<br>${s}, ${c}`;
     }
-</style>
+    document.getElementById('reviewAddr').innerHTML = addrHtml || '—';
+
+    // Shipping
+    const shipMap = { standard: 'Standard Delivery (3–5 days)', express: 'Express Delivery (1–2 days)', pickup: 'Store Pickup (same day)' };
+    const sm = document.getElementById('hShip').value;
+    document.getElementById('reviewShip').textContent = shipMap[sm] || sm;
+    calcShipFee(sm);
+    document.getElementById('reviewShipFee').textContent = shipFee > 0 ? '₱' + shipFee.toFixed(2) : 'FREE';
+
+    // Payment
+    const payMap = { cod: 'Cash on Delivery', gcash: 'GCash' };
+    document.getElementById('reviewPay').textContent = payMap[document.getElementById('hPay').value] || '';
+
+    // Discount
+    const dr = document.getElementById('reviewDiscountRow');
+    if (discount > 0) { dr.style.display = 'flex'; document.getElementById('reviewDiscount').textContent = '-₱' + discount.toFixed(2); }
+    else { dr.style.display = 'none'; }
+
+    // Total
+    const total = SUBTOTAL + shipFee - discount;
+    document.getElementById('reviewTotal').textContent = '₱' + total.toFixed(2);
+}
+</script>
+<script src="{{ asset('js/ph-address.js') }}"></script>
+@endpush
 @endsection

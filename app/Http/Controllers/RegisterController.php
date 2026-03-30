@@ -14,7 +14,7 @@ class RegisterController extends Controller
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'pet_type' => 'nullable|string|max:50|in:dog,cat,bird,fish,rabbit,reptile,insect,other',
+            'pet_type' => 'nullable|string|max:100',
             'promos' => 'sometimes|boolean',
             'tips' => 'sometimes|boolean',
             'password' => [
@@ -44,6 +44,10 @@ class RegisterController extends Controller
 
         Auth::login($user);
 
-        return response()->json(['success' => true, 'redirect' => route('home')]);
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'redirect' => route('home')]);
+        }
+
+        return redirect()->route('home')->with('success', 'Account created successfully.');
     }
 }

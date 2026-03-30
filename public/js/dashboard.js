@@ -5,21 +5,18 @@
 (function () {
     'use strict';
 
-    // Revenue data (sample - can be replaced with API data)
-    var revenueMonthly = [8, 12, 15, 18, 22, 25, 28, 32, 35, 38, 42, 45]; // in thousands
-    var revenueWeekly = [18, 22, 25, 28];
-    var revenueDaily = [2.1, 2.4, 2.2, 2.8, 3.0, 2.5, 2.9];
-    var monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-    var currentChartData = revenueMonthly;
-    var currentLabels = monthLabels;
+    // Revenue data - fetched from API
+    var currentChartData = [];
+    var currentLabels = [];
     var chartCanvas = null;
     var chartCtx = null;
+    var currentTab = 'monthly';
 
     function init() {
         initRevenueChart();
         initChartTabs();
         initSidebarNav();
+        initSidebarToggle();
         initDateFilter();
         initRestockButtons();
         initProfileDropdown();
@@ -35,11 +32,34 @@
 
         chartCanvas = canvas;
         chartCtx = canvas.getContext('2d');
-        drawChart(currentChartData, currentLabels);
+
+        // Load initial data from API
+        fetchChartData('monthly');
 
         window.addEventListener('resize', debounce(function () {
             drawChart(currentChartData, currentLabels);
         }, 200));
+    }
+
+    /**
+     * Fetch revenue chart data from the API
+     */
+    function fetchChartData(type) {
+        fetch('/admin/api/dashboard-chart?type=' + type, {
+            headers: { 'Accept': 'application/json' }
+        })
+            .then(function (r) { return r.json(); })
+            .then(function (resp) {
+                currentChartData = resp.data;
+                currentLabels = resp.labels;
+                drawChart(currentChartData, currentLabels);
+            })
+            .catch(function () {
+                // Fallback to zeros if API fails
+                currentChartData = [0];
+                currentLabels = ['No data'];
+                drawChart(currentChartData, currentLabels);
+            });
     }
 
     function drawChart(data, labels) {
@@ -60,7 +80,7 @@
         var maxVal = Math.max.apply(null, data);
         var minVal = Math.min.apply(null, data);
         var range = maxVal - minVal || 1;
-        var step = Math.ceil(maxVal / 4);
+        var step = Math.ceil(maxVal / 4) || 1;
 
         // Y-axis labels (10k, 20k, 30k, 40k style)
         chartCtx.fillStyle = '#9ca3af';
@@ -75,9 +95,8 @@
         // X-axis labels
         chartCtx.fillStyle = '#6b7280';
         chartCtx.textAlign = 'center';
-        var labelStep = Math.max(1, Math.floor(labels.length / 12));
         for (var j = 0; j < labels.length; j++) {
-            var x = padding.left + (j / (labels.length - 1)) * chartW;
+            var x = padding.left + (j / Math.max(labels.length - 1, 1)) * chartW;
             chartCtx.fillText(labels[j], x, h - 8);
         }
 
@@ -89,7 +108,7 @@
         chartCtx.lineCap = 'round';
 
         for (var k = 0; k < data.length; k++) {
-            var px = padding.left + (k / (data.length - 1)) * chartW;
+            var px = padding.left + (k / Math.max(data.length - 1, 1)) * chartW;
             var py = padding.top + chartH - ((data[k] - minVal) / range) * chartH;
             if (k === 0) chartCtx.moveTo(px, py);
             else chartCtx.lineTo(px, py);
@@ -109,17 +128,8 @@
                 this.classList.add('active');
                 this.setAttribute('aria-selected', 'true');
 
-                if (tabName === 'monthly') {
-                    currentChartData = revenueMonthly;
-                    currentLabels = monthLabels;
-                } else if (tabName === 'weekly') {
-                    currentChartData = revenueWeekly;
-                    currentLabels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
-                } else {
-                    currentChartData = revenueDaily;
-                    currentLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                }
-                drawChart(currentChartData, currentLabels);
+                currentTab = tabName;
+                fetchChartData(tabName);
             });
         });
     }
@@ -136,6 +146,36 @@
                 }
             });
         });
+    }
+
+    function initSidebarToggle() {
+        var toggleBtn = document.getElementById('sidebarToggle');
+        var sidebar = document.getElementById('adminSidebar');
+        var overlay = document.getElementById('sidebarOverlay');
+
+        if (!toggleBtn || !sidebar || !overlay) return;
+
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        toggleBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+
+            // Prevent body scroll when sidebar is open on mobile
+            if (sidebar.classList.contains('open')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        });
+
+        overlay.addEventListener('click', closeSidebar);
     }
 
     function initDateFilter() {

@@ -40,10 +40,16 @@ class AdminLoginController extends Controller
                         ->where('status', 'pending')
                         ->first();
             if ($pending) {
-                return response()->json(['success' => false, 'message' => 'Admin account request is still pending approval'], 401);
+                if ($request->wantsJson() || $request->ajax()) {
+                    return response()->json(['success' => false, 'message' => 'Admin account request is still pending approval'], 401);
+                }
+                return redirect()->back()->withErrors(['email' => 'Admin account request is still pending approval'])->withInput();
             }
             \Log::warning('Admin login failed, user not found', ['identifier' => $identifier]);
-            return response()->json(['success' => false, 'message' => 'Admin not found'], 401);
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Admin not found'], 401);
+            }
+            return redirect()->back()->withErrors(['email' => 'Admin not found'])->withInput();
         }
 
         // Debug: Check the actual values
@@ -56,16 +62,26 @@ class AdminLoginController extends Controller
 
         // Only admin users should be able to log in here.
         if (! method_exists($user, 'isAdmin') || ! $user->isAdmin()) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized - User is not an admin'], 403);
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized - User is not an admin'], 403);
+            }
+            return redirect()->back()->withErrors(['email' => 'Unauthorized - User is not an admin'])->withInput();
         }
 
         if (!Hash::check($validated['password'], $user->password)) {
-            return response()->json(['success' => false, 'message' => 'Invalid credentials'], 401);
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Invalid credentials'], 401);
+            }
+            return redirect()->back()->withErrors(['password' => 'Invalid credentials'])->withInput();
         }
 
         Auth::login($user, $request->has('keep_signed'));
 
-        // always return JSON for POST logins
-        return response()->json(['success' => true, 'redirect' => route('dashboard')]);
+        if ($request->wantsJson() || $request->ajax()) {
+            // always return JSON for POST logins
+            return response()->json(['success' => true, 'redirect' => route('dashboard')]);
+        }
+        
+        return redirect()->route('dashboard')->with('success', 'Logged in successfully.');
     }
 }

@@ -1,623 +1,993 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - Pet Animixon Admin</title>
-    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
-    <style>
-        .settings-container { display: flex; gap: 24px; margin-top: 24px; }
-        .settings-sidebar {
-            width: 260px;
-            background: #fff;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 20px 12px;
-            flex-shrink: 0;
-        }
-        .settings-sidebar h3 {
-            margin: 0 0 12px 0;
-            padding: 0 12px 8px;
-            font-size: 16px;
-            color: var(--text-dark);
-            border-bottom: 1px solid var(--border);
-        }
-        .settings-sidebar .nav-section { margin-bottom: 16px; }
-        .settings-sidebar .nav-section-title {
-            font-weight: 700;
-            font-size: 12px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 4px 12px;
-            margin-bottom: 4px;
-        }
-        .settings-sidebar .nav-item {
-            display: block;
-            padding: 10px 12px;
-            border-radius: 6px;
-            color: var(--text-dark);
-            text-decoration: none;
-            font-size: 14px;
-            cursor: pointer;
-            margin-bottom: 2px;
-            border: none;
-            width: 100%;
-            text-align: left;
-            background: transparent;
-        }
-        .settings-sidebar .nav-item:hover { background: var(--bg-page); }
-        .settings-sidebar .nav-item.active {
-            background: rgba(255, 107, 53, 0.1);
-            color: var(--accent);
-            font-weight: 600;
-        }
-        .settings-panel {
-            flex: 1;
-            background: #fff;
-            padding: 28px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            display: none;
-        }
-        .settings-panel.active { display: block; }
-        .settings-panel h2 { margin-top: 0; margin-bottom: 20px; font-size: 20px; }
-        .settings-panel .form-group { margin-bottom: 18px; }
-        .settings-panel label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; }
-        .settings-panel input[type="text"], .settings-panel input[type="email"], .settings-panel input[type="number"],
-        .settings-panel select, .settings-panel textarea {
-            width: 100%;
-            max-width: 480px;
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        .settings-panel .btn-save { margin-top: 24px; }
-        .settings-panel .help-text { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-        .settings-panel .nav-link-btn { color: var(--accent); font-weight: 600; }
-    </style>
-</head>
-<body class="dashboard-body">
-    @include('partials.admin_header')
+<!-- ===== ADMIN SETTINGS PAGE ===== -->
+<!-- Extends the main admin layout -->
+@extends('layouts.admin')
 
-    <div class="dashboard-layout">
-        @include('partials.admin_sidebar')
+@section('title', 'Settings')
 
-        <main class="main-content">
-            @if(session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
-            @if(session('error'))
-                <div class="alert alert-danger">{{ session('error') }}</div>
-            @endif
-            <div class="content-header">
-                <h1 class="page-title">Settings</h1>
+<!-- ===== CSS STYLES (pushed to layout head) ===== -->
+@push('styles')
+<style>
+    /* ===== PAGE BACKGROUND ===== */
+    /* Override body background to light gray */
+    body.dashboard-body {
+        background-color: #f5f5f5 !important;
+    }
+    
+    .settings-header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 24px;
+    }
+    
+    .settings-header-top h1 {
+        margin: 0 0 6px 0;
+        font-size: 24px;
+        color: #111827;
+        font-weight: 700;
+    }
+    
+    .settings-header-top p {
+        margin: 0;
+        color: #6b7280;
+        font-size: 14px;
+    }
+    
+    .btn-global-save {
+        background-color: #ea580c;
+        color: #ffffff;
+        border: none;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-global-save:hover {
+        background-color: #c2410c;
+    }
+    
+    /* ===== SETTINGS WRAPPER: Sidebar + Main Content side by side ===== */
+    .settings-wrapper {
+        display: flex;
+        gap: 24px;
+        align-items: flex-start;
+    }
+    
+    /* ===== SETTINGS SIDEBAR: Left navigation card ===== */
+    .settings-sidebar {
+        width: 260px;
+        background: #ffffff;
+        flex-shrink: 0;
+        padding: 24px 0;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    
+    .settings-group {
+        margin-bottom: 24px;
+    }
+    
+    .settings-group:last-child {
+        margin-bottom: 0;
+    }
+    
+    .settings-group-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        color: #9ca3af;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        padding: 0 24px;
+        margin-bottom: 10px;
+    }
+    
+    .settings-nav {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .settings-nav-item {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        text-align: left;
+        padding: 10px 24px;
+        color: #4b5563;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+        background: none;
+        border-top: none;
+        border-right: none;
+        border-bottom: none;
+    }
+    
+    .settings-nav-item svg {
+        margin-right: 12px;
+        color: #9ca3af;
+        width: 16px;
+        height: 16px;
+    }
+    
+    /* For items without an icon, indent text to match */
+    .settings-nav-item.no-icon {
+        padding-left: 52px; 
+    }
+    
+    .settings-nav-item:hover {
+        background-color: #f9fafb;
+    }
+    
+    .settings-nav-item.active {
+        background-color: #fff7ed;
+        color: #ea580c;
+        border-left: 3px solid #ea580c;
+        font-weight: 600;
+    }
+    
+    .settings-nav-item.active svg {
+        color: #ea580c;
+    }
+    
+    /* ===== MAIN CONTENT PANEL: Right side form panels ===== */
+    .settings-main {
+        flex: 1;
+        max-width: 800px;
+    }
+
+    .settings-panel {
+        background: #ffffff;
+        padding: 32px;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        display: none;
+    }
+
+    .settings-panel.active {
+        display: block;
+    }
+    
+    .panel-header-block {
+        display: flex;
+        align-items: center;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    
+    .panel-header-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #fff7ed;
+        color: #ea580c;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 16px;
+    }
+    
+    .panel-header-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .panel-header-text h2 {
+        margin: 0 0 4px 0;
+        font-size: 15px;
+        color: #111827;
+        font-weight: 700;
+    }
+    
+    .panel-header-text p {
+        margin: 0;
+        font-size: 12px;
+        color: #9ca3af;
+    }
+    
+    /* ===== FORM INPUT STYLES ===== */
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+    
+    .settings-input {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+        color: #1f2937;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        background: #fff;
+        box-sizing: border-box;
+    }
+    
+    .settings-input:focus {
+        outline: none;
+        border-color: #ea580c;
+        box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+    }
+    
+    textarea.settings-input {
+        resize: vertical;
+        min-height: 80px;
+        font-family: inherit;
+    }
+    
+    .help-text {
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 6px;
+    }
+    
+    /* ===== DRAG AND DROP: Logo upload area ===== */
+    .drag-drop-box {
+        border: 1px dashed #d1d5db;
+        border-radius: 6px;
+        padding: 24px;
+        text-align: center;
+        background: #f9fafb;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .drag-drop-box:hover {
+        background: #f3f4f6;
+        border-color: #9ca3af;
+    }
+    
+    .drag-drop-box svg {
+        color: #9ca3af;
+        margin-bottom: 8px;
+    }
+    
+    .drag-drop-title {
+        font-size: 13px;
+        color: #4b5563;
+        font-weight: 500;
+        margin-bottom: 2px;
+    }
+    
+    .drag-drop-subtitle {
+        font-size: 11px;
+        color: #9ca3af;
+    }
+    
+    .image-preview-wrapper {
+        margin-top: 12px;
+        display: none;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .image-preview-wrapper img {
+        max-height: 60px;
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .remove-image-btn {
+        font-size: 12px;
+        color: #ef4444;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+    }
+    
+    .remove-image-btn:hover {
+        text-decoration: underline;
+    }
+
+    .store-info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+    .grid-column {
+        display: flex;
+        flex-direction: column;
+    }
+    .panel-footer {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid #f3f4f6;
+    }
+    .form-group {
+        margin-bottom: 16px; /* slightly smaller to fit screen */
+    }
+    .btn-save-changes {
+        background-color: #ea580c;
+        color: #ffffff;
+        border: none;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-save-changes:hover {
+        background-color: #c2410c;
+    }
+</style>
+
+@endpush
+
+@section('content')
+
+<!-- ===== FLASH MESSAGES ===== -->
+<!-- Success message after saving settings -->
+@if(session('success'))
+    <div class="alert alert-success" style="margin-bottom: 20px;">{{ session('success') }}</div>
+@endif
+<!-- Error message if save failed -->
+@if(session('error'))
+    <div class="alert alert-danger" style="margin-bottom: 20px;">{{ session('error') }}</div>
+@endif
+<!-- ===== END FLASH MESSAGES ===== -->
+
+<!-- ===== SETTINGS WRAPPER: Two-column layout ===== -->
+<div class="settings-wrapper">
+
+    <!-- ===== SETTINGS SIDEBAR ===== -->
+    <!-- Left-side navigation card with grouped setting categories -->
+    <aside class="settings-sidebar">
+        <!-- Sidebar Group: General Settings -->
+        <div class="settings-group">
+            <div class="settings-group-label">General</div>
+            <ul class="settings-nav">
+                <li><button type="button" class="settings-nav-item active" data-section="store-information">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    Store Information
+                </button></li>
+                <li><button type="button" class="settings-nav-item" data-section="currency">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                    Currency
+                </button></li>
+                <li><button type="button" class="settings-nav-item" data-section="tax-settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.92-5.27l-3.26-1.55"></path></svg>
+                    Tax Settings
+                </button></li>
+                <li><button type="button" class="settings-nav-item no-icon" data-section="invoice">
+                    Invoices
+                </button></li>
+            </ul>
+        </div>
+        
+        <!-- Sidebar Group: Payments -->
+        <div class="settings-group">
+            <div class="settings-group-label">Payments</div>
+            <ul class="settings-nav">
+                <li><button type="button" class="settings-nav-item" data-section="payment-gateways">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                    Payment Gateways
+                </button></li>
+            </ul>
+        </div>
+        
+        <!-- Sidebar Group: Shipping -->
+        <div class="settings-group">
+            <div class="settings-group-label">Shipping</div>
+            <ul class="settings-nav">
+                <li><button type="button" class="settings-nav-item" data-section="shipping-zones">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    Shipping Zones
+                </button></li>
+                <li><button type="button" class="settings-nav-item" data-section="rates-fees">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                    Rates & Fees
+                </button></li>
+            </ul>
+        </div>
+        
+        <!-- Sidebar Group: Users and Roles -->
+        <div class="settings-group">
+            <div class="settings-group-label">Users & Roles</div>
+            <ul class="settings-nav">
+                <li><a href="{{ route('admin.users') }}" class="settings-nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    Admin Accounts
+                </a></li>
+            </ul>
+        </div>
+        
+        <!-- Sidebar Group: Notifications -->
+        <div class="settings-group">
+            <div class="settings-group-label">Notification</div>
+            <ul class="settings-nav">
+                <li><button type="button" class="settings-nav-item" data-section="email-templates">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    Email Templates
+                </button></li>
+            </ul>
+        </div>
+        
+
+        
+        <!-- Sidebar Group: Security -->
+        <div class="settings-group">
+            <div class="settings-group-label">Security</div>
+            <ul class="settings-nav">
+                <li><button type="button" class="settings-nav-item" data-section="password-policy">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    Password Policy
+                </button></li>
+                <li><button type="button" class="settings-nav-item" data-section="login-logs">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                    Login Logs
+                </button></li>
+            </ul>
+        </div>
+    </aside>
+    <!-- ===== END SETTINGS SIDEBAR ===== -->
+
+    <!-- ===== SETTINGS MAIN CONTENT ===== -->
+    <!-- Right-side panels that show/hide based on sidebar selection -->
+    <main class="settings-main">
+        @php
+            $s = $settings ?? new \App\Models\StoreSetting();
+            $extra = $s->extra ?? [];
+        @endphp
+
+        <!-- ===== PANEL: Store Information (default active) ===== -->
+        <!-- Form: Store name, email, phone, URL, description, logo upload -->
+        <section class="settings-panel active" id="panel-store-information">
+            <div class="panel-header-block">
+                <div class="panel-header-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                </div>
+                <div class="panel-header-text">
+                    <h2>General Store Settings</h2>
+                    <p>Basic store information</p>
+                </div>
             </div>
-
-            <div class="settings-container">
-                <aside class="settings-sidebar">
-                    <h3>Settings</h3>
-                    <div class="nav-section">
-                        <div class="nav-section-title">Store</div>
-                        <button type="button" class="nav-item active" data-section="store-information">Store Information</button>
-                        <button type="button" class="nav-item" data-section="currency">Currency</button>
-                        <button type="button" class="nav-item" data-section="tax-settings">Tax Settings</button>
-                        <button type="button" class="nav-item" data-section="invoice">Invoice</button>
-                    </div>
-                    <div class="nav-section">
-                        <div class="nav-section-title">Payment</div>
-                        <button type="button" class="nav-item" data-section="payment-gateways">Payment Gateways</button>
-                        <button type="button" class="nav-item" data-section="payout-settings">Payout Settings</button>
-                        <button type="button" class="nav-item" data-section="transaction-fees">Transaction Fees</button>
-                    </div>
-                    <div class="nav-section">
-                        <div class="nav-section-title">Shipping</div>
-                        <button type="button" class="nav-item" data-section="shipping-zones">Shipping Zones</button>
-                        <button type="button" class="nav-item" data-section="delivery-providers">Delivery Providers</button>
-                        <button type="button" class="nav-item" data-section="rates-fees">Rates & Fees</button>
-                    </div>
-                    <div class="nav-section">
-                        <div class="nav-section-title">Users & Roles</div>
-                        <a href="{{ route('admin.users') }}" class="nav-item">Admin Accounts</a>
-                        <button type="button" class="nav-item" data-section="staff-permissions">Staff Permissions</button>
-                    </div>
-                    <div class="nav-section">
-                        <div class="nav-section-title">Notification</div>
-                        <button type="button" class="nav-item" data-section="email-templates">Email Templates</button>
-                        <button type="button" class="nav-item" data-section="sms-settings">SMS Settings</button>
-                    </div>
-                    <div class="nav-section">
-                        <div class="nav-section-title">Integrations</div>
-                        <button type="button" class="nav-item" data-section="third-party">3rd-party Service</button>
-                        <button type="button" class="nav-item" data-section="api-keys">API Keys</button>
-                        <button type="button" class="nav-item" data-section="webhooks">Webhooks</button>
-                    </div>
-                    <div class="nav-section">
-                        <div class="nav-section-title">Security</div>
-                        <button type="button" class="nav-item" data-section="password-policy">Password Policy</button>
-                        <button type="button" class="nav-item" data-section="two-factor">Two-factor Authentication</button>
-                        <button type="button" class="nav-item" data-section="login-logs">Login Logs</button>
-                    </div>
-                </aside>
-
-                @php
-                    $s = $settings ?? new \App\Models\StoreSetting();
-                    $extra = $s->extra ?? [];
-                @endphp
-
-                <!-- Store Information -->
-                <section class="settings-panel active" id="panel-store-information">
-                    <h2>Store Information</h2>
-                    <form method="post" action="{{ route('settings.admin.update') }}" enctype="multipart/form-data">
-                        @csrf
-                        <input type="hidden" name="_section" value="store">
+            
+            <form method="post" action="{{ route('settings.admin.update') }}" enctype="multipart/form-data" id="form-store-information">
+                @csrf
+                <input type="hidden" name="_section" value="store">
+                
+                <div class="store-info-grid">
+                    <!-- Left Column -->
+                    <div class="grid-column">
                         <div class="form-group">
                             <label for="store_name">Store Name</label>
-                            <input type="text" id="store_name" name="store_name" value="{{ old('store_name', $s->store_name ?? '') }}" placeholder="e.g. Pet Animixon">
+                            <input type="text" id="store_name" name="store_name" class="settings-input" value="{{ old('store_name', $s->store_name ?? '') }}" placeholder="e.g. Pet Animixon">
                         </div>
+                        
                         <div class="form-group">
                             <label for="store_email">Store Email</label>
-                            <input type="email" id="store_email" name="store_email" value="{{ old('store_email', $s->store_email ?? '') }}" placeholder="store@example.com">
+                            <input type="email" id="store_email" name="store_email" class="settings-input" value="{{ old('store_email', $s->store_email ?? '') }}" placeholder="support@petanimixon.com">
                         </div>
+                        
                         <div class="form-group">
                             <label for="store_phone">Store Phone</label>
-                            <input type="text" id="store_phone" name="store_phone" value="{{ old('store_phone', $s->store_phone ?? '') }}" placeholder="+63 123 456 7890">
+                            <input type="text" id="store_phone" name="store_phone" class="settings-input" value="{{ old('store_phone', $s->store_phone ?? '') }}" placeholder="+63 (0000000000) PET-CARE">
                         </div>
+                        
                         <div class="form-group">
                             <label for="store_url">Store URL</label>
-                            <input type="text" id="store_url" name="store_url" value="{{ old('store_url', $s->store_url ?? '') }}" placeholder="https://yourstore.com">
+                            <input type="text" id="store_url" name="store_url" class="settings-input" value="{{ old('store_url', $s->store_url ?? '') }}" placeholder="www.petanimixon.com">
                         </div>
-                        <div class="form-group">
+                        
+                        <div class="form-group" style="flex: 1; display:flex; flex-direction:column;">
                             <label for="store_description">Store Description</label>
-                            <textarea id="store_description" name="store_description" rows="3" placeholder="Brief description of your store">{{ old('store_description', $s->store_description ?? '') }}</textarea>
+                            <textarea id="store_description" name="store_description" class="settings-input" placeholder="Your trusted pet products marketplace" style="flex: 1; min-height: 80px; resize: none;">{{ old('store_description', $s->store_description ?? '') }}</textarea>
                         </div>
-                        <div class="form-group">
-                            <label for="store_logo">Store Logo</label>
-                            <input type="file" id="store_logo" name="store_logo" accept="image/*">
-                            @if(!empty($s->store_logo_path))
-                                <p class="help-text">Current: <img src="{{ asset('storage/'.$s->store_logo_path) }}" alt="Logo" style="max-height:36px;vertical-align:middle;"></p>
-                            @endif
+                    </div>
+                    
+                    <!-- Right Column -->
+                    <div class="grid-column">
+                        <div class="form-group" style="flex: 1; display:flex; flex-direction:column;">
+                            <label>Store Logo</label>
+                            <div class="drag-drop-box" id="drag-drop-trigger" style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                <div class="drag-drop-title">Click to upload or drag & drop</div>
+                                <div class="drag-drop-subtitle">PNG, JPG up to 2MB</div>
+                            </div>
+                            <input type="file" id="store_logo" name="store_logo" accept="image/png, image/jpeg, image/jpg" style="display:none;">
+                            
+                            <div class="image-preview-wrapper" id="logo-preview-wrapper" style="{{ !empty($s->store_logo_path) ? 'display:flex;' : 'margin-top:0;' }}">
+                                <img id="logo-preview-img" src="{{ !empty($s->store_logo_path) ? asset('storage/'.$s->store_logo_path) : '' }}" alt="Logo Preview">
+                                <span class="remove-image-btn" id="remove-logo-btn">Remove</span>
+                            </div>
                         </div>
+                        
                         <div class="form-group">
                             <label for="timezone">Timezone</label>
-                            <select id="timezone" name="timezone">
-                                @foreach(['Asia/Manila'=>'Asia/Manila (GMT+8)','Asia/Tokyo'=>'Asia/Tokyo (GMT+9)','America/New_York'=>'America/New York (GMT-5)','Europe/London'=>'Europe/London (GMT+0)','UTC'=>'UTC'] as $tz => $label)
-                                    <option value="{{ $tz }}" {{ old('timezone', $s->timezone ?? '') == $tz ? 'selected' : '' }}>{{ $label }}</option>
+                            <select id="timezone" name="timezone" class="settings-input">
+                                @foreach(['Asia/Manila'=>'GMT+8','Asia/Tokyo'=>'GMT+9','America/New_York'=>'GMT-5','Europe/London'=>'GMT+0','UTC'=>'UTC'] as $tz => $label)
+                                    <option value="{{ $tz }}" {{ old('timezone', $s->timezone ?? 'Asia/Manila') == $tz ? 'selected' : '' }}>{{ $label }}</option>
                                 @endforeach
                             </select>
                         </div>
+                        
                         <div class="form-group">
                             <label for="default_currency">Default Currency</label>
-                            <select id="default_currency" name="default_currency">
-                                @foreach(['PHP'=>'PHP - Philippine Peso (₱)','USD'=>'USD - US Dollar ($)','EUR'=>'EUR - Euro (€)','GBP'=>'GBP - British Pound (£)'] as $code => $label)
+                            <select id="default_currency" name="default_currency" class="settings-input">
+                                @foreach(['PHP'=>'₱ PHP - Philippine Peso (₱)','USD'=>'$ USD - US Dollar ($)','EUR'=>'€ EUR - Euro (€)','GBP'=>'£ GBP - British Pound (£)'] as $code => $label)
                                     <option value="{{ $code }}" {{ old('default_currency', $s->default_currency ?? 'PHP') == $code ? 'selected' : '' }}>{{ $label }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <button type="submit" class="btn-primary btn-save">Save Changes</button>
-                    </form>
-                </section>
+                    </div>
+                </div>
 
-                <!-- Currency -->
-                <section class="settings-panel" id="panel-currency">
-                    <h2>Currency</h2>
-                    <form method="post" action="{{ route('settings.admin.update') }}">
-                        @csrf
-                        <input type="hidden" name="_section" value="currency">
-                        <div class="form-group">
-                            <label for="primary_currency">Primary Currency</label>
-                            <select name="primary_currency">
-                                @foreach(['PHP','USD','EUR','GBP'] as $c)
-                                    <option value="{{ $c }}" {{ ($extra['primary_currency'] ?? 'PHP') == $c ? 'selected' : '' }}>{{ $c }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="decimal_places">Decimal Places</label>
-                            <input type="number" name="decimal_places" min="0" max="4" value="{{ $extra['decimal_places'] ?? 2 }}">
-                            <p class="help-text">Number of decimal places for prices (e.g. 2 for 99.00)</p>
-                        </div>
-                        <div class="form-group">
-                            <label for="currency_symbol_position">Symbol Position</label>
-                            <select name="currency_symbol_position">
-                                <option value="before" {{ ($extra['currency_symbol_position'] ?? 'before') == 'before' ? 'selected' : '' }}>Before amount (₱99.00)</option>
-                                <option value="after" {{ ($extra['currency_symbol_position'] ?? '') == 'after' ? 'selected' : '' }}>After amount (99.00₱)</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn-primary btn-save">Save Changes</button>
-                    </form>
-                </section>
+                <div class="panel-footer">
+                    <button type="submit" class="btn-save-changes">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </section>
 
-                <!-- Tax Settings -->
-                <section class="settings-panel" id="panel-tax-settings">
-                    <h2>Tax Settings</h2>
-                    <form method="post" action="{{ route('settings.admin.update') }}">
-                        @csrf
-                        <input type="hidden" name="_section" value="tax">
-                        <div class="form-group">
-                            <label for="tax_enabled">Enable Tax</label>
-                            <select name="tax_enabled">
-                                <option value="1" {{ ($extra['tax_enabled'] ?? '1') == '1' ? 'selected' : '' }}>Yes</option>
-                                <option value="0" {{ ($extra['tax_enabled'] ?? '') == '0' ? 'selected' : '' }}>No</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="tax_rate">Tax Rate (%)</label>
-                            <input type="number" name="tax_rate" step="0.01" min="0" max="100" value="{{ $extra['tax_rate'] ?? 12 }}" placeholder="12">
-                            <p class="help-text">VAT or sales tax percentage (e.g. 12 for 12%)</p>
-                        </div>
-                        <div class="form-group">
-                            <label for="tax_name">Tax Name</label>
-                            <input type="text" name="tax_name" value="{{ $extra['tax_name'] ?? 'VAT' }}" placeholder="VAT">
-                        </div>
-                        <button type="submit" class="btn-primary btn-save">Save Changes</button>
-                    </form>
-                </section>
-
-                <!-- Invoice -->
-                <section class="settings-panel" id="panel-invoice">
-                    <h2>Invoice</h2>
-                    <form method="post" action="{{ route('settings.admin.update') }}">
-                        @csrf
-                        <input type="hidden" name="_section" value="invoice">
-                        <div class="form-group">
-                            <label for="invoice_prefix">Invoice Prefix</label>
-                            <input type="text" name="invoice_prefix" value="{{ $extra['invoice_prefix'] ?? 'INV-' }}" placeholder="INV-">
-                            <p class="help-text">Prefix before invoice number (e.g. INV-00001)</p>
-                        </div>
-                        <div class="form-group">
-                            <label for="invoice_start">Starting Invoice Number</label>
-                            <input type="number" name="invoice_start" min="1" value="{{ $extra['invoice_start'] ?? 1 }}" placeholder="1">
-                        </div>
-                        <div class="form-group">
-                            <label for="invoice_terms">Default Payment Terms</label>
-                            <input type="text" name="invoice_terms" value="{{ $extra['invoice_terms'] ?? 'Net 30' }}" placeholder="Net 30">
-                        </div>
-                        <button type="submit" class="btn-primary btn-save">Save Changes</button>
-                    </form>
-                </section>
-
-                <!-- Payment Gateways -->
-                <section class="settings-panel" id="panel-payment-gateways">
-                    <h2>Payment Gateways</h2>
-                    <form method="post" action="{{ route('settings.admin.update') }}">
-                        @csrf
-                        <input type="hidden" name="_section" value="payment">
-                        <div class="form-group">
-                            <label><input type="checkbox" name="gateway_cod" value="1" {{ ($extra['gateway_cod'] ?? '1') ? 'checked' : '' }}> Cash on Delivery (COD)</label>
-                        </div>
-                        <div class="form-group">
-                            <label><input type="checkbox" name="gateway_bank" value="1" {{ ($extra['gateway_bank'] ?? '') ? 'checked' : '' }}> Bank Transfer</label>
-                        </div>
-                        <div class="form-group">
-                            <label><input type="checkbox" name="gateway_online" value="1" {{ ($extra['gateway_online'] ?? '') ? 'checked' : '' }}> Online Payment (Card/GCash)</label>
-                        </div>
-                        <div class="form-group">
-                            <label for="gateway_instructions">Payment Instructions</label>
-                            <textarea name="gateway_instructions" rows="3" placeholder="Instructions for customers">{{ $extra['gateway_instructions'] ?? '' }}</textarea>
-                        </div>
-                        <button type="submit" class="btn-primary btn-save">Save Changes</button>
-                    </form>
-                </section>
-
-                <!-- Payout Settings -->
-                <section class="settings-panel" id="panel-payout-settings">
-                    <h2>Payout Settings</h2>
-                    <form method="post" action="{{ route('settings.admin.update') }}">
-                        @csrf
-                        <input type="hidden" name="_section" value="payout">
-                        <div class="form-group">
-                            <label for="payout_schedule">Payout Schedule</label>
-                            <select name="payout_schedule">
-                                <option value="daily" {{ ($extra['payout_schedule'] ?? '') == 'daily' ? 'selected' : '' }}>Daily</option>
-                                <option value="weekly" {{ ($extra['payout_schedule'] ?? 'weekly') == 'weekly' ? 'selected' : '' }}>Weekly</option>
-                                <option value="biweekly" {{ ($extra['payout_schedule'] ?? '') == 'biweekly' ? 'selected' : '' }}>Bi-weekly</option>
-                                <option value="monthly" {{ ($extra['payout_schedule'] ?? '') == 'monthly' ? 'selected' : '' }}>Monthly</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="payout_minimum">Minimum Payout Amount</label>
-                            <input type="number" name="payout_minimum" step="0.01" min="0" value="{{ $extra['payout_minimum'] ?? 100 }}" placeholder="100">
-                            <p class="help-text">Minimum balance before payout is processed</p>
-                        </div>
-                        <div class="form-group">
-                            <label for="payout_bank_name">Bank Name</label>
-                            <input type="text" name="payout_bank_name" value="{{ $extra['payout_bank_name'] ?? '' }}" placeholder="Bank name for payouts">
-                        </div>
-                        <button type="submit" class="btn-primary btn-save">Save Changes</button>
-                    </form>
-                </section>
-
-                <!-- Transaction Fees -->
-                <section class="settings-panel" id="panel-transaction-fees">
-                    <h2>Transaction Fees</h2>
-                    <form method="post" action="{{ route('settings.admin.update') }}">
-                        @csrf
-                        <input type="hidden" name="_section" value="transaction_fees">
-                        <div class="form-group">
-                            <label for="transaction_fee_percent">Platform Fee (%)</label>
-                            <input type="number" name="transaction_fee_percent" step="0.01" min="0" max="100" value="{{ $extra['transaction_fee_percent'] ?? 0 }}" placeholder="0">
-                            <p class="help-text">Percentage fee per transaction (e.g. 2.5 for 2.5%)</p>
-                        </div>
-                        <div class="form-group">
-                            <label for="transaction_fee_fixed">Fixed Fee (per order)</label>
-                            <input type="number" name="transaction_fee_fixed" step="0.01" min="0" value="{{ $extra['transaction_fee_fixed'] ?? 0 }}" placeholder="0">
-                        </div>
-                        <button type="submit" class="btn-primary btn-save">Save Changes</button>
-                    </form>
-                </section>
-
-                <!-- Shipping Zones -->
-                <section class="settings-panel" id="panel-shipping-zones">
-                    <h2>Shipping Zones</h2>
-                    <form method="post" action="{{ route('settings.admin.update') }}">
-                        @csrf
-                        <input type="hidden" name="_section" value="shipping_zones">
-                        <div class="form-group">
-                            <label for="zone_local">Local (Same City) - Rate</label>
-                            <input type="number" name="zone_local" step="0.01" min="0" value="{{ $extra['zone_local'] ?? 50 }}" placeholder="50">
-                        </div>
-                        <div class="form-group">
-                            <label for="zone_national">National (Philippines) - Rate</label>
-                            <input type="number" name="zone_national" step="0.01" min="0" value="{{ $extra['zone_national'] ?? 150 }}" placeholder="150">
-                        </div>
-                        <div class="form-group">
-                            <label for="zone_international">International - Rate</label>
-                            <input type="number" name="zone_international" step="0.01" min="0" value="{{ $extra['zone_international'] ?? 500 }}" placeholder="500">
-                        </div>
-                        <button type="submit" class="btn-primary btn-save">Save Changes</button>
-                    </form>
-                </section>
-
-                <!-- Delivery Providers -->
-                <section class="settings-panel" id="panel-delivery-providers">
-                    <h2>Delivery Providers</h2>
-                    <form method="post" action="{{ route('settings.admin.update') }}">
-                        @csrf
-                        <input type="hidden" name="_section" value="delivery">
-                        <div class="form-group">
-                            <label><input type="checkbox" name="provider_lbc" value="1" {{ ($extra['provider_lbc'] ?? '') ? 'checked' : '' }}> LBC</label>
-                        </div>
-                        <div class="form-group">
-                            <label><input type="checkbox" name="provider_jnt" value="1" {{ ($extra['provider_jnt'] ?? '') ? 'checked' : '' }}> J&T Express</label>
-                        </div>
-                        <div class="form-group">
-                            <label><input type="checkbox" name="provider_grab" value="1" {{ ($extra['provider_grab'] ?? '') ? 'checked' : '' }}> Grab Express</label>
-                        </div>
-                        <div class="form-group">
-                            <label><input type="checkbox" name="provider_own" value="1" {{ ($extra['provider_own'] ?? '') ? 'checked' : '' }}> Own Delivery</label>
-                        </div>
-                        <button type="submit" class="btn-primary btn-save">Save Changes</button>
-                    </form>
-                </section>
-
-                <!-- Rates & Fees -->
-                <section class="settings-panel" id="panel-rates-fees">
-                    <h2>Rates & Fees</h2>
-                    <form method="post" action="{{ route('settings.admin.update') }}">
-                        @csrf
-                        <input type="hidden" name="_section" value="rates_fees">
-                        <div class="form-group">
-                            <label for="free_shipping_min">Free Shipping Minimum Order</label>
-                            <input type="number" name="free_shipping_min" step="0.01" min="0" value="{{ $extra['free_shipping_min'] ?? 0 }}" placeholder="0">
-                            <p class="help-text">Order total for free shipping (0 = disabled)</p>
-                        </div>
-                        <div class="form-group">
-                            <label for="handling_fee">Handling Fee</label>
-                            <input type="number" name="handling_fee" step="0.01" min="0" value="{{ $extra['handling_fee'] ?? 0 }}" placeholder="0">
-                        </div>
-                        <button type="submit" class="btn-primary btn-save">Save Changes</button>
-                    </form>
-                </section>
-
-                <!-- Staff Permissions -->
-                <section class="settings-panel" id="panel-staff-permissions">
-                    <h2>Staff Permissions</h2>
-                    <form method="post" action="{{ route('settings.admin.update') }}">
-                        @csrf
-                        <input type="hidden" name="_section" value="staff_permissions">
-                        <div class="form-group">
-                            <label><input type="checkbox" name="perm_orders" value="1" {{ ($extra['perm_orders'] ?? '1') ? 'checked' : '' }}> View & Manage Orders</label>
-                        </div>
-                        <div class="form-group">
-                            <label><input type="checkbox" name="perm_products" value="1" {{ ($extra['perm_products'] ?? '1') ? 'checked' : '' }}> Manage Products</label>
-                        </div>
-                        <div class="form-group">
-                            <label><input type="checkbox" name="perm_customers" value="1" {{ ($extra['perm_customers'] ?? '1') ? 'checked' : '' }}> View Customers</label>
-                        </div>
-                        <div class="form-group">
-                            <label><input type="checkbox" name="perm_settings" value="1" {{ ($extra['perm_settings'] ?? '') ? 'checked' : '' }}> Access Settings</label>
-                        </div>
-                        <button type="submit" class="btn-primary btn-save">Save Changes</button>
-                    </form>
-                </section>
-
-                <!-- Email Templates -->
-                <section class="settings-panel" id="panel-email-templates">
-                    <h2>Email Templates</h2>
-                    <form method="post" action="{{ route('settings.admin.update') }}">
-                        @csrf
-                        <input type="hidden" name="_section" value="email_templates">
-                        <div class="form-group">
-                            <label for="email_order_confirmation">Order Confirmation Subject</label>
-                            <input type="text" name="email_order_confirmation" value="{{ $extra['email_order_confirmation'] ?? 'Order Confirmed - #ORDER_ID#' }}" placeholder="Order Confirmed - #ORDER_ID#">
-                            <p class="help-text">Use #ORDER_ID# as a placeholder for the order number.</p>
-                        </div>
-                        <div class="form-group">
-                            <label for="email_from_name">From Name</label>
-                            <input type="text" name="email_from_name" value="{{ $extra['email_from_name'] ?? ($s->store_name ?? 'Pet Animixon') }}" placeholder="Store name">
-                        </div>
-                        <button type="submit" class="btn-primary btn-save">Save Changes</button>
-                    </form>
-                </section>
-
-                <!-- SMS Settings -->
-                <section class="settings-panel" id="panel-sms-settings">
-                    <h2>SMS Settings</h2>
-                    <form method="post" action="{{ route('settings.admin.update') }}">
-                        @csrf
-                        <input type="hidden" name="_section" value="sms">
-                        <div class="form-group">
-                            <label for="sms_enabled">Enable SMS Notifications</label>
-                            <select name="sms_enabled">
-                                <option value="0" {{ ($extra['sms_enabled'] ?? '0') == '0' ? 'selected' : '' }}>No</option>
-                                <option value="1" {{ ($extra['sms_enabled'] ?? '') == '1' ? 'selected' : '' }}>Yes</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="sms_provider">SMS Provider</label>
-                            <select name="sms_provider">
-                                <option value="">-- Select --</option>
-                                <option value="twilio" {{ ($extra['sms_provider'] ?? '') == 'twilio' ? 'selected' : '' }}>Twilio</option>
-                                <option value="semaphore" {{ ($extra['sms_provider'] ?? '') == 'semaphore' ? 'selected' : '' }}>Semaphore</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn-primary btn-save">Save Changes</button>
-                    </form>
-                </section>
-
-                <!-- 3rd-party Service -->
-                <section class="settings-panel" id="panel-third-party">
-                    <h2>3rd-party Service</h2>
-                    <form method="post" action="{{ route('settings.admin.update') }}">
-                        @csrf
-                        <input type="hidden" name="_section" value="third_party">
-                        <div class="form-group">
-                            <label><input type="checkbox" name="google_analytics" value="1" {{ ($extra['google_analytics'] ?? '') ? 'checked' : '' }}> Google Analytics</label>
-                        </div>
-                        <div class="form-group">
-                            <label><input type="checkbox" name="facebook_pixel" value="1" {{ ($extra['facebook_pixel'] ?? '') ? 'checked' : '' }}> Facebook Pixel</label>
-                        </div>
-                        <button type="submit" class="btn-primary btn-save">Save Changes</button>
-                    </form>
-                </section>
-
-                <!-- API Keys -->
-                <section class="settings-panel" id="panel-api-keys">
-                    <h2>API Keys</h2>
-                    <form method="post" action="{{ route('settings.admin.update') }}">
-                        @csrf
-                        <input type="hidden" name="_section" value="api_keys">
-                        <div class="form-group">
-                            <label for="api_public_key">Public API Key</label>
-                            <input type="text" name="api_public_key" value="{{ $extra['api_public_key'] ?? '' }}" placeholder="pk_...">
-                        </div>
-                        <div class="form-group">
-                            <label for="api_secret_key">Secret API Key</label>
-                            <input type="password" name="api_secret_key" value="" placeholder="Leave blank to keep current">
-                            <p class="help-text">Leave blank if you don't want to change</p>
-                        </div>
-                        <button type="submit" class="btn-primary btn-save">Save Changes</button>
-                    </form>
-                </section>
-
-                <!-- Webhooks -->
-                <section class="settings-panel" id="panel-webhooks">
-                    <h2>Webhooks</h2>
-                    <form method="post" action="{{ route('settings.admin.update') }}">
-                        @csrf
-                        <input type="hidden" name="_section" value="webhooks">
-                        <div class="form-group">
-                            <label for="webhook_url">Webhook URL</label>
-                            <input type="text" name="webhook_url" value="{{ $extra['webhook_url'] ?? '' }}" placeholder="https://yoursite.com/webhook">
-                            <p class="help-text">URL to receive order/payment events</p>
-                        </div>
-                        <button type="submit" class="btn-primary btn-save">Save Changes</button>
-                    </form>
-                </section>
-
-                <!-- Password Policy -->
-                <section class="settings-panel" id="panel-password-policy">
-                    <h2>Password Policy</h2>
-                    <form method="post" action="{{ route('settings.admin.update') }}">
-                        @csrf
-                        <input type="hidden" name="_section" value="password_policy">
-                        <div class="form-group">
-                            <label for="password_min_length">Minimum Length</label>
-                            <input type="number" name="password_min_length" min="6" max="32" value="{{ $extra['password_min_length'] ?? 8 }}">
-                        </div>
-                        <div class="form-group">
-                            <label><input type="checkbox" name="password_require_upper" value="1" {{ ($extra['password_require_upper'] ?? '1') ? 'checked' : '' }}> Require uppercase letter</label>
-                        </div>
-                        <div class="form-group">
-                            <label><input type="checkbox" name="password_require_number" value="1" {{ ($extra['password_require_number'] ?? '1') ? 'checked' : '' }}> Require number</label>
-                        </div>
-                        <div class="form-group">
-                            <label for="password_expiry_days">Password expiry (days)</label>
-                            <input type="number" name="password_expiry_days" min="0" value="{{ $extra['password_expiry_days'] ?? 0 }}" placeholder="0 = never">
-                        </div>
-                        <button type="submit" class="btn-primary btn-save">Save Changes</button>
-                    </form>
-                </section>
-
-                <!-- Two-factor Authentication -->
-                <section class="settings-panel" id="panel-two-factor">
-                    <h2>Two-factor Authentication</h2>
-                    <form method="post" action="{{ route('settings.admin.update') }}">
-                        @csrf
-                        <input type="hidden" name="_section" value="two_factor">
-                        <div class="form-group">
-                            <label for="tfa_enabled">Enable 2FA for Admins</label>
-                            <select name="tfa_enabled">
-                                <option value="0" {{ ($extra['tfa_enabled'] ?? '0') == '0' ? 'selected' : '' }}>No</option>
-                                <option value="1" {{ ($extra['tfa_enabled'] ?? '') == '1' ? 'selected' : '' }}>Yes</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn-primary btn-save">Save Changes</button>
-                    </form>
-                </section>
-
-                <!-- Login Logs -->
-                <section class="settings-panel" id="panel-login-logs">
-                    <h2>Login Logs</h2>
-                    <p>View recent admin login activity. Login logs can be enabled and viewed here.</p>
-                    <form method="post" action="{{ route('settings.admin.update') }}">
-                        @csrf
-                        <input type="hidden" name="_section" value="login_logs">
-                        <div class="form-group">
-                            <label for="login_logs_enabled">Enable Login Logging</label>
-                            <select name="login_logs_enabled">
-                                <option value="0" {{ ($extra['login_logs_enabled'] ?? '0') == '0' ? 'selected' : '' }}>No</option>
-                                <option value="1" {{ ($extra['login_logs_enabled'] ?? '') == '1' ? 'selected' : '' }}>Yes</option>
-                            </select>
-                            <p class="help-text">Log IP, time, and user for each admin login</p>
-                        </div>
-                        <button type="submit" class="btn-primary btn-save">Save Changes</button>
-                    </form>
-                </section>
+        <!-- ===== PANEL: Currency Configuration ===== -->
+        <!-- Form: Primary currency, decimal places, symbol position -->
+        <section class="settings-panel" id="panel-currency">
+            <div class="panel-header-block">
+                <div class="panel-header-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                </div>
+                <div class="panel-header-text">
+                    <h2>Currency Configuration</h2>
+                    <p>Format rules and secondary currencies</p>
+                </div>
             </div>
-        </main>
-    </div>
-    <script src="{{ asset('js/dashboard.js') }}"></script>
-    <script>
-        (function(){
-            var navItems = document.querySelectorAll('.settings-sidebar .nav-item[data-section]');
-            var panels = document.querySelectorAll('.settings-panel');
-            navItems.forEach(function(item){
-                item.addEventListener('click', function(){
-                    var section = this.getAttribute('data-section');
-                    if(!section) return;
-                    navItems.forEach(function(i){ i.classList.remove('active'); });
-                    panels.forEach(function(p){ p.classList.remove('active'); });
-                    this.classList.add('active');
-                    var panel = document.getElementById('panel-' + section);
-                    if(panel) panel.classList.add('active');
-                    if(window.history && window.history.replaceState){
-                        window.history.replaceState(null, '', '?section=' + section);
-                    }
-                });
+            <form method="post" action="{{ route('settings.admin.update') }}" id="form-currency">
+                @csrf
+                <input type="hidden" name="_section" value="currency">
+                <div class="form-group">
+                    <label for="primary_currency">Primary Currency Code</label>
+                    <select name="primary_currency" class="settings-input">
+                        @foreach(['PHP','USD','EUR','GBP'] as $c)
+                            <option value="{{ $c }}" {{ ($extra['primary_currency'] ?? 'PHP') == $c ? 'selected' : '' }}>{{ $c }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="decimal_places">Decimal Places</label>
+                    <input type="number" name="decimal_places" class="settings-input" min="0" max="4" value="{{ $extra['decimal_places'] ?? 2 }}">
+                </div>
+                <div class="form-group">
+                    <label for="currency_symbol_position">Symbol Position</label>
+                    <select name="currency_symbol_position" class="settings-input">
+                        <option value="before" {{ ($extra['currency_symbol_position'] ?? 'before') == 'before' ? 'selected' : '' }}>Before amount</option>
+                        <option value="after" {{ ($extra['currency_symbol_position'] ?? '') == 'after' ? 'selected' : '' }}>After amount</option>
+                    </select>
+                </div>
+
+                <div class="panel-footer">
+                    <button type="submit" class="btn-save-changes">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Other forms can be structured similarly inside their sections with an ID corresponding to "form-<section>" -->
+        <!-- ===== PANEL: Tax Settings ===== -->
+        <!-- Form: Enable tax, rate percentage, tax label -->
+        <section class="settings-panel" id="panel-tax-settings">
+            <div class="panel-header-block">
+                <div class="panel-header-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.92-5.27l-3.26-1.55"></path></svg>
+                </div>
+                <div class="panel-header-text">
+                    <h2>Tax Settings</h2>
+                    <p>Sales tax computation rules</p>
+                </div>
+            </div>
+            <form method="post" action="{{ route('settings.admin.update') }}" id="form-tax-settings">
+                @csrf
+                <input type="hidden" name="_section" value="tax">
+                <div class="form-group">
+                    <label for="tax_enabled">Enable Tax</label>
+                    <select name="tax_enabled" class="settings-input">
+                        <option value="1" {{ ($extra['tax_enabled'] ?? '1') == '1' ? 'selected' : '' }}>Yes</option>
+                        <option value="0" {{ ($extra['tax_enabled'] ?? '') == '0' ? 'selected' : '' }}>No</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="tax_rate">Tax Rate (%)</label>
+                    <input type="number" name="tax_rate" class="settings-input" step="0.01" min="0" max="100" value="{{ $extra['tax_rate'] ?? 12 }}">
+                </div>
+                <div class="form-group">
+                    <label for="tax_name">Tax Label Name</label>
+                    <input type="text" name="tax_name" class="settings-input" value="{{ $extra['tax_name'] ?? 'VAT' }}">
+                </div>
+
+                <div class="panel-footer">
+                    <button type="submit" class="btn-save-changes">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </section>
+        
+        <!-- ===== PANEL: Invoice Settings ===== -->
+        <!-- Form: Invoice prefix, starting number, payment terms -->
+        <section class="settings-panel" id="panel-invoice">
+            <div class="panel-header-block">
+                <div class="panel-header-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                </div>
+                <div class="panel-header-text">
+                    <h2>Invoice Settings</h2>
+                    <p>Configure invoice numbering and terms</p>
+                </div>
+            </div>
+            <form method="post" action="{{ route('settings.admin.update') }}" id="form-invoice">
+                @csrf
+                <input type="hidden" name="_section" value="invoice">
+                <div class="form-group">
+                    <label for="invoice_prefix">Invoice Prefix</label>
+                    <input type="text" name="invoice_prefix" class="settings-input" value="{{ $extra['invoice_prefix'] ?? 'INV-' }}" placeholder="INV-">
+                </div>
+                <div class="form-group">
+                    <label for="invoice_start">Starting Invoice Number</label>
+                    <input type="number" name="invoice_start" class="settings-input" min="1" value="{{ $extra['invoice_start'] ?? 1 }}">
+                </div>
+                <div class="form-group">
+                    <label for="invoice_terms">Default Payment Terms</label>
+                    <textarea name="invoice_terms" class="settings-input" placeholder="e.g. Net 30">{{ $extra['invoice_terms'] ?? 'Net 30' }}</textarea>
+                </div>
+
+                <div class="panel-footer">
+                    <button type="submit" class="btn-save-changes">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </section>
+        <!-- ===== PANEL: Payment Gateways ===== -->
+        <!-- Form: Checkboxes for COD, Bank Transfer, Online Payment -->
+        <section class="settings-panel" id="panel-payment-gateways">
+            <div class="panel-header-block">
+                <div class="panel-header-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                </div>
+                <div class="panel-header-text">
+                    <h2>Payment Gateways</h2>
+                    <p>Manage accepted payment methods</p>
+                </div>
+            </div>
+            <form method="post" action="{{ route('settings.admin.update') }}" id="form-payment-gateways">
+                @csrf
+                <input type="hidden" name="_section" value="payment">
+                <div class="form-group">
+                    <label><input type="checkbox" name="gateway_cod" value="1" {{ ($extra['gateway_cod'] ?? '1') == '1' ? 'checked' : '' }}> Cash on Delivery (COD)</label>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" name="gateway_bank" value="1" {{ ($extra['gateway_bank'] ?? '0') == '1' ? 'checked' : '' }}> Bank Transfer</label>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" name="gateway_online" value="1" {{ ($extra['gateway_online'] ?? '0') == '1' ? 'checked' : '' }}> Online Payment (Card/GCash)</label>
+                </div>
+                <div class="form-group">
+                    <label for="gateway_instructions">Payment Instructions</label>
+                    <textarea name="gateway_instructions" class="settings-input" rows="3" placeholder="Instructions for customers">{{ $extra['gateway_instructions'] ?? '' }}</textarea>
+                </div>
+
+                <div class="panel-footer">
+                    <button type="submit" class="btn-save-changes">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- ===== PANEL: Shipping Zones ===== -->
+        <!-- Form: Local, national, international shipping rates -->
+        <section class="settings-panel" id="panel-shipping-zones">
+            <div class="panel-header-block">
+                <div class="panel-header-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                </div>
+                <div class="panel-header-text">
+                    <h2>Shipping Zones</h2>
+                    <p>Configure regional shipping rates</p>
+                </div>
+            </div>
+            <form method="post" action="{{ route('settings.admin.update') }}" id="form-shipping-zones">
+                @csrf
+                <input type="hidden" name="_section" value="shipping_zones">
+                <div class="form-group">
+                    <label for="zone_local">Local (Same City) - Rate</label>
+                    <input type="number" name="zone_local" class="settings-input" step="0.01" min="0" value="{{ $extra['zone_local'] ?? 50 }}">
+                </div>
+                <div class="form-group">
+                    <label for="zone_national">National (Philippines) - Rate</label>
+                    <input type="number" name="zone_national" class="settings-input" step="0.01" min="0" value="{{ $extra['zone_national'] ?? 150 }}">
+                </div>
+                <div class="form-group">
+                    <label for="zone_international">International - Rate</label>
+                    <input type="number" name="zone_international" class="settings-input" step="0.01" min="0" value="{{ $extra['zone_international'] ?? 500 }}">
+                </div>
+
+                <div class="panel-footer">
+                    <button type="submit" class="btn-save-changes">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- ===== PANEL: Rates and Fees ===== -->
+        <!-- Form: Free shipping minimum, handling fee -->
+        <section class="settings-panel" id="panel-rates-fees">
+            <div class="panel-header-block">
+                <div class="panel-header-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                </div>
+                <div class="panel-header-text">
+                    <h2>Rates & Fees</h2>
+                    <p>Manage shipping rules and handling fees</p>
+                </div>
+            </div>
+            <form method="post" action="{{ route('settings.admin.update') }}" id="form-rates-fees">
+                @csrf
+                <input type="hidden" name="_section" value="rates_fees">
+                <div class="form-group">
+                    <label for="free_shipping_min">Free Shipping Minimum Order</label>
+                    <input type="number" name="free_shipping_min" class="settings-input" step="0.01" min="0" value="{{ $extra['free_shipping_min'] ?? 0 }}">
+                    <p class="help-text">Order total for free shipping (0 = disabled)</p>
+                </div>
+                <div class="form-group">
+                    <label for="handling_fee">Handling Fee</label>
+                    <input type="number" name="handling_fee" class="settings-input" step="0.01" min="0" value="{{ $extra['handling_fee'] ?? 0 }}">
+                </div>
+
+                <div class="panel-footer">
+                    <button type="submit" class="btn-save-changes">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- ===== PANEL: Email Templates ===== -->
+        <!-- Form: Order confirmation subject, from name -->
+        <section class="settings-panel" id="panel-email-templates">
+            <div class="panel-header-block">
+                <div class="panel-header-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                </div>
+                <div class="panel-header-text">
+                    <h2>Email Templates</h2>
+                    <p>Customize automated email notifications</p>
+                </div>
+            </div>
+            <form method="post" action="{{ route('settings.admin.update') }}" id="form-email-templates">
+                @csrf
+                <input type="hidden" name="_section" value="email_templates">
+                <div class="form-group">
+                    <label for="email_order_confirmation">Order Confirmation Subject</label>
+                    <input type="text" name="email_order_confirmation" class="settings-input" value="{{ $extra['email_order_confirmation'] ?? 'Order Confirmed - #ORDER_ID#' }}">
+                    <p class="help-text">Use #ORDER_ID# as a placeholder for the order number.</p>
+                </div>
+                <div class="form-group">
+                    <label for="email_from_name">From Name</label>
+                    <input type="text" name="email_from_name" class="settings-input" value="{{ $extra['email_from_name'] ?? ($s->store_name ?? 'Pet Animixon') }}">
+                </div>
+
+                <div class="panel-footer">
+                    <button type="submit" class="btn-save-changes">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- ===== PANEL: Password Policy ===== -->
+        <!-- Form: Minimum length, uppercase requirement, expiry days -->
+        <section class="settings-panel" id="panel-password-policy">
+            <div class="panel-header-block">
+                <div class="panel-header-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
+                <div class="panel-header-text">
+                    <h2>Password Policy</h2>
+                    <p>Security rules for user passwords</p>
+                </div>
+            </div>
+            <form method="post" action="{{ route('settings.admin.update') }}" id="form-password-policy">
+                @csrf
+                <input type="hidden" name="_section" value="password_policy">
+                <div class="form-group">
+                    <label for="password_min_length">Minimum Length</label>
+                    <input type="number" name="password_min_length" class="settings-input" min="6" max="32" value="{{ $extra['password_min_length'] ?? 8 }}">
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" name="password_require_upper" value="1" {{ ($extra['password_require_upper'] ?? '1') == '1' ? 'checked' : '' }}> Require uppercase letter</label>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" name="password_require_number" value="1" {{ ($extra['password_require_number'] ?? '1') == '1' ? 'checked' : '' }}> Require number</label>
+                </div>
+                <div class="form-group">
+                    <label for="password_expiry_days">Password expiry (days)</label>
+                    <input type="number" name="password_expiry_days" class="settings-input" min="0" value="{{ $extra['password_expiry_days'] ?? 0 }}">
+                    <p class="help-text">0 = never expire</p>
+                </div>
+
+                <div class="panel-footer">
+                    <button type="submit" class="btn-save-changes">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- ===== PANEL: Login Logs ===== -->
+        <!-- Form: Enable/disable login audit trail -->
+        <section class="settings-panel" id="panel-login-logs">
+            <div class="panel-header-block">
+                <div class="panel-header-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                </div>
+                <div class="panel-header-text">
+                    <h2>Login Logs</h2>
+                    <p>Audit trail for admin access</p>
+                </div>
+            </div>
+            <form method="post" action="{{ route('settings.admin.update') }}" id="form-login-logs">
+                @csrf
+                <input type="hidden" name="_section" value="login_logs">
+                <div class="form-group">
+                    <label for="login_logs_enabled">Enable Login Logging</label>
+                    <select name="login_logs_enabled" class="settings-input">
+                        <option value="0" {{ ($extra['login_logs_enabled'] ?? '0') == '0' ? 'selected' : '' }}>No</option>
+                        <option value="1" {{ ($extra['login_logs_enabled'] ?? '') == '1' ? 'selected' : '' }}>Yes</option>
+                    </select>
+                    <p class="help-text">Log IP, time, and user for each admin login</p>
+                </div>
+
+                <div class="panel-footer">
+                    <button type="submit" class="btn-save-changes">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </section>
+    </main>
+    <!-- ===== END SETTINGS MAIN CONTENT ===== -->
+
+</div>
+<!-- ===== END SETTINGS WRAPPER ===== -->
+
+<!-- ===== JAVASCRIPT (pushed to layout scripts) ===== -->
+@push('scripts')
+<script>
+/**
+ * ===== SETTINGS PAGE JAVASCRIPT =====
+ * Handles: Sidebar tab switching, URL sync, and logo drag-and-drop upload
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    // ===== SIDEBAR NAV SWITCHING =====
+    // Click a sidebar item to show its corresponding panel
+    const navItems = document.querySelectorAll('.settings-nav-item[data-section]');
+        const panels = document.querySelectorAll('.settings-panel');
+
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const section = this.getAttribute('data-section');
+                
+                navItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                panels.forEach(p => p.classList.remove('active'));
+                const targetPanel = document.getElementById('panel-' + section);
+                if (targetPanel) {
+                    targetPanel.classList.add('active');
+                }
+                
+                if (window.history && window.history.replaceState) {
+                    window.history.replaceState(null, '', '?section=' + section);
+                }
             });
-            var match = window.location.search.match(/section=([^&]+)/);
-            if(match){
-                var sec = match[1];
-                navItems.forEach(function(i){
-                    if(i.getAttribute('data-section') === sec){
-                        i.click();
-                    }
-                });
+        });
+
+    // ===== URL-BASED PANEL RESTORE =====
+    // If URL has ?section=xxx, auto-switch to that panel on load
+    const urlParams = new URLSearchParams(window.location.search);
+    const activeSection = urlParams.get('section');
+        if (activeSection) {
+            const targetItem = document.querySelector(`.settings-nav-item[data-section="${activeSection}"]`);
+            if (targetItem) {
+                targetItem.click();
             }
-        })();
-    </script>
-</body>
-</html>
+        }
+    // ===== DRAG AND DROP LOGO UPLOAD =====
+    // Click or drag-and-drop to upload a store logo image
+    const dragDropBox = document.getElementById('drag-drop-trigger');
+    const fileInput = document.getElementById('store_logo');
+    const previewWrapper = document.getElementById('logo-preview-wrapper');
+    const previewImg = document.getElementById('logo-preview-img');
+    const removeBtn = document.getElementById('remove-logo-btn');
+        
+        if (dragDropBox && fileInput) {
+            dragDropBox.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            dragDropBox.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dragDropBox.style.borderColor = '#ea580c';
+                dragDropBox.style.backgroundColor = '#fff7ed';
+            });
+            
+            dragDropBox.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dragDropBox.style.borderColor = '#d1d5db';
+                dragDropBox.style.backgroundColor = '#f9fafb';
+            });
+            
+            dragDropBox.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dragDropBox.style.borderColor = '#d1d5db';
+                dragDropBox.style.backgroundColor = '#f9fafb';
+                
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    fileInput.files = e.dataTransfer.files;
+                    updateImagePreview(e.dataTransfer.files[0]);
+                }
+            });
+            
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    updateImagePreview(this.files[0]);
+                }
+            });
+            
+        // Show preview thumbnail after file is selected or dropped
+        function updateImagePreview(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewWrapper.style.display = 'flex';
+                };
+                reader.readAsDataURL(file);
+            }
+            
+        // Remove button: Clear the file and hide the preview
+        removeBtn.addEventListener('click', function() {
+                fileInput.value = '';
+                previewWrapper.style.display = 'none';
+            });
+        }
+    });
+</script>
+@endpush
+@endsection

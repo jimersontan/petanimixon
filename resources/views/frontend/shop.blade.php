@@ -2,195 +2,608 @@
 
 @section('title', 'Shop - Pet Animixon')
 
+@push('styles')
+<style>
+    /* ── Hero Banner ───────────────────────────── */
+    .shop-hero {
+        background-color: #fdf0e6;
+        padding: 48px 20px 60px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .shop-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            radial-gradient(circle, rgba(255,140,66,.18) 1px, transparent 1px),
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Ctext y='28' font-size='18' fill='rgba(255,140,66,0.12)'%3E%F0%9F%90%BE%3C/text%3E%3C/svg%3E");
+        background-size: 30px 30px, 120px 120px;
+        opacity: .7;
+    }
+    .shop-hero-title { font-size: 38px; font-weight: 800; color: #222; margin: 0 0 10px; position: relative; }
+    .shop-hero-sub   { font-size: 15px; color: #777; margin: 0; position: relative; }
+    /* curved bottom wave */
+    .shop-hero-wave {
+        position: absolute; bottom: -2px; left: 0; right: 0;
+        height: 40px; background: white;
+        clip-path: ellipse(55% 100% at 50% 100%);
+    }
+
+    /* ── Layout ───────────────────────────────── */
+    .shop-layout {
+        max-width: 1280px; margin: 0 auto;
+        padding: 30px 24px;
+        display: flex; gap: 28px;
+    }
+
+    /* ── Sidebar ──────────────────────────────── */
+    .shop-sidebar {
+        width: 220px; flex-shrink: 0;
+    }
+    .sidebar-section { margin-bottom: 28px; }
+    .sidebar-section-header {
+        display: flex; justify-content: space-between; align-items: center;
+        cursor: pointer; padding-bottom: 10px;
+        border-bottom: 1px solid #eee; margin-bottom: 14px;
+    }
+    .sidebar-section-header h3 {
+        font-size: 15px; font-weight: 700; color: #222; margin: 0;
+    }
+    .sidebar-section-header span { font-size: 16px; color: #999; }
+
+    .filter-label {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 10px; cursor: pointer; gap: 8px;
+    }
+    .filter-label-left { display: flex; align-items: center; gap: 8px; }
+    .filter-label input[type="checkbox"] {
+        width: 16px; height: 16px; cursor: pointer;
+        accent-color: #FF8C42;
+    }
+    .filter-label span { font-size: 13.5px; color: #444; }
+    .filter-count { font-size: 12px; color: #aaa; }
+
+    /* Price Range */
+    .price-slider { width: 100%; accent-color: #FF8C42; cursor: pointer; }
+    .price-range-labels { display: flex; justify-content: space-between; font-size: 12px; color: #666; margin: 6px 0 12px; }
+    .btn-apply {
+        width: 100%; padding: 10px;
+        background: #FF8C42; color: #fff; border: none;
+        border-radius: 8px; font-size: 13px; font-weight: 700;
+        cursor: pointer; transition: opacity .2s;
+    }
+    .btn-apply:hover { opacity: .88; }
+
+    /* Ratings stars */
+    .rating-label { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; cursor: pointer; }
+    .rating-label input[type="radio"] { accent-color: #FF8C42; width: 15px; height: 15px; }
+    .stars { color: #ffa500; font-size: 14px; letter-spacing: 1px; }
+    .rating-label span { font-size: 13px; color: #555; }
+
+    /* Availability toggle */
+    .availability-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .availability-row label { font-size: 13px; color: #444; }
+    .toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+    .toggle-switch input { display: none; }
+    .toggle-slider {
+        position: absolute; cursor: pointer; inset: 0;
+        background: #ccc; border-radius: 34px; transition: .3s;
+    }
+    .toggle-slider::before {
+        content: ''; position: absolute;
+        width: 16px; height: 16px; left: 3px; bottom: 3px;
+        background: white; border-radius: 50%; transition: .3s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background: #FF8C42; }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); }
+
+    .filter-label-on-sale { display: flex; align-items: center; gap: 8px; margin-top: 8px; cursor: pointer; }
+    .filter-label-on-sale input { accent-color: #FF8C42; width: 16px; height: 16px; }
+    .filter-label-on-sale span { font-size: 13px; color: #444; }
+
+    .btn-clear-filters {
+        width: 100%; padding: 10px;
+        background: white; color: #FF8C42;
+        border: 1.5px solid #FF8C42;
+        border-radius: 8px; font-size: 13px; font-weight: 600;
+        cursor: pointer; text-decoration: none; display: block;
+        text-align: center; margin-top: 10px; transition: all .2s;
+    }
+    .btn-clear-filters:hover { background: #fff5ef; }
+
+    /* ── Main area ───────────────────────────── */
+    .shop-main { flex: 1; min-width: 0; }
+
+    /* Toolbar */
+    .shop-toolbar {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+    }
+    .shop-count { font-size: 13.5px; color: #666; }
+    .shop-count strong { color: #333; }
+    .toolbar-right { display: flex; align-items: center; gap: 8px; }
+    .view-btn {
+        width: 34px; height: 34px; border: none; border-radius: 6px;
+        cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+        transition: all .2s;
+    }
+    .view-btn.active { background: #FF8C42; color: white; }
+    .view-btn:not(.active) { background: #f0f0f0; color: #555; }
+    .sort-select {
+        padding: 7px 12px; border: 1px solid #ddd;
+        border-radius: 6px; font-size: 13px; background: white; cursor: pointer;
+    }
+    .sort-label { font-size: 13px; color: #666; }
+
+    /* Product grid */
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 20px;
+    }
+
+    /* Product card */
+    .product-card {
+        background: white; border-radius: 12px;
+        overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.08);
+        transition: transform .25s, box-shadow .25s;
+    }
+    .product-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,.13); }
+
+    .product-img-wrap {
+        position: relative; height: 220px;
+        background: #f5f5f5; overflow: hidden;
+    }
+    .product-img-wrap img {
+        width: 100%; height: 100%; object-fit: cover;
+        transition: transform .35s;
+    }
+    .product-card:hover .product-img-wrap img { transform: scale(1.04); }
+    .product-badge {
+        position: absolute; top: 12px; right: 12px;
+        padding: 3px 10px; border-radius: 5px;
+        font-size: 11px; font-weight: 700; letter-spacing: .5px;
+    }
+    .badge-sale { background: #FF8C42; color: white; }
+    .badge-new  { background: #222; color: white; }
+
+    .product-body { padding: 14px 16px 16px; }
+    .product-rating { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; }
+    .product-rating .stars { font-size: 13px; }
+    .product-rating .count { font-size: 12px; color: #aaa; }
+    .product-name {
+        font-size: 14px; font-weight: 600; color: #222;
+        margin: 0 0 6px; line-height: 1.4; min-height: 40px;
+    }
+    .product-pet-icon { font-size: 18px; margin-bottom: 6px; display: block; }
+    .product-price-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+    .product-price {
+        font-size: 20px; font-weight: 800; color: #FF8C42;
+    }
+    .product-original { font-size: 13px; color: #bbb; text-decoration: line-through; }
+    .product-stock {
+        font-size: 12px; margin-bottom: 12px;
+        display: flex; align-items: center; gap: 4px;
+    }
+    .stock-in  { color: #3DB868; }
+    .stock-low { color: #FF8C42; }
+    .stock-out { color: #e44; }
+    .btn-add-to-cart {
+        width: 100%; padding: 10px;
+        background: #FF8C42; color: white;
+        border: none; border-radius: 8px;
+        font-size: 14px; font-weight: 700;
+        cursor: pointer; transition: opacity .2s;
+    }
+    .btn-add-to-cart:hover { opacity: .88; }
+    .btn-add-to-cart:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* no products */
+    .no-products { grid-column: 1/-1; text-align: center; padding: 60px 20px; }
+    .no-products p { font-size: 17px; color: #888; }
+
+    /* Pagination */
+    .pagination-wrap { margin-top: 40px; text-align: center; }
+
+    /* Mobile Filter Sidebar */
+    .mobile-filter-btn {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .sidebar-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    .sidebar-overlay.active {
+        opacity: 1;
+    }
+    .sidebar-close-btn {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 24px;
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        cursor: pointer;
+        color: #555;
+    }
+    .mobile-filter-header {
+        display: none;
+        margin-bottom: 20px;
+        font-size: 18px;
+        font-weight: 800;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 15px;
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 850px) {
+        .shop-layout { flex-direction: column; }
+        .shop-sidebar { width: 100%; display: flex; flex-wrap: wrap; gap: 20px; }
+        .shop-sidebar .sidebar-section { flex: 1; min-width: 250px; }
+        .products-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 768px) {
+        .shop-hero {
+            margin-left: -0.8rem;
+            margin-right: -0.8rem;
+            padding: 28px 16px 36px;
+        }
+        .shop-hero-title { font-size: 24px; }
+        .shop-hero-sub { font-size: 13px; }
+        .shop-hero-wave { height: 24px; }
+
+        .shop-layout { padding: 12px 0; gap: 12px; }
+
+        .products-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .product-card {
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.06);
+        }
+        .product-card:hover { transform: none; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+
+        .product-img-wrap {
+            height: 140px;
+        }
+        .product-img-wrap img { transition: none; }
+        .product-card:hover .product-img-wrap img { transform: none; }
+        .product-badge { top: 6px; right: 6px; padding: 2px 6px; font-size: 9px; }
+
+        .product-body { padding: 8px 10px 10px; }
+        .product-rating .stars { font-size: 11px; }
+        .product-rating .count { font-size: 10px; }
+        .product-name {
+            font-size: 12px; min-height: auto; margin-bottom: 2px;
+            display: -webkit-box; -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical; overflow: hidden;
+            line-height: 1.3;
+        }
+        .product-pet-icon { font-size: 14px; margin-bottom: 2px; }
+        .product-price-row { margin-bottom: 4px; }
+        .product-price { font-size: 16px; }
+        .product-original { font-size: 11px; }
+        .product-stock { font-size: 10px; margin-bottom: 6px; }
+        .btn-add-to-cart {
+            padding: 7px; font-size: 12px; border-radius: 6px;
+        }
+
+        /* Shop toolbar */
+        .shop-toolbar {
+            flex-wrap: wrap; gap: 8px;
+            margin-bottom: 12px;
+        }
+        .shop-count { font-size: 12px; width: auto; order: 0; margin: 0; }
+        .toolbar-right { margin-left: auto; }
+        .sort-select { padding: 5px 8px; font-size: 12px; }
+        .sort-label { font-size: 12px; }
+        .view-btn { width: 28px; height: 28px; font-size: 13px; }
+
+        /* Sidebar drawer */
+        .shop-sidebar {
+            position: fixed;
+            top: 0; left: -100%; bottom: 0;
+            width: 85%; max-width: 300px;
+            background: white; z-index: 1000;
+            padding: 20px 16px; overflow-y: auto;
+            display: block;
+            transition: left 0.3s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            margin: 0;
+        }
+        .shop-sidebar.active { left: 0; }
+        .mobile-filter-btn { display: flex; }
+        .sidebar-close-btn { display: block; }
+        .mobile-filter-header { display: block; }
+    }
+    @media (max-width: 480px) {
+        .products-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+        .product-img-wrap { height: 120px; }
+        .product-body { padding: 6px 8px 8px; }
+        .product-price { font-size: 14px; }
+        .btn-add-to-cart { padding: 6px; font-size: 11px; }
+        .shop-sidebar .sidebar-section { min-width: 100%; }
+    }
+</style>
+@endpush
+
 @section('content')
-<div style="background-color: #fef5f0; padding: 40px 20px; text-align: center; margin-bottom: 30px;">
-    <h1 style="font-size: 36px; color: #333; margin: 0 0 10px 0;">All Products</h1>
-    <p style="font-size: 16px; color: #666; margin: 0;">Discover quality products for every pet</p>
+
+{{-- Hero Banner --}}
+<div class="shop-hero">
+    <div class="shop-hero-wave"></div>
+    <h1 class="shop-hero-title">All Products</h1>
+    <p class="shop-hero-sub">Discover quality products for every pet</p>
 </div>
 
-<div style="max-width: 1400px; margin: 0 auto; padding: 0 20px; display: flex; gap: 30px; min-height: 60vh;">
-    <!-- Sidebar Filters -->
-    <aside style="width: 200px; flex-shrink: 0;">
-        <form method="GET" action="{{ route('shop') }}" id="filterForm">
-            <!-- Pet Type Filter -->
-            <div style="margin-bottom: 30px;">
-                <h3 style="font-size: 16px; font-weight: 600; margin: 0 0 15px 0; color: #333;">Pet Type</h3>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    @foreach(['Dogs' => 'dogs', 'Cats' => 'cats', 'Birds' => 'birds', 'Fish' => 'fish', 'Small Mammals' => 'small-mammals', 'Reptiles' => 'reptiles'] as $label => $value)
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" name="pet_type[]" value="{{ $value }}" {{ in_array($value, request()->input('pet_type', [])) ? 'checked' : '' }} style="width: 18px; height: 18px; cursor: pointer;">
-                            <span style="font-size: 14px; color: #333;">{{ $label }}</span>
-                        </label>
-                    @endforeach
-                </div>
-            </div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-            <!-- Category Filter -->
-            <div style="margin-bottom: 30px;">
-                <h3 style="font-size: 16px; font-weight: 600; margin: 0 0 15px 0; color: #333;">Category</h3>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    @foreach($categories as $category)
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" name="category[]" value="{{ $category->id }}" {{ in_array($category->id, request()->input('category', [])) ? 'checked' : '' }} style="width: 18px; height: 18px; cursor: pointer;">
-                            <span style="font-size: 14px; color: #333;">{{ $category->category_name }}</span>
-                        </label>
-                    @endforeach
-                </div>
-            </div>
+<div class="shop-layout">
+    {{-- ══════════════════ SIDEBAR ══════════════════ --}}
+    <aside class="shop-sidebar" id="shopSidebar">
+        <button type="button" class="sidebar-close-btn" onclick="toggleSidebar()" aria-label="Close filters">✕</button>
+        <div class="mobile-filter-header">Filters</div>
+        <form method="GET" action="{{ route('shop.all') }}" id="filterForm">
 
-            <!-- Price Range Filter -->
-            <div style="margin-bottom: 30px;">
-                <h3 style="font-size: 16px; font-weight: 600; margin: 0 0 15px 0; color: #333;">Price Range</h3>
-                <div style="display: flex; flex-direction: column; gap: 15px;">
-                    <input type="range" name="price_min" min="0" max="10000" value="{{ request()->input('price_min', 0) }}" style="width: 100%; cursor: pointer;">
-                    <div style="display: flex; gap: 10px; font-size: 12px; color: #666;">
-                        <span>₱<span id="priceMin">{{ request()->input('price_min', 0) }}</span></span>
-                        <span>-</span>
-                        <span>₱<span id="priceMax">10000</span></span>
-                    </div>
+            {{-- Pet Type --}}
+            <div class="sidebar-section">
+                <div class="sidebar-section-header">
+                    <h3>Pet Type</h3>
+                    <span>∨</span>
                 </div>
-                <button type="button" onclick="document.getElementById('filterForm').submit()" style="width: 100%; padding: 10px; background-color: var(--ud-orange, #FF8C42); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 15px;">Apply</button>
-            </div>
-
-            <!-- Ratings Filter -->
-            <div style="margin-bottom: 30px;">
-                <h3 style="font-size: 16px; font-weight: 600; margin: 0 0 15px 0; color: #333;">Ratings</h3>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    @foreach([5 => '5 stars & up', 4 => '4 stars & up', 3 => '3 stars & up'] as $rating => $label)
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="radio" name="rating" value="{{ $rating }}" {{ request()->input('rating') == $rating ? 'checked' : '' }} style="width: 18px; height: 18px; cursor: pointer;">
-                            <span style="font-size: 14px; color: #333;">{{ $label }}</span>
-                        </label>
-                    @endforeach
-                </div>
-            </div>
-
-            <!-- Availability Filter -->
-            <div style="margin-bottom: 30px;">
-                <h3 style="font-size: 16px; font-weight: 600; margin: 0 0 15px 0; color: #333;">Availability</h3>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                        <input type="checkbox" name="in_stock" value="1" {{ request()->input('in_stock') ? 'checked' : '' }} style="width: 18px; height: 18px; cursor: pointer;">
-                        <span style="font-size: 14px; color: #333;">In Stock Only</span>
+                @php
+                    $petIcons = ['dogs'=>'🐕', 'cats'=>'🐱', 'birds'=>'🐦', 'fish'=>'🐠', 'smallmammals'=>'🐹', 'reptiles'=>'🦎'];
+                @endphp
+                @foreach($petTypes ?? [] as $pt)
+                    @php
+                        $rawVal = strtolower($pt->animal_type);
+                        $formattedVal = preg_replace('/[^a-z]/', '', $rawVal); // Make 'small-mammals' and 'small mammals' map to 'smallmammals'
+                        $emoji = $petIcons[$formattedVal] ?? '🐾';
+                    @endphp
+                    <label class="filter-label">
+                        <div class="filter-label-left">
+                            <input type="checkbox" name="pet_type[]" value="{{ $pt->animal_type }}"
+                                {{ in_array($pt->animal_type, request()->input('pet_type', [])) ? 'checked' : '' }}
+                                onchange="document.getElementById('filterForm').submit()">
+                            <span>{{ $emoji }} {{ ucfirst($pt->animal_type) }}</span>
+                        </div>
+                        <span class="filter-count">({{ $pt->count }})</span>
                     </label>
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                        <input type="checkbox" name="on_sale" value="1" {{ request()->input('on_sale') ? 'checked' : '' }} style="width: 18px; height: 18px; cursor: pointer;">
-                        <span style="font-size: 14px; color: #333;">On Sale</span>
-                    </label>
-                </div>
+                @endforeach
             </div>
 
-            <!-- Clear Filters -->
-            <a href="{{ route('shop') }}" style="display: block; width: 100%; padding: 10px; text-align: center; border: 2px solid var(--ud-orange, #FF8C42); color: var(--ud-orange, #FF8C42); border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.3s;">Clear All Filters</a>
+            {{-- Category --}}
+            <div class="sidebar-section">
+                <div class="sidebar-section-header">
+                    <h3>Category</h3>
+                    <span>∨</span>
+                </div>
+                @foreach($categories as $cat)
+                    <label class="filter-label">
+                        <div class="filter-label-left">
+                            <input type="checkbox" name="category[]" value="{{ $cat->id }}"
+                                {{ in_array($cat->id, request()->input('category', [])) ? 'checked' : '' }}
+                                onchange="document.getElementById('filterForm').submit()">
+                            <span>{{ $cat->category_name }}</span>
+                        </div>
+                        <span class="filter-count">({{ $cat->products_count ?? 0 }})</span>
+                    </label>
+                @endforeach
+            </div>
+
+            {{-- Brand --}}
+            <div class="sidebar-section">
+                <div class="sidebar-section-header">
+                    <h3>Brand</h3>
+                    <span>∨</span>
+                </div>
+                @foreach(($brands ?? []) as $brand)
+                    <label class="filter-label">
+                        <div class="filter-label-left">
+                            <input type="checkbox" name="brand[]" value="{{ $brand->name }}"
+                                {{ in_array($brand->name, (array)request()->input('brand', [])) ? 'checked' : '' }}
+                                onchange="document.getElementById('filterForm').submit()">
+                            <span>{{ $brand->name }}</span>
+                        </div>
+                        <span class="filter-count">({{ $brand->products_count ?? 0 }})</span>
+                    </label>
+                @endforeach
+            </div>
+
+            {{-- Price Range --}}
+            <div class="sidebar-section">
+                <div class="sidebar-section-header">
+                    <h3>Price Range</h3>
+                    <span>∨</span>
+                </div>
+                <input type="range" class="price-slider" name="price_max"
+                    min="0" max="5000" step="50"
+                    value="{{ request()->input('price_max', 5000) }}"
+                    id="priceSlider" oninput="updatePriceLabel(this.value)">
+                <div class="price-range-labels">
+                    <span>₱0</span>
+                    <span>₱<span id="priceMaxLabel">{{ request()->input('price_max', 5000) }}</span></span>
+                </div>
+                <button type="button" class="btn-apply" onclick="document.getElementById('filterForm').submit()">Apply</button>
+            </div>
+
+            {{-- Ratings --}}
+            <div class="sidebar-section">
+                <div class="sidebar-section-header">
+                    <h3>Ratings</h3>
+                    <span>∨</span>
+                </div>
+                @foreach([5 => '5 stars & up', 4 => '4 stars & up', 3 => '3 stars & up'] as $r => $lbl)
+                    <label class="rating-label">
+                        <input type="radio" name="rating" value="{{ $r }}"
+                            {{ request()->input('rating') == $r ? 'checked' : '' }}>
+                        <span class="stars">{{ str_repeat('★', $r) }}{{ str_repeat('☆', 5-$r) }}</span>
+                        <span>{{ $lbl }}</span>
+                    </label>
+                @endforeach
+            </div>
+
+            {{-- Availability --}}
+            <div class="sidebar-section">
+                <div class="sidebar-section-header">
+                    <h3>Availability</h3>
+                    <span>∨</span>
+                </div>
+                <div class="availability-row">
+                    <label>In Stock Only</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="in_stock" value="1"
+                            {{ request()->input('in_stock') ? 'checked' : '' }}
+                            onchange="document.getElementById('filterForm').submit()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <label class="filter-label-on-sale">
+                    <input type="checkbox" name="on_sale" value="1"
+                        {{ request()->input('on_sale') ? 'checked' : '' }}>
+                    <span>On Sale</span>
+                </label>
+            </div>
+
+            <a href="{{ route('shop.all') }}" class="btn-clear-filters">Clear All Filters</a>
         </form>
     </aside>
 
-    <!-- Main Content -->
-    <main style="flex: 1;">
-        <!-- Toolbar -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
-            <div style="font-size: 14px; color: #666;">
-                Showing <strong>1-24</strong> of <strong>{{ $products->count() }}</strong> products
+    {{-- ══════════════════ MAIN ══════════════════ --}}
+    <main class="shop-main">
+        {{-- Toolbar --}}
+        <div class="shop-toolbar">
+            <button type="button" class="mobile-filter-btn" onclick="toggleSidebar()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                Filters
+            </button>
+            <div class="shop-count">
+                Showing <strong>1–{{ min(24, $products->count()) }}</strong>
+                of <strong>{{ $products->total() ?? $products->count() }}</strong> products
             </div>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <button type="button" style="width: 36px; height: 36px; padding: 8px; background-color: var(--ud-orange, #FF8C42); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">≣</button>
-                <button type="button" style="width: 36px; height: 36px; padding: 8px; background-color: #f0f0f0; color: #333; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">≡</button>
-                <select name="sort" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; background-color: white;">
-                    <option value="featured">Featured</option>
-                    <option value="price_low">Price: Low to High</option>
-                    <option value="price_high">Price: High to Low</option>
-                    <option value="newest">Newest</option>
-                    <option value="best_sellers">Best Sellers</option>
+            <div class="toolbar-right">
+                <span class="sort-label">Sort by:</span>
+                <select class="sort-select" name="sort" onchange="applySort(this.value)">
+                    <option value="featured"   {{ request('sort','featured')=='featured'   ? 'selected':'' }}>Featured</option>
+                    <option value="price_low"  {{ request('sort')=='price_low'  ? 'selected':'' }}>Price: Low to High</option>
+                    <option value="price_high" {{ request('sort')=='price_high' ? 'selected':'' }}>Price: High to Low</option>
+                    <option value="newest"     {{ request('sort')=='newest'     ? 'selected':'' }}>Newest</option>
                 </select>
             </div>
         </div>
 
-        <!-- Products Grid -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+        {{-- Products Grid --}}
+        <div class="products-grid">
             @forelse($products as $product)
-                <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s;">
-                    <!-- Product Image -->
-                    <div style="position: relative; background-color: #f5f5f5; height: 240px; overflow: hidden;">
-                        <img src="{{ $product->image_url ?? asset('images/placeholder.png') }}" alt="{{ $product->product_name }}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22280%22 height=%22240%22%3E%3Crect fill=%22%23f5f5f5%22 width=%22280%22 height=%22240%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-family=%22Arial%22 font-size=%2216%22 fill=%22%23999%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo Image%3C/text%3E%3C/svg%3E';">
-                        @if($product->is_on_sale)
-                            <div style="position: absolute; top: 12px; right: 12px; background-color: var(--ud-orange, #FF8C42); color: white; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: 600;">SALE</div>
-                        @endif
-                        @if($product->is_new)
-                            <div style="position: absolute; top: 12px; right: 12px; background-color: #333; color: white; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: 600;">NEW</div>
+                <div class="product-card">
+                    <div class="product-img-wrap">
+                        <img
+                            src="{{ $product->image_url }}"
+                            alt="{{ $product->product_name }}"
+                            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22280%22 height=%22220%22%3E%3Crect fill=%22%23f5f5f5%22 width=%22280%22 height=%22220%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-family=%22Arial%22 font-size=%2215%22 fill=%22%23bbb%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo Image%3C/text%3E%3C/svg%3E'">
+                        @if($product->is_featured)
+                            <span class="product-badge badge-new">FEATURED</span>
                         @endif
                     </div>
 
-                    <!-- Product Info -->
-                    <div style="padding: 16px;">
-                        <!-- Rating -->
-                        <div style="display: flex; align-items: center; margin-bottom: 8px; font-size: 12px;">
-                            <span style="color: #ffa500;">★★★★★</span>
-                            <span style="color: #999; margin-left: 4px;">({{ $product->reviews_count ?? 0 }})</span>
+                    <div class="product-body">
+                        <div class="product-rating">
+                            <span class="stars">★★★★★</span>
+                            <span class="count">(0)</span>
+                        </div>
+                        <div style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: 700; margin-bottom: 2px;">{{ $product->brand_name }}</div>
+                        <h3 class="product-name" style="min-height: auto; margin-bottom: 4px;">{{ $product->product_name }}</h3>
+
+                        @php
+                            $petIcons = ['dogs'=>'🐕','cats'=>'🐱','birds'=>'🐦','fish'=>'🐠','small-mammals'=>'🐹','reptiles'=>'🦎'];
+                            $petIcon = $petIcons[$product->animal_type ?? ''] ?? '🐾';
+                        @endphp
+                        <span class="product-pet-icon">{{ $petIcon }}</span>
+
+                        <div class="product-price-row">
+                            <span class="product-price">₱{{ number_format($product->price, 0) }}</span>
                         </div>
 
-                        <!-- Product Name -->
-                        <h3 style="font-size: 14px; font-weight: 600; margin: 0 0 8px 0; color: #333; min-height: 40px;">{{ $product->product_name }}</h3>
-
-                        <!-- Price -->
-                        <div style="margin-bottom: 12px;">
-                            <span style="font-size: 18px; font-weight: 700; color: var(--ud-orange, #FF8C42);">₱{{ number_format($product->price, 2) }}</span>
-                            @if($product->original_price > $product->price)
-                                <span style="font-size: 14px; color: #999; text-decoration: line-through; margin-left: 8px;">₱{{ number_format($product->original_price, 2) }}</span>
+                        <div class="product-stock">
+                            @if($product->stock > 0)
+                                <span class="stock-in">✓ In Stock</span>
+                            @else
+                                <span class="stock-out">✗ Out of Stock</span>
                             @endif
                         </div>
 
-                        <!-- Stock Status -->
-                        <div style="font-size: 12px; margin-bottom: 12px; color: {{ $product->stock > 0 ? '#4CAF50' : '#f44336' }};">
-                            {{ $product->stock > 0 ? '✓ In Stock' : 'Out of Stock' }}
-                        </div>
-
-                        <!-- Add to Cart Button -->
-                        <button {{ $product->stock > 0 ? '' : 'disabled' }} style="width: 100%; padding: 10px; background-color: {{ $product->stock > 0 ? 'var(--ud-orange, #FF8C42)' : '#ccc' }}; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: {{ $product->stock > 0 ? 'pointer' : 'not-allowed' }}; transition: background-color 0.3s;" onclick="addToCart({{ $product->id }})">
-                            Add to Cart
-                        </button>
+                        <form action="{{ route('cart.add') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                            <input type="hidden" name="quantity" value="1">
+                            <button
+                                type="submit"
+                                class="btn-add-to-cart"
+                                {{ $product->stock > 0 ? '' : 'disabled' }}>
+                                Add to Cart
+                            </button>
+                        </form>
                     </div>
                 </div>
             @empty
-                <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
-                    <p style="font-size: 18px; color: #666;">No products found. Try adjusting your filters.</p>
+                <div class="no-products">
+                    <p>No products found. Try adjusting your filters.</p>
                 </div>
             @endforelse
         </div>
 
-        <!-- Pagination -->
-        @if($products->hasPages())
-            <div style="margin-top: 40px; text-align: center;">
-                {{ $products->links() }}
-            </div>
+        @if(method_exists($products, 'hasPages') && $products->hasPages())
+            <div class="pagination-wrap">{{ $products->links() }}</div>
         @endif
     </main>
 </div>
 
+@push('scripts')
 <script>
-    function addToCart(productId) {
-        // TODO: Implement add to cart functionality
-        console.log('Added product ' + productId + ' to cart');
+    function toggleSidebar() {
+        const sidebar = document.getElementById('shopSidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        sidebar.classList.toggle('active');
+        
+        if (sidebar.classList.contains('active')) {
+            overlay.style.display = 'block';
+            setTimeout(() => overlay.classList.add('active'), 10);
+            document.body.style.overflow = 'hidden';
+        } else {
+            overlay.classList.remove('active');
+            setTimeout(() => overlay.style.display = 'none', 300);
+            document.body.style.overflow = '';
+        }
     }
 
-    // Update price display
-    document.querySelectorAll('input[name="price_min"]').forEach(el => {
-        el.addEventListener('input', function() {
-            document.getElementById('priceMin').textContent = this.value;
-        });
-    });
+    function applySort(val) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('sort', val);
+        window.location.href = url.toString();
+    }
+    function updatePriceLabel(val) {
+        document.getElementById('priceMaxLabel').textContent = val;
+    }
 </script>
+@endpush
 
-<style>
-    [disabled] {
-        opacity: 0.6;
-    }
-
-    a:hover {
-        opacity: 0.8;
-    }
-
-    button:hover:not([disabled]) {
-        opacity: 0.9;
-    }
-</style>
 @endsection

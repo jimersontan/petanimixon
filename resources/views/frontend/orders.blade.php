@@ -1,47 +1,318 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'My Orders - Petverse')
+@section('title', 'My Orders - Pet Animixon')
+
+@push('styles')
+<style>
+/* ── Orders Page ── */
+.mo-page { max-width: 1100px; margin: 0 auto; padding: 32px 20px 60px; }
+
+/* Header */
+.mo-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+.mo-heading { font-size: 28px; font-weight: 800; color: #1a1a2e; }
+.mo-heading span { color: #E85D04; }
+.mo-subtitle { font-size: 14px; color: #888; margin-top: 4px; }
+
+/* Stats Cards */
+.mo-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; margin-bottom: 28px; }
+.mo-stat-card {
+    background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 18px 16px;
+    display: flex; align-items: center; gap: 12px; transition: all 0.2s;
+}
+.mo-stat-card:hover { border-color: #E85D04; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(232,93,4,0.08); }
+.mo-stat-icon {
+    width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+}
+.mo-stat-icon.total { background: #fff3e0; color: #E85D04; }
+.mo-stat-icon.pending { background: #fff8e1; color: #ff9800; }
+.mo-stat-icon.processing { background: #e3f2fd; color: #2196f3; }
+.mo-stat-icon.shipped { background: #f3e5f5; color: #9c27b0; }
+.mo-stat-icon.delivered { background: #e8f5e9; color: #4caf50; }
+.mo-stat-num { font-size: 22px; font-weight: 800; color: #1a1a2e; }
+.mo-stat-label { font-size: 12px; color: #999; }
+
+/* Status Tabs */
+.mo-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+.mo-tab {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 8px 18px; border-radius: 20px; background: #f5f5f5; color: #666;
+    font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.2s;
+    border: 1px solid transparent;
+}
+.mo-tab:hover { background: #fdf3ed; color: #E85D04; border-color: #fce0cc; }
+.mo-tab.active { background: #E85D04; color: #fff; border-color: #E85D04; }
+.mo-tab .mo-tab-count {
+    background: rgba(255,255,255,0.3); padding: 2px 8px; border-radius: 10px;
+    font-size: 11px; margin-left: 0; line-height: 1; display: inline-flex; align-items: center; justify-content: center;
+}
+.mo-tab.active .mo-tab-count { background: rgba(255,255,255,0.3); }
+.mo-tab:not(.active) .mo-tab-count { background: #e0e0e0; color: #666; }
+
+/* Order Cards */
+.mo-order-list { display: flex; flex-direction: column; gap: 16px; }
+.mo-order-card {
+    background: #fff; border: 1px solid #eee; border-radius: 14px; padding: 20px 24px;
+    transition: all 0.2s; position: relative; overflow: hidden;
+}
+.mo-order-card:hover { border-color: #E85D04; box-shadow: 0 6px 20px rgba(232,93,4,0.07); }
+.mo-order-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+.mo-order-id { font-weight: 700; font-size: 15px; color: #E85D04; text-decoration: none; }
+.mo-order-id:hover { text-decoration: underline; }
+.mo-order-date { font-size: 13px; color: #999; }
+.mo-badge {
+    padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
+    text-transform: capitalize; display: inline-flex; align-items: center; justify-content: center;
+}
+.mo-badge.pending { background: #fff3e0; color: #e65100; }
+.mo-badge.processing { background: #e3f2fd; color: #1565c0; }
+.mo-badge.shipped { background: #f3e5f5; color: #7b1fa2; }
+.mo-badge.delivered { background: #e8f5e9; color: #2e7d32; }
+.mo-badge.cancelled { background: #fbe9e7; color: #c62828; }
+
+/* Products row */
+.mo-products { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+.mo-product-item { display: flex; align-items: center; gap: 10px; background: #fafafa; border-radius: 10px; padding: 8px 12px 8px 8px; }
+.mo-product-img { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; background: #eee; flex-shrink: 0; border: 1px solid #eee; }
+.mo-product-name { font-size: 13px; font-weight: 600; color: #333; max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mo-product-qty { font-size: 12px; color: #999; }
+.mo-product-more {
+    width: 48px; height: 48px; border-radius: 8px; background: #f0f0f0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #666;
+}
+
+/* Bottom row */
+.mo-order-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding-top: 14px; border-top: 1px solid #f0f0f0; }
+.mo-total-label { font-size: 13px; color: #999; }
+.mo-total-value { font-size: 20px; font-weight: 800; color: #1a1a2e; }
+.mo-actions { display: flex; gap: 8px; }
+.mo-btn {
+    padding: 9px 20px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+.mo-btn-outline { background: #fff; color: #333; border: 1px solid #ddd; }
+.mo-btn-outline:hover { border-color: #E85D04; color: #E85D04; }
+.mo-btn-primary { background: #E85D04; color: #fff; }
+.mo-btn-primary:hover { background: #d14f00; }
+
+/* Empty state */
+.mo-empty {
+    text-align: center; padding: 60px 20px; background: #fff; border: 1px dashed #ddd;
+    border-radius: 14px;
+}
+.mo-empty-icon { font-size: 56px; margin-bottom: 16px; }
+.mo-empty-title { font-size: 20px; font-weight: 700; color: #333; margin-bottom: 8px; }
+.mo-empty-text { font-size: 14px; color: #999; margin-bottom: 20px; }
+
+/* Pagination */
+.mo-pagination { margin-top: 28px; display: flex; justify-content: center; }
+
+/* Recommended Section */
+.mo-rec-section { margin-top: 56px; }
+.mo-rec-title { font-size: 22px; font-weight: 800; color: #1a1a2e; margin-bottom: 20px; }
+.mo-rec-title span { color: #E85D04; }
+.mo-rec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; }
+.mo-rec-card {
+    background: #fff; border: 1px solid #eee; border-radius: 14px; overflow: hidden;
+    text-decoration: none; color: inherit; transition: all 0.25s; display: block;
+}
+.mo-rec-card:hover { border-color: #E85D04; transform: translateY(-4px); box-shadow: 0 10px 24px rgba(232,93,4,0.1); }
+.mo-rec-img-wrap { width: 100%; aspect-ratio: 1; overflow: hidden; background: #f9f9f9; position: relative; }
+.mo-rec-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+.mo-rec-card:hover .mo-rec-img { transform: scale(1.06); }
+.mo-rec-body { padding: 14px 16px 18px; }
+.mo-rec-brand { font-size: 11px; color: #E85D04; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.mo-rec-name {
+    font-size: 14px; font-weight: 600; color: #222; margin-bottom: 8px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    min-height: 40px;
+}
+.mo-rec-rating { display: flex; align-items: center; gap: 4px; margin-bottom: 8px; font-size: 13px; }
+.mo-rec-stars { color: #facc15; }
+.mo-rec-count { color: #999; }
+.mo-rec-price { font-size: 18px; font-weight: 800; color: #E85D04; }
+
+@media (max-width: 768px) {
+    .mo-page { padding: 20px 14px 40px; }
+    .mo-heading { font-size: 22px; }
+    .mo-stats { grid-template-columns: repeat(2, 1fr); }
+    .mo-order-card { padding: 16px; }
+    .mo-product-name { max-width: 100px; }
+    .mo-rec-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+}
+</style>
+@endpush
 
 @section('content')
-    <section class="ud-section">
-        <div class="ud-section-header">
-            <h2 class="ud-section-title">My Orders</h2>
+<div class="mo-page">
+
+    {{-- ── HEADER ── --}}
+    <div class="mo-header">
+        <div>
+            <h1 class="mo-heading">My <span>Orders</span></h1>
+            <p class="mo-subtitle">Track and manage all your purchases</p>
+        </div>
+        <a href="{{ route('shop') }}" class="mo-btn mo-btn-primary">🛒 Continue Shopping</a>
+    </div>
+
+    {{-- ── STATS CARDS ── --}}
+    <div class="mo-stats">
+        <div class="mo-stat-card">
+            <div class="mo-stat-icon total">📦</div>
+            <div>
+                <div class="mo-stat-num">{{ $stats['total'] ?? 0 }}</div>
+                <div class="mo-stat-label">Total Orders</div>
+            </div>
+        </div>
+        <div class="mo-stat-card">
+            <div class="mo-stat-icon pending">⏳</div>
+            <div>
+                <div class="mo-stat-num">{{ $stats['pending'] ?? 0 }}</div>
+                <div class="mo-stat-label">Pending</div>
+            </div>
+        </div>
+        <div class="mo-stat-card">
+            <div class="mo-stat-icon shipped">🚚</div>
+            <div>
+                <div class="mo-stat-num">{{ $stats['shipped'] ?? 0 }}</div>
+                <div class="mo-stat-label">Shipped</div>
+            </div>
+        </div>
+        <div class="mo-stat-card">
+            <div class="mo-stat-icon delivered">✅</div>
+            <div>
+                <div class="mo-stat-num">{{ $stats['delivered'] ?? 0 }}</div>
+                <div class="mo-stat-label">Delivered</div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ── STATUS TABS ── --}}
+    @php $sf = $statusFilter ?? 'all'; @endphp
+    <div class="mo-tabs">
+        <a href="{{ route('orders', ['status' => 'all']) }}" class="mo-tab {{ $sf === 'all' ? 'active' : '' }}">
+            All <span class="mo-tab-count">{{ $stats['total'] ?? 0 }}</span>
+        </a>
+        <a href="{{ route('orders', ['status' => 'pending']) }}" class="mo-tab {{ $sf === 'pending' ? 'active' : '' }}">
+            Pending <span class="mo-tab-count">{{ $stats['pending'] ?? 0 }}</span>
+        </a>
+        <a href="{{ route('orders', ['status' => 'processing']) }}" class="mo-tab {{ $sf === 'processing' ? 'active' : '' }}">
+            Processing <span class="mo-tab-count">{{ $stats['processing'] ?? 0 }}</span>
+        </a>
+        <a href="{{ route('orders', ['status' => 'shipped']) }}" class="mo-tab {{ $sf === 'shipped' ? 'active' : '' }}">
+            Shipped <span class="mo-tab-count">{{ $stats['shipped'] ?? 0 }}</span>
+        </a>
+        <a href="{{ route('orders', ['status' => 'delivered']) }}" class="mo-tab {{ $sf === 'delivered' ? 'active' : '' }}">
+            Delivered <span class="mo-tab-count">{{ $stats['delivered'] ?? 0 }}</span>
+        </a>
+        <a href="{{ route('orders', ['status' => 'cancelled']) }}" class="mo-tab {{ $sf === 'cancelled' ? 'active' : '' }}">
+            Cancelled <span class="mo-tab-count">{{ $stats['cancelled'] ?? 0 }}</span>
+        </a>
+    </div>
+
+    {{-- ── ORDER LIST ── --}}
+    @if($orders->isEmpty())
+        <div class="mo-empty">
+            <div class="mo-empty-icon">📭</div>
+            <div class="mo-empty-title">No orders found</div>
+            <div class="mo-empty-text">
+                @if($sf !== 'all')
+                    You don't have any {{ $sf }} orders yet.
+                @else
+                    You haven't placed any orders yet. Let's change that!
+                @endif
+            </div>
+            <a href="{{ route('shop') }}" class="mo-btn mo-btn-primary">Browse Products</a>
+        </div>
+    @else
+        <div class="mo-order-list">
+            @foreach($orders as $order)
+                <div class="mo-order-card">
+                    {{-- Top Row: ID, Date, Badge --}}
+                    <div class="mo-order-top">
+                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <a href="{{ route('order.track', $order->order_id) }}" class="mo-order-id">
+                                {{ $order->display_id }}
+                            </a>
+                            <span class="mo-order-date">{{ $order->created_at->format('M j, Y · g:i A') }}</span>
+                        </div>
+                        <span class="mo-badge {{ $order->order_status }}">
+                            {{ str_replace('_', ' ', $order->order_status) }}
+                        </span>
+                    </div>
+
+                    {{-- Products Row --}}
+                    <div class="mo-products">
+                        @foreach($order->orderItems->take(3) as $item)
+                            <div class="mo-product-item">
+                                <img src="{{ optional($item->product)->image_url ?? asset('images/placeholder.png') }}" alt="" class="mo-product-img">
+                                <div>
+                                    <div class="mo-product-name">{{ optional($item->product)->product_name ?? 'Product' }}</div>
+                                    <div class="mo-product-qty">x{{ $item->quantity }} · ₱{{ number_format($item->price ?? 0, 0) }}</div>
+                                </div>
+                            </div>
+                        @endforeach
+                        @if($order->orderItems->count() > 3)
+                            <div class="mo-product-more">+{{ $order->orderItems->count() - 3 }}</div>
+                        @endif
+                    </div>
+
+                    {{-- Bottom Row --}}
+                    <div class="mo-order-bottom">
+                        <div>
+                            <div class="mo-total-label">{{ $order->orderItems->count() }} {{ Str::plural('item', $order->orderItems->count()) }} · Order Total</div>
+                            <div class="mo-total-value">₱{{ number_format($order->total_amount, 2) }}</div>
+                        </div>
+                        <div class="mo-actions">
+                            <a href="{{ route('order.track', $order->order_id) }}" class="mo-btn mo-btn-outline">📋 View Details</a>
+                            @if($order->order_status === 'shipped')
+                                <a href="{{ route('order.track', $order->order_id) }}" class="mo-btn mo-btn-primary">📍 Track Package</a>
+                            @elseif($order->order_status === 'delivered')
+                                <a href="{{ route('order.track', $order->order_id) }}" class="mo-btn mo-btn-primary">⭐ Write Review</a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endforeach
         </div>
 
-        @if($orders->isEmpty())
-            <div class="ud-card" style="padding: 2rem; text-align: center;">
-                <p>You haven't placed any orders yet.</p>
-                <a href="{{ route('shop') }}" class="ud-btn ud-btn-primary">Start Shopping</a>
-            </div>
-        @else
-            <div class="ud-table-wrap">
-                <table class="ud-table" style="width:100%; border-collapse: collapse;">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th>Total</th>
-                            <th>Items</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($orders as $order)
-                            <tr>
-                                <td>{{ $order->display_id }}</td>
-                                <td>{{ $order->created_at->format('M j, Y') }}</td>
-                                <td>{{ ucfirst($order->order_status) }}</td>
-                                <td>{{ $order->formatted_total }}</td>
-                                <td>{{ $order->orderItems->count() }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-
-            <div style="margin-top: 1.5rem;">
+        {{-- Pagination --}}
+        @if($orders->hasPages())
+            <div class="mo-pagination">
                 {{ $orders->links() }}
             </div>
         @endif
-    </section>
+    @endif
+
+    {{-- ── YOU MAY ALSO LIKE ── --}}
+    @if(isset($recommendedProducts) && $recommendedProducts->isNotEmpty())
+        <div class="mo-rec-section">
+            <h3 class="mo-rec-title">You May Also <span>Like</span></h3>
+            <div class="mo-rec-grid">
+                @foreach($recommendedProducts as $product)
+                    <a href="{{ route('product.show', $product->id) }}" class="mo-rec-card">
+                        <div class="mo-rec-img-wrap">
+                            <img src="{{ $product->image_url }}" alt="{{ $product->product_name }}" class="mo-rec-img">
+                        </div>
+                        <div class="mo-rec-body">
+                            <div class="mo-rec-brand">{{ $product->brand_name ?: 'Pet Animixon' }}</div>
+                            <h4 class="mo-rec-name">{{ $product->product_name }}</h4>
+                            <div class="mo-rec-rating">
+                                <span class="mo-rec-stars">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        {{ $i <= round($product->avg_rating) ? '★' : '☆' }}
+                                    @endfor
+                                </span>
+                                <span class="mo-rec-count">({{ $product->reviews_count }})</span>
+                            </div>
+                            <div class="mo-rec-price">₱{{ number_format($product->price, 0) }}</div>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
+</div>
 @endsection

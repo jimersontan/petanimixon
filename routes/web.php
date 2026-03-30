@@ -11,8 +11,10 @@ use App\Http\Controllers\CategoryAdminController;
 use App\Http\Controllers\ReviewAdminController;
 use App\Http\Controllers\BrandAdminController;
 use App\Http\Controllers\RevenueAdminController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\AnalyticsAdminController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,6 +27,9 @@ use App\Http\Controllers\ShopController;
 |
 */
 
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
+
 // Public storefront
 Route::get('/', [ShopController::class, 'index'])->name('shop');
 Route::get('/shop', [ShopController::class, 'shop'])->name('shop.all');
@@ -32,12 +37,36 @@ Route::get('/shop/all', [ShopController::class, 'shop']);
 Route::get('/categories', [ShopController::class, 'categories'])->name('categories');
 Route::get('/categories/{id}', [ShopController::class, 'showCategory'])->name('categories.show');
 Route::get('/product/{id}', [ShopController::class, 'showProduct'])->name('product.show');
-Route::get('/brands', function () {
-    return view('frontend.brands');
-})->name('brands');
-Route::get('/checkout', function () {
-    return view('frontend.checkout');
-})->name('checkout');
+Route::get('/brands', [ShopController::class, 'brands'])->name('brands');
+
+// Static info pages
+Route::view('/faq', 'frontend.faq')->name('faq');
+Route::view('/about', 'frontend.about')->name('about');
+Route::view('/contact', 'frontend.contact')->name('contact');
+Route::view('/shipping', 'frontend.shipping')->name('shipping');
+Route::view('/trial', 'frontend.trial')->name('trial');
+
+// Cart Routes
+Route::middleware(['auth', 'client'])->group(function () {
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+    Route::get('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::get('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+    Route::get('/cart/count', [CartController::class, 'getCount'])->name('cart.count');
+
+    // Checkout Routes
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
+    Route::post('/checkout/apply-voucher', [CheckoutController::class, 'applyVoucher'])->name('checkout.voucher');
+    Route::get('/checkout/success/{order_id}', [CheckoutController::class, 'success'])->name('checkout.success');
+    Route::get('/order/{order_id}/track', [CheckoutController::class, 'tracking'])->name('order.track');
+
+    // Reviews
+    Route::post('/product/{product}/review', [ReviewController::class, 'store'])->name('review.store');
+    Route::post('/review/{review}/like', [ReviewController::class, 'toggleLike'])->name('review.like');
+    Route::post('/review/{review}/reply', [ReviewController::class, 'reply'])->name('review.reply');
+});
 
 // Login Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -82,9 +111,11 @@ Route::get('/admin/orders', [OrdersController::class, 'index'])
     ->name('admin.orders');
 
 // Admin routes (dashboard and all admin pages - admin only)
-Route::get('/dashboard', function () {
-    return view('dashboard_admin');
-})->middleware(['auth', 'admin'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'admin'])->name('dashboard');
+
+Route::get('/admin/api/dashboard-chart', [DashboardController::class, 'chartData'])
+    ->middleware(['auth', 'admin'])->name('admin.chart');
 
 Route::get('/admin/products', [ProductAdminController::class, 'index'])
     ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor,staff_admin'])
@@ -110,6 +141,11 @@ Route::put('/admin/products/{id}', [ProductAdminController::class, 'update'])
 Route::delete('/admin/products/{id}', [ProductAdminController::class, 'destroy'])
     ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor,staff_admin'])
     ->name('products.destroy');
+
+// Inventory Management
+Route::get('/admin/inventory', [ProductAdminController::class, 'inventoryIndex'])
+    ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor,staff_admin'])
+    ->name('inventory.admin');
 
 Route::get('/admin/customers', [CustomerAdminController::class, 'index'])
     ->middleware(['auth', 'admin', 'admin.role:main_admin'])
@@ -226,4 +262,14 @@ Route::get('/admin/profile', [AdminUserController::class, 'profile'])
 Route::post('/admin/profile', [AdminUserController::class, 'profileUpdate'])
     ->middleware(['auth', 'admin'])
     ->name('admin.profile.update');
+
+// Animal Types AJAX API
+use App\Http\Controllers\AnimalTypeController;
+Route::middleware(['auth', 'admin'])->prefix('admin/api/animal-types')->group(function () {
+    Route::get('/', [AnimalTypeController::class, 'index'])->name('animal-types.index');
+    Route::post('/', [AnimalTypeController::class, 'store'])->name('animal-types.store');
+    Route::put('/{id}', [AnimalTypeController::class, 'update'])->name('animal-types.update');
+    Route::delete('/{id}', [AnimalTypeController::class, 'destroy'])->name('animal-types.destroy');
+    Route::patch('/{id}/status', [AnimalTypeController::class, 'toggleStatus'])->name('animal-types.toggle-status');
+});
 

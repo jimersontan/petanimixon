@@ -16,9 +16,27 @@ class ShopController extends Controller
         $categories = Category::where('is_active', 1)->orderBy('category_name')->get();
         $featured = Product::where('is_featured', 1)->limit(12)->get();
 
+        // Top 2 best-sellers by order count
+        $bestSellers = Product::where('product_status', 'active')
+            ->withCount('orderItems')
+            ->orderByDesc('order_items_count')
+            ->limit(2)
+            ->get();
+
+        // Fill with random products if not enough best-sellers
+        $randomProducts = Product::where('product_status', 'active')
+            ->whereNotIn('id', $bestSellers->pluck('id'))
+            ->inRandomOrder()
+            ->limit(2)
+            ->get();
+
+        // Merge: best-sellers first, then random
+        $heroProducts = $bestSellers->merge($randomProducts);
+
         return view('user_dashboard', [
             'categories' => $categories,
             'featuredProducts' => $featured,
+            'heroProducts' => $heroProducts,
         ]);
     }
 
@@ -27,22 +45,27 @@ class ShopController extends Controller
      */
     public function shop(Request $request)
     {
-        $query = Product::where('is_active', 1);
+        $query = Product::where('product_status', 'active');
+
+        // Filter by brand
+        if ($request->has('brand') && !empty($request->input('brand'))) {
+            $query->where('brand_name', $request->input('brand'));
+        }
 
         // Filter by pet type
         if ($request->has('pet_type') && !empty($request->input('pet_type'))) {
-            $query->whereIn('pet_type', $request->input('pet_type'));
+            $query->whereIn('animal_type', $request->input('pet_type'));
         }
 
         // Filter by category
         if ($request->has('category') && !empty($request->input('category'))) {
-            $query->whereIn('category_id', $request->input('category'));
+            $query->whereIn('animal_category_id', $request->input('category'));
         }
 
         // Filter by price range
-        $priceMin = $request->input('price_min', 0);
-        if ($priceMin > 0) {
-            $query->where('price', '>=', $priceMin);
+        $priceMax = $request->input('price_max');
+        if ($priceMax > 0) {
+            $query->where('price', '<=', $priceMax);
         }
 
         // Filter by rating
@@ -52,12 +75,14 @@ class ShopController extends Controller
 
         // Filter by stock
         if ($request->input('in_stock')) {
-            $query->where('stock', '>', 0);
+            $query->whereHas('variants', function($q) {
+                $q->where('variant_quantity', '>', 0);
+            });
         }
 
         // Filter by sale
         if ($request->input('on_sale')) {
-            $query->where('is_on_sale', 1);
+            $query->where('is_reduced', 1);
         }
 
         // Sort
@@ -76,16 +101,56 @@ class ShopController extends Controller
                 $query->orderBy('sales_count', 'desc');
                 break;
             default:
-                $query->where('is_featured', 1)->orderBy('created_at', 'desc');
+                $query->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc');
         }
 
         $products = $query->paginate(24);
-        $categories = Category::where('is_active', 1)->orderBy('category_name')->get();
+        
+        $categories = Category::where('is_active', true)
+            ->withCount(['products' => function($q) {
+                $q->where('product_status', 'active');
+            }])
+            ->orderBy('category_name')
+            ->get();
+            
+        $brands = \App\Models\Brand::where('is_active', true)
+            ->withCount(['products' => function($q) {
+                $q->where('product_status', 'active');
+            }])
+            ->orderBy('name')
+            ->get();
+            
+        $petTypes = Product::where('product_status', 'active')
+            ->select('animal_type', \DB::raw('count(*) as count'))
+            ->groupBy('animal_type')
+            ->orderBy('animal_type')
+            ->get();
 
         return view('frontend.shop', [
             'products' => $products,
             'categories' => $categories,
+            'brands' => $brands,
+            'petTypes' => $petTypes,
         ]);
+    }
+
+    /**
+     * Show the list of brands.
+     */
+    public function brands()
+    {
+        $brands = \App\Models\Brand::where('is_active', true)
+            ->withCount(['products' => function($q) {
+                $q->where('product_status', 'active');
+            }])
+            ->orderBy('name')
+            ->get();
+
+        $featuredBrand = \App\Models\Brand::where('is_active', true)
+            ->where('is_featured', true)
+            ->first() ?? $brands->first();
+
+        return view('frontend.brands', compact('brands', 'featuredBrand'));
     }
 
     /**
@@ -93,7 +158,7 @@ class ShopController extends Controller
      */
     public function categories(Request $request)
     {
-        $categories = Category::where('is_active', 1)->orderBy('category_name')->get();
+        $categories = Category::where('is_active', 1)->orderBy('sort_order')->get();
         return view('frontend.categories', [
             'categories' => $categories,
         ]);
@@ -116,9 +181,25 @@ class ShopController extends Controller
      */
     public function showProduct($id)
     {
-        $product = Product::with('category')->findOrFail($id);
+        $product = Product::with('category', 'variants')->findOrFail($id);
+
+        $reviews = $product->reviews()
+            ->with(['user', 'replies.user', 'likes'])
+            ->orderByDesc('created_at')
+            ->get();
+
+        $reviewStats = [
+            'count' => $reviews->count(),
+            'average' => $reviews->count() ? round($reviews->avg('rating'), 1) : 0,
+            'distribution' => collect([5, 4, 3, 2, 1])->mapWithKeys(function ($star) use ($reviews) {
+                return [$star => $reviews->where('rating', $star)->count()];
+            }),
+        ];
+
         return view('frontend.product', [
             'product' => $product,
+            'reviews' => $reviews,
+            'reviewStats' => $reviewStats,
         ]);
     }
 }

@@ -11,11 +11,9 @@
     <!-- Header -->
     <header class="dashboard-header">
         <div class="header-left">
-            <div class="logo">
-                <span class="logo-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 8c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm0-14C6.48 4 2 8.48 2 14s4.48 10 10 10 10-4.48 10-10S17.52 4 12 4z"/></svg>
-                </span>
-                <span class="logo-text">Pet Animixon</span>
+            <div class="logo" style="display:flex; align-items:center; gap:8px;">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo" style="max-height: 28px;">
+                <span class="logo-text" style="color:#1f2937;">Pet <span style="color: #ea580c;">Animixon</span></span>
             </div>
         </div>
         <div class="header-center">

@@ -14,52 +14,22 @@
         </div>
 
         <div class="register-content">
-            <div class="register-left gradient-green">
-                <div class="left-illustration">
-                    <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Family with pets illustration -->
-                        <circle cx="150" cy="100" r="80" fill="rgba(255,255,255,0.1)"/>
-                        
-                        <!-- Person 1 (woman in red) -->
-                        <circle cx="100" cy="120" r="18" fill="#FFB6A3"/>
-                        <rect x="85" y="140" width="30" height="50" rx="6" fill="#E85A4A"/>
-                        <rect x="75" y="145" width="12" height="40" fill="#FFB6A3"/>
-                        <rect x="113" y="145" width="12" height="40" fill="#FFB6A3"/>
-                        
-                        <!-- Dog 1 (left) -->
-                        <circle cx="60" cy="150" r="22" fill="#D4884B"/>
-                        <circle cx="45" cy="135" r="16" fill="#D4884B"/>
-                        <circle cx="70" cy="135" r="14" fill="#D4884B"/>
-                        
-                        <!-- Cat (center-left) -->
-                        <circle cx="130" cy="155" r="20" fill="#FF8C42"/>
-                        <polygon points="125,135 135,125 145,135" fill="#FF8C42"/>
-                        
-                        <!-- Person 2 (child) -->
-                        <circle cx="180" cy="130" r="15" fill="#FFB6A3"/>
-                        <rect x="170" y="150" width="20" height="35" rx="4" fill="#4CAF50"/>
-                        
-                        <!-- Dog 2 (right) -->
-                        <circle cx="210" cy="155" r="20" fill="#FFD700"/>
-                        <circle cx="200" cy="140" r="14" fill="#FFD700"/>
-                        
-                        <!-- Rabbit -->
-                        <circle cx="240" cy="145" r="18" fill="#FFC0CB"/>
-                        <rect x="250" y="120" width="6" height="20" fill="#FFC0CB"/>
-                        <rect x="260" y="120" width="6" height="20" fill="#FFC0CB"/>
-                        
-                        <!-- Bird -->
-                        <circle cx="155" cy="155" r="12" fill="#FFD700"/>
-                        <polygon points="167,155 175,150 175,160" fill="#FFD700"/>
-                        
-                        <!-- Decorative elements -->
-                        <circle cx="80" cy="220" r="60" fill="rgba(255,255,255,0.05)"/>
-                    </svg>
-                </div>
-                
-                <div class="left-content">
-                    <h2>Join Our Pet-Loving Community! 🎉</h2>
-                    <ul class="benefits-list">
+            <div class="register-left premium-auth-sidebar">
+                <!-- Decorative background elements -->
+                <div class="bg-circle bc-1"></div>
+                <div class="bg-circle bc-2"></div>
+                <div class="bg-paws bp-1">🐾🐾</div>
+                <div class="bg-paws bp-2">🐾🐾</div>
+                <div class="bg-paws bp-3">🐾🐾</div>
+
+                <div class="sidebar-inner-content">
+                    <div class="main-illustration">
+                        <img src="{{ asset('images/register_pets.png') }}" alt="Pet Community">
+                    </div>
+                    
+                    <h2 class="community-title">Join Our Pet-Loving Community! 🎉</h2>
+                    
+                    <ul class="check-benefits">
                         <li>Fast checkout with saved addresses</li>
                         <li>Order tracking and history</li>
                         <li>Personalized product recommendations</li>

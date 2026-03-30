@@ -54,14 +54,28 @@ class ProductAdminController extends Controller
             $productsQuery->where('created_at', '>=', $from);
         }
 
+        if ($request->filled('brand')) {
+            if ($request->brand === 'unbranded') {
+                $productsQuery->where(function($q) {
+                    $q->whereNull('brand_name')->orWhere('brand_name', '');
+                });
+            } else {
+                $productsQuery->where('brand_name', $request->brand);
+            }
+        }
+
         $products = $productsQuery
             ->orderByDesc('created_at')
-            ->paginate(15);
+            ->paginate(15)
+            ->appends(request()->query());
 
         $categories = \App\Models\Category::where('is_active', true)->orderBy('category_name')->get();
         $brands = \App\Models\Brand::where('is_active', true)->orderBy('name')->get();
+        $animal_types = \Illuminate\Support\Facades\DB::table('animal_types')->orderBy('animal_type')->get();
 
-        return view('products_admin', compact('stats', 'products', 'days', 'status', 'categories', 'brands'));
+        $selectedBrand = $request->get('brand', '');
+
+        return view('products_admin', compact('stats', 'products', 'days', 'status', 'categories', 'brands', 'animal_types', 'selectedBrand'));
     }
 
     /**
@@ -71,7 +85,8 @@ class ProductAdminController extends Controller
     {
         $categories = \App\Models\Category::where('is_active', true)->orderBy('category_name')->get();
         $brands = \App\Models\Brand::where('is_active', true)->orderBy('name')->get();
-        return view('products.create', compact('categories', 'brands'));
+        $animal_types = \Illuminate\Support\Facades\DB::table('animal_types')->orderBy('animal_type')->get();
+        return view('products.create', compact('categories', 'brands', 'animal_types'));
     }
 
     /**
@@ -84,7 +99,7 @@ class ProductAdminController extends Controller
         // This is enforced by middleware, controller just validates data
         $data = $request->validate([
             'product_name' => 'required|string|max:255',
-            'animal_type' => 'nullable|string|max:255',
+            'animal_type_id' => 'required|integer|exists:animal_types,id',
             'animal_category_id' => 'required|exists:categories,id',
             'price' => 'required|numeric|min:0',
             'sku' => 'required|string|unique:products,sku',
@@ -101,6 +116,15 @@ class ProductAdminController extends Controller
         // handle product image upload
         if ($request->hasFile('image')) {
             $data['animal_image_url'] = $request->file('image')->store('products', 'public');
+        }
+
+        // Look up the name of the animal type to save it in animal_type column
+        if (!empty($data['animal_type_id'])) {
+            $animalType = \Illuminate\Support\Facades\DB::table('animal_types')->find($data['animal_type_id']);
+            if ($animalType) {
+                // Safely access animal_type property using object property access
+                $data['animal_type'] = $animalType->animal_type ?? null;
+            }
         }
 
         $product = Product::create($data + ['seller_id' => 0]);
@@ -130,7 +154,8 @@ class ProductAdminController extends Controller
         $product = Product::findOrFail($id);
         $categories = \App\Models\Category::where('is_active', true)->orderBy('category_name')->get();
         $brands = \App\Models\Brand::where('is_active', true)->orderBy('name')->get();
-        return view('products.edit', compact('product', 'categories', 'brands'));
+        $animal_types = \Illuminate\Support\Facades\DB::table('animal_types')->orderBy('animal_type')->get();
+        return view('products.edit', compact('product', 'categories', 'brands', 'animal_types'));
     }
 
     /**
@@ -141,7 +166,7 @@ class ProductAdminController extends Controller
         $product = Product::findOrFail($id);
         $data = $request->validate([
             'product_name' => 'required|string|max:255',
-            'animal_type' => 'nullable|string|max:255',
+            'animal_type_id' => 'required|integer|exists:animal_types,id',
             'animal_category_id' => 'required|exists:categories,id',
             'price' => 'required|numeric|min:0',
             'sku' => 'required|string|unique:products,sku,' . $product->id,
@@ -160,6 +185,15 @@ class ProductAdminController extends Controller
         }
         if ($request->hasFile('image')) {
             $data['animal_image_url'] = $request->file('image')->store('products', 'public');
+        }
+
+        // Look up the name of the animal type to save it in animal_type column
+        if (!empty($data['animal_type_id'])) {
+            $animalType = \Illuminate\Support\Facades\DB::table('animal_types')->find($data['animal_type_id']);
+            if ($animalType) {
+                // Safely access animal_type property using object property access
+                $data['animal_type'] = $animalType->animal_type ?? null;
+            }
         }
 
         $product->update($data);
@@ -202,5 +236,69 @@ class ProductAdminController extends Controller
         // Instead of hard-deleting, mark as draft so it can be edited later
         $product->update(['product_status' => 'draft']);
         return redirect()->route('products.admin')->with('success', 'Product moved to draft');
+    }
+
+    /**
+     * Display inventory management page with price, stock, edit, remove options
+     */
+    public function inventoryIndex()
+    {
+        $query = Product::query();
+
+        // Filter by brand
+        if (request('brand')) {
+            $query->where('brand_name', request('brand'));
+        }
+
+        // Filter by stock status
+        $stockStatus = request('stock_status');
+        if ($stockStatus === 'out_of_stock') {
+            $query->where('product_status', 'out_of_stock');
+        } elseif ($stockStatus === 'low_stock') {
+            // This will be handled in PHP after fetching
+        }
+
+        $products = $query->with(['category', 'variants'])
+            ->orderBy('product_name')
+            ->get(); // Get all results first
+
+        // Filter low stock items if needed
+        if ($stockStatus === 'low_stock') {
+            $products = $products->filter(function ($product) {
+                $totalStock = $product->variants->sum('stock') ?? 0;
+                return $totalStock > 0 && $totalStock <= 5;
+            });
+        }
+
+        // Now paginate the filtered results
+        $perPage = 20;
+        $page = request()->get('page', 1);
+        $products = new \Illuminate\Pagination\Paginator(
+            $products->forPage($page, $perPage)->values()->all(),
+            $perPage,
+            $page,
+            ['path' => route('inventory.admin'), 'query' => request()->query()]
+        );
+
+        // Calculate statistics
+        $allProducts = Product::with('variants')->get();
+        $lowStockCount = 0;
+        foreach ($allProducts as $product) {
+            $totalStock = $product->variants->sum('stock') ?? 0;
+            if ($totalStock <= 5 && $product->product_status !== 'draft') {
+                $lowStockCount++;
+            }
+        }
+
+        $stats = [
+            'total_products' => Product::count(),
+            'active_products' => Product::where('product_status', 'active')->count(),
+            'low_stock' => $lowStockCount,
+            'out_of_stock' => Product::where('product_status', 'out_of_stock')->count(),
+        ];
+
+        $brands = \App\Models\Brand::where('is_active', true)->orderBy('name')->get();
+
+        return view('inventory_admin', compact('products', 'stats', 'brands'));
     }
 }

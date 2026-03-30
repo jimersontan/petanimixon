@@ -10,24 +10,12 @@ class Review extends Model
     use HasFactory;
 
     protected $fillable = [
-        'product_id',
-        'user_id',
-        'order_item_id',
-        'rating',
-        'review_title',
-        'review_text',
-        'verified_purchase',
-        'helpful_count',
-        'review_images',
-        'seller_response',
-        'seller_response_date',
-        'is_verified',
-        'status',
+        'product_id', 'user_id', 'rating', 'comment', 'images',
     ];
 
     protected $casts = [
+        'images' => 'array',
         'rating' => 'integer',
-        'helpful_count' => 'integer',
     ];
 
     public function product()
@@ -40,8 +28,27 @@ class Review extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function orderItem()
+    public function replies()
     {
-        return $this->belongsTo(OrderItem::class);
+        return $this->hasMany(ReviewReply::class)->orderBy('created_at');
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(ReviewLike::class);
+    }
+
+    public function isLikedBy($userId)
+    {
+        return $this->likes()->where('user_id', $userId)->exists();
+    }
+
+    public function getImageUrlsAttribute()
+    {
+        if (empty($this->images)) return [];
+        return collect($this->images)->map(function ($path) {
+            if (str_starts_with($path, 'http')) return $path;
+            return asset('storage/' . $path);
+        })->toArray();
     }
 }

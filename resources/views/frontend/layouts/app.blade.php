@@ -7,10 +7,11 @@
     <title>@yield('title', 'Petverse')</title>
 
     <link rel="stylesheet" href="{{ asset('css/user_dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/themes.css') }}">
     <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
     @stack('styles')
 </head>
-<body class="user-dashboard">
+<body class="user-dashboard theme-{{ Auth::check() ? (Auth::user()->color_theme ?? 'sunset_orange') : 'sunset_orange' }}">
     <header class="ud-header">
         <div class="ud-header-inner">
             <a href="{{ route('shop') }}" class="ud-logo" style="display:flex; align-items:center; text-decoration:none;">

@@ -23,6 +23,11 @@ class EnsureUserIsClient
             return redirect()->route('dashboard')->with('error', 'Admin users are not allowed to access client pages.');
         }
 
+        // Riders should use their own dashboard, not client pages.
+        if ($user && method_exists($user, 'isRider') && $user->isRider()) {
+            return redirect()->route('rider.dashboard')->with('error', 'Please use the Rider Dashboard.');
+        }
+
         return $next($request);
     }
 }

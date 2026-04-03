@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Account - Pet Animixon</title>
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/themes.css') }}">
 </head>
 <body>
     <div class="register-container">
@@ -148,6 +149,8 @@
                             <span id="petError" class="error-message"></span>
                         </div>
 
+
+
                         <div class="checkboxes-group">
                             <div class="checkbox-item">
                                 <input type="checkbox" id="promos" name="promos" class="form-checkbox" value="1">
@@ -206,5 +209,6 @@
         window.routes.login = "{{ route('login') }}";
     </script>
     <script src="{{ asset('js/auth.js') }}"></script>
+
 </body>
 </html>

@@ -28,9 +28,9 @@
         <div class="brand-card">
             <div class="brand-logo-wrap">
                 @if($brand->logo_path)
-                    <img src="{{ asset('storage/' . $brand->logo_path) }}" alt="{{ $brand->name }}" class="brand-logo-img">
+                    <img src="{{ asset('storage/' . $brand->logo_path) }}" alt="{{ $brand->name }}" class="brand-logo-img" onerror="this.onerror=null; this.src='{{ asset('images/placeholder.png') }}'">
                 @else
-                    <img src="https://via.placeholder.com/150x80?text={{ urlencode($brand->name) }}" alt="{{ $brand->name }}" class="brand-logo-img">
+                    <div class="brand-logo-placeholder">{{ strtoupper(substr($brand->name, 0, 2)) }}</div>
                 @endif
             </div>
             <h3 class="brand-name">{{ $brand->name }}</h3>
@@ -81,9 +81,9 @@
             <div>
                 <div style="background: linear-gradient(135deg, #7fb3a3 0%, #6a9e8f 100%); border-radius: 12px; height: 400px; display: flex; align-items: center; justify-content: center; overflow: hidden;" class="featured-brand-img-wrap">
                     @if($featuredBrand->logo_path)
-                        <img src="{{ asset('storage/' . $featuredBrand->logo_path) }}" alt="{{ $featuredBrand->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        <img src="{{ asset('storage/' . $featuredBrand->logo_path) }}" alt="{{ $featuredBrand->name }}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='{{ asset('images/placeholder.png') }}'">
                     @else
-                        <img src="https://via.placeholder.com/300x400?text={{ urlencode($featuredBrand->name) }}" alt="{{ $featuredBrand->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:48px;font-weight:700;color:white;letter-spacing:2px;">{{ strtoupper(substr($featuredBrand->name, 0, 2)) }}</div>
                     @endif
                 </div>
             </div>
@@ -192,9 +192,24 @@
         margin-bottom: 20px;
     }
     .brand-logo-img {
-        max-width: 100%; 
-        max-height: 100%; 
-        object-fit: contain;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .brand-logo-placeholder {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #FF8C42, #f97316);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 1px;
     }
     .brand-name {
         font-size: 18px; 

@@ -26,7 +26,7 @@
 }
 .mo-stat-icon.total { background: #fff3e0; color: #E85D04; }
 .mo-stat-icon.pending { background: #fff8e1; color: #ff9800; }
-.mo-stat-icon.processing { background: #e3f2fd; color: #2196f3; }
+.mo-stat-icon.out_for_delivery { background: #e3f2fd; color: #1e88e5; }
 .mo-stat-icon.shipped { background: #f3e5f5; color: #9c27b0; }
 .mo-stat-icon.delivered { background: #e8f5e9; color: #4caf50; }
 .mo-stat-num { font-size: 22px; font-weight: 800; color: #1a1a2e; }
@@ -65,7 +65,7 @@
     text-transform: capitalize; display: inline-flex; align-items: center; justify-content: center;
 }
 .mo-badge.pending { background: #fff3e0; color: #e65100; }
-.mo-badge.processing { background: #e3f2fd; color: #1565c0; }
+.mo-badge.out_for_delivery, .mo-badge.out_for_delivery { background: #e1f5fe; color: #0277bd; }
 .mo-badge.shipped { background: #f3e5f5; color: #7b1fa2; }
 .mo-badge.delivered { background: #e8f5e9; color: #2e7d32; }
 .mo-badge.cancelled { background: #fbe9e7; color: #c62828; }
@@ -173,10 +173,10 @@
             </div>
         </div>
         <div class="mo-stat-card">
-            <div class="mo-stat-icon shipped">🚚</div>
+            <div class="mo-stat-icon out_for_delivery">🛵</div>
             <div>
-                <div class="mo-stat-num">{{ $stats['shipped'] ?? 0 }}</div>
-                <div class="mo-stat-label">Shipped</div>
+                <div class="mo-stat-num">{{ $stats['out_for_delivery'] ?? 0 }}</div>
+                <div class="mo-stat-label">Out For Delivery</div>
             </div>
         </div>
         <div class="mo-stat-card">
@@ -200,8 +200,8 @@
         <a href="{{ route('orders', ['status' => 'processing']) }}" class="mo-tab {{ $sf === 'processing' ? 'active' : '' }}">
             Processing <span class="mo-tab-count">{{ $stats['processing'] ?? 0 }}</span>
         </a>
-        <a href="{{ route('orders', ['status' => 'shipped']) }}" class="mo-tab {{ $sf === 'shipped' ? 'active' : '' }}">
-            Shipped <span class="mo-tab-count">{{ $stats['shipped'] ?? 0 }}</span>
+        <a href="{{ route('orders', ['status' => 'out_for_delivery']) }}" class="mo-tab {{ $sf === 'out_for_delivery' ? 'active' : '' }}">
+            Out For Delivery <span class="mo-tab-count">{{ $stats['out_for_delivery'] ?? 0 }}</span>
         </a>
         <a href="{{ route('orders', ['status' => 'delivered']) }}" class="mo-tab {{ $sf === 'delivered' ? 'active' : '' }}">
             Delivered <span class="mo-tab-count">{{ $stats['delivered'] ?? 0 }}</span>
@@ -266,7 +266,7 @@
                         </div>
                         <div class="mo-actions">
                             <a href="{{ route('order.track', $order->order_id) }}" class="mo-btn mo-btn-outline">📋 View Details</a>
-                            @if($order->order_status === 'shipped')
+                            @if($order->order_status === 'out_for_delivery')
                                 <a href="{{ route('order.track', $order->order_id) }}" class="mo-btn mo-btn-primary">📍 Track Package</a>
                             @elseif($order->order_status === 'delivered')
                                 <a href="{{ route('order.track', $order->order_id) }}" class="mo-btn mo-btn-primary">⭐ Write Review</a>

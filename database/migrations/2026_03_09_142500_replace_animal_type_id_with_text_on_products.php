@@ -13,17 +13,20 @@ class ReplaceAnimalTypeIdWithTextOnProducts extends Migration
      */
     public function up()
     {
-        Schema::table('products', function (Blueprint $table) {
-            // Drop foreign key and column if they still exist, then add a plain text animal_type
-            if (Schema::hasColumn('products', 'animal_type_id')) {
-                $table->dropForeign(['animal_type_id']);
+        if (Schema::hasColumn('products', 'animal_type_id')) {
+            Schema::table('products', function (Blueprint $table) {
+                if (\DB::getDriverName() !== 'sqlite') {
+                    $table->dropForeign(['animal_type_id']);
+                }
                 $table->dropColumn('animal_type_id');
-            }
+            });
+        }
 
-            if (!Schema::hasColumn('products', 'animal_type')) {
+        if (!Schema::hasColumn('products', 'animal_type')) {
+            Schema::table('products', function (Blueprint $table) {
                 $table->string('animal_type')->nullable()->after('product_name');
-            }
-        });
+            });
+        }
     }
 
     /**

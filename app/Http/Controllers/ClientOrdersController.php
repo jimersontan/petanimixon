@@ -36,7 +36,7 @@ class ClientOrdersController extends Controller
             'total' => (clone $allOrders)->count(),
             'pending' => (clone $allOrders)->where('order_status', 'pending')->count(),
             'processing' => (clone $allOrders)->where('order_status', 'processing')->count(),
-            'shipped' => (clone $allOrders)->where('order_status', 'shipped')->count(),
+            'out_for_delivery' => (clone $allOrders)->where('order_status', 'out_for_delivery')->count(),
             'delivered' => (clone $allOrders)->where('order_status', 'delivered')->count(),
             'cancelled' => (clone $allOrders)->where('order_status', 'cancelled')->count(),
         ];

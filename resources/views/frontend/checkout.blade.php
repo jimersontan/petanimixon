@@ -55,6 +55,38 @@
 .co-form-group input:focus { border-color:#FF8C42; outline:none; }
 .co-form-full { grid-column:1/-1; }
 
+/* ═══ Geolocation Button ═══ */
+.co-geo-btn {
+    display:inline-flex; align-items:center; gap:8px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color:#fff; border:none; padding:12px 20px; border-radius:10px;
+    font-size:14px; font-weight:600; cursor:pointer;
+    transition:all .3s; box-shadow: 0 3px 12px rgba(37,99,235,.25);
+    margin-bottom:16px;
+}
+.co-geo-btn:hover { box-shadow:0 6px 18px rgba(37,99,235,.35); transform:translateY(-1px); }
+.co-geo-btn:disabled { opacity:.6; cursor:wait; transform:none; }
+.co-geo-btn .geo-spinner {
+    width:16px; height:16px; border:2px solid rgba(255,255,255,.3);
+    border-top-color:#fff; border-radius:50%; animation:geoSpin 0.6s linear infinite; display:none;
+}
+.co-geo-btn.loading .geo-spinner { display:inline-block; }
+.co-geo-btn.loading .geo-icon { display:none; }
+@keyframes geoSpin { to { transform:rotate(360deg); } }
+.co-geo-status {
+    display:none; font-size:12px; padding:8px 14px; border-radius:8px;
+    margin-bottom:12px; line-height:1.4;
+}
+.co-geo-status.success { display:block; background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; }
+.co-geo-status.error { display:block; background:#fef2f2; color:#dc2626; border:1px solid #fecaca; }
+.co-geo-status.loading { display:block; background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe; }
+.co-geo-divider {
+    display:flex; align-items:center; gap:14px; margin:12px 0 16px; color:#999; font-size:12px; font-weight:600;
+}
+.co-geo-divider::before, .co-geo-divider::after {
+    content:''; flex:1; height:1px; background:#e0e0e0;
+}
+
 /* ═══ Step 3: Shipping ═══ */
 .co-ship-option {
     border:2px solid #e0e0e0; border-radius:12px; padding:18px 20px; margin-bottom:12px;
@@ -126,6 +158,7 @@
 
 <style>
 .ph-dd-wrap { position: relative; width: 100%; }
+.ph-dd-wrap::after { content: '▼'; position: absolute; right: 14px; top: 12px; font-size: 10px; color: #888; pointer-events: none; }
 .ph-dd-list {
     position: absolute; top: calc(100% + 4px); left: 0; width: 100%;
     background: #fff; border: 1px solid #ddd; border-radius: 6px;
@@ -204,6 +237,16 @@
                 </div>
                 <div id="newAddrForm" style="display:{{ $addresses->isEmpty() ? 'block' : 'none' }}; margin-top:16px;">
                     <div style="font-size:13px; color:#3DB868; font-weight:600; margin-bottom:12px;">✓ This address will be saved to your account.</div>
+
+                    {{-- ═══ USE MY CURRENT LOCATION ═══ --}}
+                    <button type="button" class="co-geo-btn" id="geoLocateBtn" onclick="useMyLocation()">
+                        <span class="geo-icon">📍</span>
+                        <span class="geo-spinner"></span>
+                        <span id="geoBtnText">Use My Current Location</span>
+                    </button>
+                    <div class="co-geo-status" id="geoStatus"></div>
+                    <div class="co-geo-divider">or fill in manually</div>
+
                     <div class="co-form-grid">
                         <div class="co-form-group"><label>Full Name *</label><input type="text" name="new_address[recipient_name]"></div>
                         <div class="co-form-group"><label>Phone Number *</label><input type="text" name="new_address[phone_number]"></div>
@@ -523,6 +566,191 @@ function buildReview() {
     document.getElementById('reviewTotal').textContent = '₱' + total.toFixed(2);
 }
 </script>
+
+{{-- ═══ GEOLOCATION: Use Current Location ═══ --}}
+<script>
+function useMyLocation() {
+    const btn = document.getElementById('geoLocateBtn');
+    const statusEl = document.getElementById('geoStatus');
+    const btnText = document.getElementById('geoBtnText');
+
+    if (!navigator.geolocation) {
+        showGeoStatus('error', '❌ Geolocation is not supported by your browser.');
+        return;
+    }
+
+    // Loading state
+    btn.classList.add('loading');
+    btn.disabled = true;
+    btnText.textContent = 'Getting your location...';
+    showGeoStatus('loading', '🔍 Requesting your GPS location...');
+
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            showGeoStatus('loading', '📡 Location found! Resolving address...');
+            btnText.textContent = 'Resolving address...';
+
+            // Reverse geocode using free Nominatim API (OpenStreetMap)
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&zoom=18&accept-language=en`, {
+                headers: { 'User-Agent': 'PetAnimixon/1.0' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data && data.address) {
+                    fillAddressFromGeo(data.address, lat, lng);
+                    showGeoStatus('success', `✅ Address detected! (${lat.toFixed(5)}, ${lng.toFixed(5)})<br>📍 ${data.display_name || 'Location found'}.<br><small style="color:#888;">Please verify and adjust if needed.</small>`);
+                } else {
+                    showGeoStatus('error', '❌ Could not resolve address. Please fill in manually.');
+                }
+            })
+            .catch(err => {
+                console.error('Geocoding error:', err);
+                showGeoStatus('error', '❌ Address lookup failed. Please fill in manually.');
+            })
+            .finally(() => {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+                btnText.textContent = '📍 Use My Current Location';
+            });
+        },
+        function(error) {
+            btn.classList.remove('loading');
+            btn.disabled = false;
+            btnText.textContent = '📍 Use My Current Location';
+
+            const messages = {
+                1: '🔒 Location permission denied. Please allow location access in your browser settings.',
+                2: '📡 Position unavailable. Make sure GPS/Location is enabled on your device.',
+                3: '⏱️ Location request timed out. Please try again.'
+            };
+            showGeoStatus('error', messages[error.code] || '❌ Could not get your location.');
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 60000
+        }
+    );
+}
+
+function showGeoStatus(type, message) {
+    const el = document.getElementById('geoStatus');
+    el.className = 'co-geo-status ' + type;
+    el.innerHTML = message;
+}
+
+function fillAddressFromGeo(addr, lat, lng) {
+    // Map Nominatim fields to Philippine address structure
+    const regionInput = document.getElementById('ph-region-input');
+    const provinceInput = document.getElementById('ph-province-input');
+    const cityInput = document.getElementById('ph-city-input');
+    const barangayInput = document.getElementById('ph-barangay-input');
+    const streetInput = document.querySelector('input[name="new_address[street_address]"]');
+    const zipInput = document.querySelector('input[name="new_address[zip_code]"]');
+
+    // Strip disabled from all of them forcefully so they are fully unlocked
+    if (regionInput) regionInput.removeAttribute('disabled');
+    if (provinceInput) provinceInput.removeAttribute('disabled');
+    if (cityInput) cityInput.removeAttribute('disabled');
+    if (barangayInput) barangayInput.removeAttribute('disabled');
+
+    // Region — Nominatim usually gives state_district or region
+    let region = addr.region || addr.state_district || addr.state || '';
+    if (region.includes('National Capital Region')) region = 'Metro Manila';
+    
+    if (regionInput && region) {
+        regionInput.value = region;
+        regionInput.dispatchEvent(new Event('input', { bubbles: true }));
+        regionInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // City / Municipality
+    let city = addr.city || addr.town || addr.municipality || addr.village || '';
+    
+    // Lookup for Highly Urbanized Cities that Nominatim skips the province for
+    const hucMap = {
+        'Butuan': 'Agusan del Norte', 'Butuan City': 'Agusan del Norte',
+        'Cebu': 'Cebu', 'Cebu City': 'Cebu', 'Lapu-Lapu': 'Cebu', 'Mandaue': 'Cebu',
+        'Davao': 'Davao del Sur', 'Davao City': 'Davao del Sur',
+        'Iloilo': 'Iloilo', 'Iloilo City': 'Iloilo',
+        'Bacolod': 'Negros Occidental', 'Bacolod City': 'Negros Occidental',
+        'Cagayan de Oro': 'Misamis Oriental', 'Cagayan de Oro City': 'Misamis Oriental',
+        'Iligan': 'Lanao del Norte', 'Iligan City': 'Lanao del Norte',
+        'General Santos': 'South Cotabato', 'General Santos City': 'South Cotabato',
+        'Zamboanga': 'Zamboanga del Sur', 'Zamboanga City': 'Zamboanga del Sur',
+        'Angeles': 'Pampanga', 'Angeles City': 'Pampanga',
+        'Olongapo': 'Zambales', 'Olongapo City': 'Zambales',
+        'Baguio': 'Benguet', 'Baguio City': 'Benguet',
+        'Lucena': 'Quezon', 'Lucena City': 'Quezon',
+        'Puerto Princesa': 'Palawan', 'Puerto Princesa City': 'Palawan',
+        'Tacloban': 'Leyte', 'Tacloban City': 'Leyte',
+        'Ormoc': 'Leyte', 'Ormoc City': 'Leyte',
+        'Naga': 'Camarines Sur', 'Naga City': 'Camarines Sur',
+        'Santiago': 'Isabela', 'Santiago City': 'Isabela',
+        'Cotabato': 'Maguindanao', 'Cotabato City': 'Maguindanao'
+    };
+
+    // Province (In Philippines, Nominatim often maps provinces to 'state', 'county', or 'province')
+    let province = addr.county || addr.province || addr.state || '';
+    
+    // Fallbacks if province is still missing or just says "Philippines"
+    if (!province || province.toLowerCase() === 'philippines') {
+        if (city && hucMap[city]) {
+            province = hucMap[city];
+        } else if (region === 'Metro Manila' || region.includes('National Capital')) {
+            province = 'Metro Manila';
+        }
+    }
+
+    if (provinceInput && province) {
+        setTimeout(() => {
+            provinceInput.value = province;
+            provinceInput.dispatchEvent(new Event('input', { bubbles: true }));
+            provinceInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }, 100);
+    }
+
+    if (cityInput && city) {
+        setTimeout(() => {
+            cityInput.value = city;
+            cityInput.dispatchEvent(new Event('input', { bubbles: true }));
+            cityInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }, 200);
+    }
+
+    // Barangay (suburb in Nominatim)
+    const barangay = addr.suburb || addr.neighbourhood || addr.quarter || addr.village || '';
+    if (barangayInput && barangay) {
+        setTimeout(() => {
+            barangayInput.value = barangay;
+            barangayInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }, 300);
+    }
+
+    // Street / House No
+    const houseNumber = addr.house_number || '';
+    const road = addr.road || addr.pedestrian || addr.footway || '';
+    const streetParts = [houseNumber, road].filter(Boolean);
+    if (streetInput && streetParts.length) {
+        streetInput.value = streetParts.join(' ');
+    }
+
+    // Zip Code
+    const zip = addr.postcode || '';
+    if (zipInput && zip) {
+        zipInput.value = zip;
+    }
+
+    // Scroll to the form fields smoothly
+    const formGrid = document.querySelector('.co-form-grid');
+    if (formGrid) {
+        formGrid.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+}
+</script>
+
 <script src="{{ asset('js/ph-address.js') }}"></script>
 @endpush
 @endsection

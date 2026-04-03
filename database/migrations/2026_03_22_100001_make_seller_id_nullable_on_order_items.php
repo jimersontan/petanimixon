@@ -9,22 +9,21 @@ class MakeSellerIdNullableOnOrderItems extends Migration
 {
     public function up()
     {
-        // Drop the foreign key first, then make nullable
         Schema::table('order_items', function (Blueprint $table) {
-            // Drop foreign key
-            $table->dropForeign(['seller_id']);
+            if (\DB::getDriverName() !== 'sqlite') {
+                $table->dropForeign(['seller_id']);
+            }
+            $table->unsignedBigInteger('seller_id')->nullable()->change();
         });
-
-        // Now alter column to nullable
-        DB::statement('ALTER TABLE order_items MODIFY seller_id BIGINT UNSIGNED NULL');
     }
 
     public function down()
     {
-        DB::statement('ALTER TABLE order_items MODIFY seller_id BIGINT UNSIGNED NOT NULL');
-
         Schema::table('order_items', function (Blueprint $table) {
-            $table->foreign('seller_id')->references('id')->on('sellers')->onDelete('restrict');
+            $table->unsignedBigInteger('seller_id')->nullable(false)->change();
+            if (\DB::getDriverName() !== 'sqlite') {
+                $table->foreign('seller_id')->references('id')->on('sellers')->onDelete('restrict');
+            }
         });
     }
 }

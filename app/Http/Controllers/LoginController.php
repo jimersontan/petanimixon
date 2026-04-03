@@ -64,7 +64,12 @@ class LoginController extends Controller
         Auth::login($user, $request->has('remember'));
 
         if ($request->wantsJson() || $request->ajax()) {
-            return response()->json(['success' => true, 'redirect' => route('home')]);
+            $redirect = $user->isRider() ? route('rider.dashboard') : route('home');
+            return response()->json(['success' => true, 'redirect' => $redirect]);
+        }
+
+        if ($user->isRider()) {
+            return redirect()->route('rider.dashboard')->with('success', 'Welcome back, rider!');
         }
         
         return redirect()->route('home')->with('success', 'Logged in successfully.');

@@ -12,8 +12,18 @@ class BrandAdminController extends Controller
      */
     public function index(Request $request)
     {
+        $status = $request->get('status', 'all');
+
+        $query = Brand::withCount(['products'])->orderBy('name');
+        
+        if ($status === 'active') {
+            $query->where('is_active', true);
+        } elseif ($status === 'draft') {
+            $query->where('is_active', false);
+        }
+        
         // paginate for the table view
-        $brands = Brand::withCount(['products'])->orderBy('name')->paginate(20);
+        $brands = $query->paginate(20);
 
         // compute stats on entire set to avoid pagination skew
         $all = Brand::withCount(['products'])->get();
@@ -24,7 +34,7 @@ class BrandAdminController extends Controller
             'avg_products_per_brand' => $all->avg('products_count'),
         ];
 
-        return view('brands_admin', compact('stats', 'brands'));
+        return view('brands_admin', compact('stats', 'brands', 'status'));
     }
 
 
@@ -69,11 +79,27 @@ class BrandAdminController extends Controller
         return redirect()->route('brands.admin')->with('success', 'Brand updated');
     }
 
+    /**
+     * Move a brand to draft (inactive) status.
+     */
+    public function draft($id)
+    {
+        $brand = Brand::findOrFail($id);
+        $brand->update(['is_active' => false]);
+        return redirect()->route('brands.admin')->with('success', 'Brand moved to draft');
+    }
+
+    /**
+     * Permanently delete a brand (only allowed for inactive/draft brands).
+     */
     public function destroy($id)
     {
         $brand = Brand::findOrFail($id);
-        // Soft-deactivate brand instead of hard delete
-        $brand->update(['is_active' => false]);
-        return redirect()->route('brands.admin')->with('success', 'Brand deactivated');
+        // Only allow permanent deletion of inactive (draft) brands
+        if ($brand->is_active) {
+            return redirect()->route('brands.admin')->with('error', 'Only draft/inactive brands can be permanently deleted. Move to draft first.');
+        }
+        $brand->delete();
+        return redirect()->route('brands.admin')->with('success', 'Brand permanently deleted');
     }
 }

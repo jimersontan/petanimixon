@@ -8,7 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -29,6 +29,7 @@ class User extends Authenticatable
         'pet_type',
         'wants_promos',
         'wants_tips',
+        'color_theme',
     ];
 
     /**
@@ -131,5 +132,21 @@ class User extends Authenticatable
     {
         $role = $this->adminRole();
         return in_array($role, ['staff_admin', 'supervisor', 'main_admin'], true);
+    }
+
+    /**
+     * Check if the user is a delivery rider.
+     */
+    public function isRider(): bool
+    {
+        return ($this->user_type ?? '') === 'rider';
+    }
+
+    /**
+     * Orders assigned to this rider for delivery.
+     */
+    public function riderOrders()
+    {
+        return $this->hasMany(Order::class, 'rider_id');
     }
 }

@@ -97,15 +97,15 @@
         <!-- Price and Stock Fields: Side-by-side row -->
         <div class="form-row" style="display: flex; gap: 15px;">
             <!-- Field: Price (required, currency format) -->
-            <div class="form-group" style="flex: 1;">
+            <div class="form-group" style="flex: 1; min-width: 0;">
                 <label for="price">Price (₱)</label>
-                <input type="number" step="0.01" name="price" id="price" class="form-control" value="{{ old('price', $product->price) }}" required>
+                <input type="number" step="0.01" name="price" id="price" class="form-control" style="width: 100%;" value="{{ old('price', $product->price) }}" required>
             </div>
             <!-- End: Price -->
             <!-- Field: Stock (optional, whole number) -->
-            <div class="form-group" style="flex: 1;">
+            <div class="form-group" style="flex: 1; min-width: 0;">
                 <label for="stock">Stock</label>
-                <input type="number" min="0" name="stock" id="stock" class="form-control" value="{{ old('stock', $product->stock ?? '') }}">
+                <input type="number" min="0" name="stock" id="stock" class="form-control" style="width: 100%;" value="{{ old('stock', $product->stock ?? '') }}">
             </div>
             <!-- End: Stock -->
         </div>

@@ -75,7 +75,7 @@ class Product extends Model
      */
     public function getStockAttribute()
     {
-        return $this->variants->sum('variant_quantity');
+        return $this->variants()->sum('variant_quantity');
     }
 
     /**

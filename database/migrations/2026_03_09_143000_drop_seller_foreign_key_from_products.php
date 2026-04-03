@@ -14,8 +14,9 @@ class DropSellerForeignKeyFromProducts extends Migration
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-            // Drop the foreign key on seller_id so products can be created without a matching seller row
-            $table->dropForeign(['seller_id']);
+            if (\DB::getDriverName() !== 'sqlite') {
+                $table->dropForeign(['seller_id']);
+            }
         });
     }
 

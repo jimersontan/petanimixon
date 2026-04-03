@@ -235,14 +235,28 @@
                             onclick='openProductModal("edit", <?php echo json_encode($prodData, 15, 512) ?>)'>
                             <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                         </button>
-                        <!-- Delete Button: Submits DELETE form to move product to draft -->
-                        <form method="POST" action="<?php echo e(route('inventory.destroy', $product)); ?>" style="display:inline">
+                        <!-- Draft Button: Only for non-draft products -->
+                        <?php if(($product->product_status ?? 'active') !== 'draft'): ?>
+                        <!-- Draft Button (Soft Delete) -->
+                        <form method="POST" action="<?php echo e(route('inventory.draft', $product->id)); ?>" style="display:inline">
                             <?php echo csrf_field(); ?>
-                            <?php echo method_field('DELETE'); ?>
-                            <button type="submit" class="action-btn" title="Move to draft" onclick="return confirm('Move this product to draft?')">
-                                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-4.5l-1-1z"/></svg>
+                            <?php echo method_field('PATCH'); ?>
+                            <button type="submit" class="action-btn" title="Hide this product (Move to Draft)" onclick="return confirm('Hide this product from the storefront and move it to Draft?')">
+                                <!-- Open Eye to indicate it's currently visible and clicking will hide it -->
+                                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
                             </button>
                         </form>
+                        <?php else: ?>
+                        <!-- Permanent Delete Button -->
+                        <form method="POST" action="<?php echo e(route('inventory.destroy', $product->id)); ?>" style="display:inline">
+                            <?php echo csrf_field(); ?>
+                            <?php echo method_field('DELETE'); ?>
+                            <button type="submit" class="action-btn" title="Permanently Delete Product" onclick="return confirm('⚠️ PERMANENT DELETE\n\nAre you sure you want to permanently delete this product? This cannot be undone!')" style="color: #ef4444; transition: opacity 0.2s; opacity: 0.85;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
+                                <!-- Trashcan SVG for Permanent Deletion -->
+                                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-4.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
+                            </button>
+                        </form>
+                        <?php endif; ?>
                     </td>
                     <!-- End: Action Buttons -->
                 </tr>

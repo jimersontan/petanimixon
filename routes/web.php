@@ -57,11 +57,13 @@ Route::middleware(['auth', 'client'])->group(function () {
     Route::get('/cart/count', [CartController::class, 'getCount'])->name('cart.count');
 
     // Checkout Routes
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
-    Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
-    Route::post('/checkout/apply-voucher', [CheckoutController::class, 'applyVoucher'])->name('checkout.voucher');
-    Route::get('/checkout/success/{order_id}', [CheckoutController::class, 'success'])->name('checkout.success');
-    Route::get('/order/{order_id}/track', [CheckoutController::class, 'tracking'])->name('order.track');
+    Route::middleware('verified')->group(function () {
+        Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+        Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
+        Route::post('/checkout/apply-voucher', [CheckoutController::class, 'applyVoucher'])->name('checkout.voucher');
+        Route::get('/checkout/success/{order_id}', [CheckoutController::class, 'success'])->name('checkout.success');
+        Route::get('/order/{order_id}/track', [CheckoutController::class, 'tracking'])->name('order.track');
+    });
 
     // Reviews
     Route::post('/product/{product}/review', [ReviewController::class, 'store'])->name('review.store');
@@ -72,13 +74,28 @@ Route::middleware(['auth', 'client'])->group(function () {
 // Login Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::any('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Registration
 Route::get('/register', function () {
     return view('register');
 })->name('register');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.submit');
+
+// Email Verification
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+Route::get('/email/verify/{id}/{hash}', function (\Illuminate\Foundation\Auth\EmailVerificationRequest $request) {
+    $request->fulfill();
+    return redirect('/home')->with('success', 'Email successfully verified!');
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+Route::post('/email/verification-notification', function (\Illuminate\Http\Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return back()->with('success', 'Verification link sent!');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
 // Admin login
 Route::get('/admin/login', [AdminLoginController::class, 'show'])->name('admin.login');
@@ -94,17 +111,21 @@ Route::get('/home', [ShopController::class, 'index'])->middleware(['auth', 'clie
 
 // Orders (protected route, for customers)
 Route::get('/orders', [\App\Http\Controllers\ClientOrdersController::class, 'index'])
-    ->middleware(['auth', 'client'])
+    ->middleware(['auth', 'client', 'verified'])
     ->name('orders');
 
 // Profile/Account (protected route, for customers)
 Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])
-    ->middleware(['auth', 'client'])
+    ->middleware(['auth', 'client', 'verified'])
     ->name('profile.edit');
 
 Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])
-    ->middleware(['auth', 'client'])
+    ->middleware(['auth', 'client', 'verified'])
     ->name('profile.update');
+
+Route::post('/profile/theme', [\App\Http\Controllers\ProfileController::class, 'updateTheme'])
+    ->middleware(['auth', 'client', 'verified'])
+    ->name('profile.theme.update');
 
 // Admin orders (admin-only view)
 Route::get('/admin/orders', [OrdersController::class, 'index'])
@@ -144,6 +165,10 @@ Route::put('/admin/inventory/{id}', [ProductAdminController::class, 'update'])
     ->middleware(['auth', 'admin'])
     ->name('inventory.update');
 
+Route::patch('/admin/inventory/{id}/draft', [ProductAdminController::class, 'draft'])
+    ->middleware(['auth', 'admin'])
+    ->name('inventory.draft');
+
 Route::delete('/admin/inventory/{id}', [ProductAdminController::class, 'destroy'])
     ->middleware(['auth', 'admin'])
     ->name('inventory.destroy');
@@ -181,6 +206,10 @@ Route::put('/admin/categories/{id}', [CategoryAdminController::class, 'update'])
     ->middleware(['auth', 'admin'])
     ->name('categories.update');
 
+Route::patch('/admin/categories/{id}/draft', [CategoryAdminController::class, 'draft'])
+    ->middleware(['auth', 'admin'])
+    ->name('categories.draft');
+
 Route::delete('/admin/categories/{id}', [CategoryAdminController::class, 'destroy'])
     ->middleware(['auth', 'admin'])
     ->name('categories.destroy');
@@ -205,6 +234,10 @@ Route::get('/admin/brands/{id}/edit', [BrandAdminController::class, 'edit'])
 Route::put('/admin/brands/{id}', [BrandAdminController::class, 'update'])
     ->middleware(['auth', 'admin'])
     ->name('brands.update');
+
+Route::patch('/admin/brands/{id}/draft', [BrandAdminController::class, 'draft'])
+    ->middleware(['auth', 'admin'])
+    ->name('brands.draft');
 
 Route::delete('/admin/brands/{id}', [BrandAdminController::class, 'destroy'])
     ->middleware(['auth', 'admin'])
@@ -274,3 +307,36 @@ Route::middleware(['auth', 'admin'])->prefix('admin/api/animal-types')->group(fu
     Route::patch('/{id}/status', [AnimalTypeController::class, 'toggleStatus'])->name('animal-types.toggle-status');
 });
 
+// ============================================================
+// RIDER ROUTES
+// ============================================================
+
+use App\Http\Controllers\RiderLoginController;
+use App\Http\Controllers\RiderDashboardController;
+use App\Http\Controllers\RiderAdminController;
+
+// Rider Login (public)
+Route::get('/rider/login', [RiderLoginController::class, 'show'])->name('rider.login');
+Route::post('/rider/login', [RiderLoginController::class, 'login'])->name('rider.login.submit');
+
+// Rider Dashboard (protected — rider only)
+Route::middleware(['auth', 'rider'])->prefix('rider')->group(function () {
+    Route::get('/dashboard', [RiderDashboardController::class, 'index'])->name('rider.dashboard');
+    Route::get('/available', [RiderDashboardController::class, 'availableOrders'])->name('rider.available');
+    Route::post('/accept/{id}', [RiderDashboardController::class, 'acceptOrder'])->name('rider.accept');
+    Route::get('/active', [RiderDashboardController::class, 'activeDelivery'])->name('rider.active');
+    Route::post('/pickup/{id}', [RiderDashboardController::class, 'pickUp'])->name('rider.pickup');
+    Route::post('/deliver/{id}', [RiderDashboardController::class, 'deliver'])->name('rider.deliver');
+    Route::get('/history', [RiderDashboardController::class, 'history'])->name('rider.history');
+    Route::get('/products', [RiderDashboardController::class, 'products'])->name('rider.products');
+});
+
+// Admin: Riders Management
+Route::middleware(['auth', 'admin'])->prefix('admin/riders')->group(function () {
+    Route::get('/', [RiderAdminController::class, 'index'])->name('riders.admin');
+    Route::get('/create', [RiderAdminController::class, 'create'])->name('riders.create');
+    Route::post('/', [RiderAdminController::class, 'store'])->name('riders.store');
+    Route::get('/{id}/edit', [RiderAdminController::class, 'edit'])->name('riders.edit');
+    Route::put('/{id}', [RiderAdminController::class, 'update'])->name('riders.update');
+    Route::patch('/{id}/toggle', [RiderAdminController::class, 'toggleStatus'])->name('riders.toggle');
+});

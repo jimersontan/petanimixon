@@ -241,8 +241,8 @@
     // ═══ CONFIG ═══
     const ORDER_STATUS = '{{ $order->order_status }}';
 
-    // Origin: Petverse store — Libertad, Butuan City
-    const ORIGIN = { lat: 8.9475, lng: 125.5406, label: 'Petverse Store (Butuan, Libertad)' };
+    // Origin: Pet Animixon store — Libertad, Butuan City
+    const ORIGIN = { lat: 8.9475, lng: 125.5406, label: 'Pet Animixon Store (Butuan, Libertad)' };
 
     // Destination: buyer's address (approximate using city name for demo)
     @php

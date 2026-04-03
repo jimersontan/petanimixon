@@ -209,13 +209,27 @@ class ProductAdminController extends Controller
     }
 
     /**
-     * Delete a product.
+     * Move a product to draft status.
+     */
+    public function draft($id)
+    {
+        $product = Product::findOrFail($id);
+        $product->update(['product_status' => 'draft']);
+        return redirect()->route('inventory.admin')->with('success', 'Product moved to draft');
+    }
+
+    /**
+     * Permanently delete a product (only allowed for draft products).
      */
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
-        // Instead of hard-deleting, mark as draft so it can be edited later
-        $product->update(['product_status' => 'draft']);
-        return redirect()->route('inventory.admin')->with('success', 'Product moved to draft');
+        // Only allow permanent deletion of draft products
+        if ($product->product_status !== 'draft') {
+            return redirect()->route('inventory.admin')->with('error', 'Only draft products can be permanently deleted. Move to draft first.');
+        }
+        $product->variants()->delete();
+        $product->delete();
+        return redirect()->route('inventory.admin')->with('success', 'Product permanently deleted');
     }
 }

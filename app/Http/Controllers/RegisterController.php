@@ -39,10 +39,14 @@ class RegisterController extends Controller
             'pet_type' => $validated['pet_type'] ?? null,
             'wants_promos' => $request->boolean('promos'),
             'wants_tips' => $request->boolean('tips'),
-            'email_verified_at' => now(),
+            'color_theme' => 'sunset_orange',
         ]);
 
+        event(new \Illuminate\Auth\Events\Registered($user));
+
         Auth::login($user);
+        
+        $request->session()->put('show_theme_picker', true);
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json(['success' => true, 'redirect' => route('home')]);

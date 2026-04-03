@@ -30,6 +30,7 @@ class ProfileController extends Controller
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
             'phone_number' => 'nullable|string|max:20',
             'password' => 'nullable|string|min:8|confirmed',
+            'color_theme' => 'nullable|string|in:sunset_orange,golden_sunshine,nature_fresh,sakura_bloom,cosmic_violet',
         ]);
 
         // Update user info
@@ -41,6 +42,11 @@ class ProfileController extends Controller
             $user->phone_number = $validated['phone_number'];
         }
 
+        // Update color theme
+        if (isset($validated['color_theme'])) {
+            $user->color_theme = $validated['color_theme'];
+        }
+
         // Update password if provided
         if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
@@ -49,5 +55,21 @@ class ProfileController extends Controller
         $user->save();
 
         return redirect()->route('profile.edit')->with('success', 'Profile updated successfully!');
+    }
+
+    /**
+     * Update color theme only (AJAX)
+     */
+    public function updateTheme(Request $request)
+    {
+        $validated = $request->validate([
+            'color_theme' => 'required|string|in:sunset_orange,golden_sunshine,nature_fresh,sakura_bloom,cosmic_violet',
+        ]);
+
+        $user = Auth::user();
+        $user->color_theme = $validated['color_theme'];
+        $user->save();
+
+        return response()->json(['success' => true, 'theme' => $validated['color_theme']]);
     }
 }

@@ -13,6 +13,7 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
+        'rider_id',
         'order_id',
         'order_number',
         'order_status',
@@ -29,6 +30,9 @@ class Order extends Model
         'billing_address_id',
         'tracking_number',
         'customer_notes',
+        'rider_picked_up_at',
+        'rider_delivered_at',
+        'rider_notes',
     ];
 
     protected $casts = [
@@ -44,6 +48,7 @@ class Order extends Model
      */
     public const STATUS_PENDING = 'pending';
     public const STATUS_PROCESSING = 'processing';
+    public const STATUS_OUT_FOR_DELIVERY = 'out_for_delivery';
     public const STATUS_SHIPPED = 'shipped';
     public const STATUS_DELIVERED = 'delivered';
     public const STATUS_CANCELLED = 'cancelled';
@@ -65,6 +70,14 @@ class Order extends Model
     public function shippingAddress()
     {
         return $this->belongsTo(UserAddress::class, 'shipping_address_id');
+    }
+
+    /**
+     * The rider assigned to deliver this order.
+     */
+    public function rider()
+    {
+        return $this->belongsTo(User::class, 'rider_id');
     }
 
     /**

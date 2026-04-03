@@ -78,7 +78,32 @@
 <!-- ===== BRANDS TABLE SECTION ===== -->
 <!-- Main table listing all brands with logo, product count, status, and actions -->
 <div class="card orders-table-card">
-    <h2 class="card-title">All Brands</h2>
+    <!-- Table Header: Title and Filter Button -->
+    <div class="orders-section-header">
+        <h2 class="card-title">All Brands</h2>
+        <div class="orders-actions">
+            <!-- Filter Actions Placeholder -->
+        </div>
+    </div>
+    <!-- End: Table Header -->
+
+    <!-- Status Filter Tabs: All, Active, Draft -->
+    <div class="order-status-tabs" role="tablist">
+        @php $currentStatus = $status ?? 'all'; @endphp
+        <a href="{{ route('brands.admin', array_merge(request()->all(), ['status' => 'all'])) }}"
+           class="order-tab {{ $currentStatus === 'all' ? 'active' : '' }}"
+           role="tab"
+           aria-selected="{{ $currentStatus === 'all' ? 'true' : 'false' }}">All</a>
+        <a href="{{ route('brands.admin', array_merge(request()->all(), ['status' => 'active'])) }}"
+           class="order-tab {{ $currentStatus === 'active' ? 'active' : '' }}"
+           role="tab"
+           aria-selected="{{ $currentStatus === 'active' ? 'true' : 'false' }}">Active</a>
+        <a href="{{ route('brands.admin', array_merge(request()->all(), ['status' => 'draft'])) }}"
+           class="order-tab {{ $currentStatus === 'draft' ? 'active' : '' }}"
+           role="tab"
+           aria-selected="{{ $currentStatus === 'draft' ? 'true' : 'false' }}">Draft</a>
+    </div>
+    <!-- End: Status Filter Tabs -->
 
     <!-- Brands Data Table -->
     <div class="table-wrap">
@@ -105,7 +130,7 @@
                     <!-- Brand Logo: Shows image if uploaded, dash if not -->
                     <td>
                         @if(!empty($brand->logo_path))
-                            <img src="{{ asset('storage/'.$brand->logo_path) }}" alt="{{ $brand->name }} logo" style="max-height:40px;">
+                            <img src="{{ asset('storage/'.$brand->logo_path) }}" alt="{{ $brand->name }} logo" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                         @else
                             —
                         @endif
@@ -128,14 +153,26 @@
                             })">
                             <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                         </button>
-                        <!-- Deactivate Button: Submits DELETE form to soft-deactivate -->
-                        <form method="POST" action="{{ route('brands.destroy', $brand) }}" style="display:inline">
+                        <!-- Draft Button: Only for active brands -->
+                        @if($brand->is_active ?? true)
+                        <!-- Draft Button (Soft Deactivate) -->
+                        <form method="POST" action="{{ route('brands.draft', $brand->id) }}" style="display:inline">
                             @csrf
-                            @method('DELETE')
-                            <button type="submit" class="action-btn" title="Deactivate" onclick="return confirm('Deactivate this brand?')">
-                                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-4.5l-1-1z"/></svg>
+                            @method('PATCH')
+                            <button type="submit" class="action-btn" title="Deactivate Brand (Move to Draft)" onclick="return confirm('Deactivate this brand and move to Draft?')">
+                                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
                             </button>
                         </form>
+                        @else
+                        <!-- Permanent Delete Button -->
+                        <form method="POST" action="{{ route('brands.destroy', $brand->id) }}" style="display:inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="action-btn" title="Permanently Delete Brand" onclick="return confirm('⚠️ PERMANENT DELETE\n\nAre you sure you want to permanently delete this brand? This cannot be undone!')" style="color: #ef4444; transition: opacity 0.2s; opacity: 0.85;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
+                                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-4.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
+                            </button>
+                        </form>
+                        @endif
                     </td>
                     <!-- End: Action Buttons -->
                 </tr>
@@ -170,7 +207,7 @@
 <div class="modal-backdrop {{ $errors->any() ? 'open' : '' }}" data-modal-id="brand-modal"></div>
 
 <!-- Modal Container -->
-<div id="brand-modal" class="modal {{ $errors->any() ? 'open' : '' }}" role="dialog" aria-modal="true" aria-labelledby="brandModalTitle" tabindex="-1">
+<div id="brand-modal" class="modal {{ $errors->any() ? 'open' : '' }}" style="max-width: 800px; width: 95%;" role="dialog" aria-modal="true" aria-labelledby="brandModalTitle" tabindex="-1">
 
     <!-- Modal Header: Title and Close Button -->
     <div class="modal-header">
@@ -188,7 +225,7 @@
             @include('brands._form', ['brand' => new \App\Models\Brand()])
 
             <!-- Modal Footer: Cancel and Save Buttons -->
-            <div class="modal-footer">
+            <div class="modal-footer" style="padding-top: 20px; border-top: 1px solid #f3f4f6; margin-top: 20px;">
                 <button type="button" class="btn-secondary" data-modal-close="brand-modal">Cancel</button>
                 <button type="submit" id="brandModalSubmitBtn" class="btn-primary">Save Brand</button>
             </div>

@@ -474,3 +474,11 @@ Route::middleware(['auth', 'admin'])->get('/admin/support-chat', function () {
     return view('admin_support_chat');
 })->name('admin.support-chat');
 
+Route::get('/run-migrations', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate:fresh', ['--seed' => true, '--force' => true]);
+        return 'Migrations and seeders run successfully!';
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});

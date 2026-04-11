@@ -99,6 +99,9 @@ class BrandAdminController extends Controller
         if ($brand->is_active) {
             return redirect()->route('brands.admin')->with('error', 'Only draft/inactive brands can be permanently deleted. Move to draft first.');
         }
+        if ($brand->products()->count() > 0) {
+            return redirect()->route('brands.admin')->with('error', 'Cannot delete brand. It has active products assigned to it. Reassign or delete the products first.');
+        }
         $brand->delete();
         return redirect()->route('brands.admin')->with('success', 'Brand permanently deleted');
     }

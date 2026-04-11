@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Shop - Pet Animixon')
+@section('title', 'Shop - PetMarkt-PH')
 
 @push('styles')
 <style>
@@ -60,17 +60,17 @@
     .filter-label-left { display: flex; align-items: center; gap: 8px; }
     .filter-label input[type="checkbox"] {
         width: 16px; height: 16px; cursor: pointer;
-        accent-color: #FF8C42;
+        accent-color: #3b7c42;
     }
     .filter-label span { font-size: 13.5px; color: #444; }
     .filter-count { font-size: 12px; color: #aaa; }
 
     /* Price Range */
-    .price-slider { width: 100%; accent-color: #FF8C42; cursor: pointer; }
+    .price-slider { width: 100%; accent-color: #3b7c42; cursor: pointer; }
     .price-range-labels { display: flex; justify-content: space-between; font-size: 12px; color: #666; margin: 6px 0 12px; }
     .btn-apply {
         width: 100%; padding: 10px;
-        background: #FF8C42; color: #fff; border: none;
+        background: #3b7c42; color: #fff; border: none;
         border-radius: 8px; font-size: 13px; font-weight: 700;
         cursor: pointer; transition: opacity .2s;
     }
@@ -78,7 +78,7 @@
 
     /* Ratings stars */
     .rating-label { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; cursor: pointer; }
-    .rating-label input[type="radio"] { accent-color: #FF8C42; width: 15px; height: 15px; }
+    .rating-label input[type="radio"] { accent-color: #3b7c42; width: 15px; height: 15px; }
     .stars { color: #ffa500; font-size: 14px; letter-spacing: 1px; }
     .rating-label span { font-size: 13px; color: #555; }
 
@@ -96,22 +96,33 @@
         width: 16px; height: 16px; left: 3px; bottom: 3px;
         background: white; border-radius: 50%; transition: .3s;
     }
-    .toggle-switch input:checked + .toggle-slider { background: #FF8C42; }
+    .toggle-switch input:checked + .toggle-slider { background: #3b7c42; }
     .toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); }
 
     .filter-label-on-sale { display: flex; align-items: center; gap: 8px; margin-top: 8px; cursor: pointer; }
-    .filter-label-on-sale input { accent-color: #FF8C42; width: 16px; height: 16px; }
+    .filter-label-on-sale input { accent-color: #3b7c42; width: 16px; height: 16px; }
     .filter-label-on-sale span { font-size: 13px; color: #444; }
 
     .btn-clear-filters {
         width: 100%; padding: 10px;
-        background: white; color: #FF8C42;
-        border: 1.5px solid #FF8C42;
+        background: white; color: #3b7c42;
+        border: 1.5px solid #3b7c42;
         border-radius: 8px; font-size: 13px; font-weight: 600;
         cursor: pointer; text-decoration: none; display: block;
         text-align: center; margin-top: 10px; transition: all .2s;
     }
     .btn-clear-filters:hover { background: #fff5ef; }
+
+    /* Dropdown Toggle Button */
+    .btn-toggle-sub {
+        background: none; border: none; cursor: pointer; color: #888;
+        padding: 4px; display: flex; align-items: center; justify-content: center;
+        transition: transform 0.2s, color 0.2s;
+        border-radius: 4px;
+        margin-left: 8px;
+    }
+    .btn-toggle-sub:hover { color: #3b7c42; background: #f0fdf4; }
+    .btn-toggle-sub.expanded { transform: rotate(180deg); color: #3b7c42; }
 
     /* ── Main area ───────────────────────────── */
     .shop-main { flex: 1; min-width: 0; }
@@ -129,7 +140,7 @@
         cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
         transition: all .2s;
     }
-    .view-btn.active { background: #FF8C42; color: white; }
+    .view-btn.active { background: #3b7c42; color: white; }
     .view-btn:not(.active) { background: #f0f0f0; color: #555; }
     .sort-select {
         padding: 7px 12px; border: 1px solid #ddd;
@@ -140,8 +151,8 @@
     /* Product grid */
     .products-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 16px;
     }
 
     /* Product card */
@@ -149,11 +160,14 @@
         background: white; border-radius: 12px;
         overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.08);
         transition: transform .25s, box-shadow .25s;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
     }
     .product-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,.13); }
 
     .product-img-wrap {
-        position: relative; height: 220px;
+        position: relative; height: 160px;
         background: #f5f5f5; overflow: hidden;
     }
     .product-img-wrap img {
@@ -166,21 +180,23 @@
         padding: 3px 10px; border-radius: 5px;
         font-size: 11px; font-weight: 700; letter-spacing: .5px;
     }
-    .badge-sale { background: #FF8C42; color: white; }
+    .badge-sale { background: #3b7c42; color: white; }
     .badge-new  { background: #222; color: white; }
 
-    .product-body { padding: 14px 16px 16px; }
-    .product-rating { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; }
+    .product-body { padding: 12px 14px 14px; display: flex; flex-direction: column; flex: 1; }
+    .product-rating { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; margin-top: auto; }
     .product-rating .stars { font-size: 13px; }
     .product-rating .count { font-size: 12px; color: #aaa; }
     .product-name {
-        font-size: 14px; font-weight: 600; color: #222;
-        margin: 0 0 6px; line-height: 1.4; min-height: 40px;
+        font-size: 13px; font-weight: 600; color: #222;
+        margin: 0 0 6px; line-height: 1.4;
+        display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        min-height: calc(1.4em * 2);
     }
-    .product-pet-icon { font-size: 18px; margin-bottom: 6px; display: block; }
+
     .product-price-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
     .product-price {
-        font-size: 20px; font-weight: 800; color: #FF8C42;
+        font-size: 18px; font-weight: 800; color: #3b7c42;
     }
     .product-original { font-size: 13px; color: #bbb; text-decoration: line-through; }
     .product-stock {
@@ -188,14 +204,15 @@
         display: flex; align-items: center; gap: 4px;
     }
     .stock-in  { color: #3DB868; }
-    .stock-low { color: #FF8C42; }
+    .stock-low { color: #3b7c42; }
     .stock-out { color: #e44; }
     .btn-add-to-cart {
         width: 100%; padding: 10px;
-        background: #FF8C42; color: white;
+        background: #3b7c42; color: white;
         border: none; border-radius: 8px;
         font-size: 14px; font-weight: 700;
         cursor: pointer; transition: opacity .2s;
+        margin-top: auto;
     }
     .btn-add-to-cart:hover { opacity: .88; }
     .btn-add-to-cart:disabled { background: #ccc; cursor: not-allowed; }
@@ -371,23 +388,63 @@
                     <span>∨</span>
                 </div>
                 @php
-                    $petIcons = ['dogs'=>'🐕', 'cats'=>'🐱', 'birds'=>'🐦', 'fish'=>'🐠', 'smallmammals'=>'🐹', 'reptiles'=>'🦎'];
+                    $lifeStageMap = [
+                        'dog' => ['puppy' => 'Puppy', 'adult' => 'Adult', 'senior' => 'Senior'],
+                        'dogs' => ['puppy' => 'Puppy', 'adult' => 'Adult', 'senior' => 'Senior'],
+                        'cat' => ['kitten' => 'Kitten', 'adult' => 'Adult', 'senior' => 'Senior'],
+                        'cats' => ['kitten' => 'Kitten', 'adult' => 'Adult', 'senior' => 'Senior'],
+                        'bird' => ['chick' => 'Chick', 'adult' => 'Adult'],
+                        'birds' => ['chick' => 'Chick', 'adult' => 'Adult'],
+                        'fish' => ['fry' => 'Fry', 'adult' => 'Adult'],
+                        'reptile' => ['juvenile' => 'Juvenile', 'adult' => 'Adult'],
+                        'reptiles' => ['juvenile' => 'Juvenile', 'adult' => 'Adult'],
+                        'small-mammals' => ['young' => 'Young', 'adult' => 'Adult'],
+                        'small mammals' => ['young' => 'Young', 'adult' => 'Adult'],
+                    ];
                 @endphp
                 @foreach($petTypes as $pt)
-                    @php
-                        $rawVal = strtolower($pt->animal_type);
-                        $formattedVal = preg_replace('/[^a-z]/', '', $rawVal); // Make 'small-mammals' and 'small mammals' map to 'smallmammals'
-                        $emoji = $petIcons[$formattedVal] ?? '🐾';
+                    @php 
+                        $ptKey = strtolower($pt->animal_type); 
+                        $hasSubFiltersChecked = false;
+                        if (isset($lifeStageMap[$ptKey])) {
+                            foreach (array_keys($lifeStageMap[$ptKey]) as $v) {
+                                if (in_array($pt->animal_type . '_' . $v, request()->input('life_stage', []))) {
+                                    $hasSubFiltersChecked = true;
+                                    break;
+                                }
+                            }
+                        }
                     @endphp
-                    <label class="filter-label">
-                        <div class="filter-label-left">
-                            <input type="checkbox" name="pet_type[]" value="{{ $pt->animal_type }}"
-                                {{ in_array($pt->animal_type, request()->input('pet_type', [])) ? 'checked' : '' }}
-                                onchange="document.getElementById('filterForm').submit()">
-                            <span>{{ $emoji }} {{ ucfirst($pt->animal_type) }}</span>
-                        </div>
-                        <span class="filter-count">({{ $pt->count }})</span>
-                    </label>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: {{ isset($lifeStageMap[$ptKey]) ? '6px' : '10px' }};">
+                        <label class="filter-label" style="margin-bottom: 0; flex: 1;">
+                            <div class="filter-label-left">
+                                <input type="checkbox" name="pet_type[]" value="{{ $pt->animal_type }}"
+                                    {{ in_array($pt->animal_type, request()->input('pet_type', [])) ? 'checked' : '' }}
+                                    onchange="document.getElementById('filterForm').submit()">
+                                <span>{{ ucfirst($pt->animal_type) }}</span>
+                            </div>
+                            <span class="filter-count">({{ $pt->count }})</span>
+                        </label>
+                        @if(isset($lifeStageMap[$ptKey]))
+                        <button type="button" class="btn-toggle-sub {{ $hasSubFiltersChecked ? 'expanded' : '' }}" onclick="toggleSubgroup('sub_{{ $ptKey }}', this)" aria-label="Toggle subfilters">
+                            <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                        </button>
+                        @endif
+                    </div>
+                    @if(isset($lifeStageMap[$ptKey]))
+                    <div id="sub_{{ $ptKey }}" style="margin-left: 26px; margin-bottom: 10px; display: {{ $hasSubFiltersChecked ? 'flex' : 'none' }}; flex-direction: column; gap: 8px;">
+                        @foreach($lifeStageMap[$ptKey] as $stageVal => $stageLabel)
+                        <label class="filter-label" style="margin-bottom: 0;">
+                            <div class="filter-label-left">
+                                <input type="checkbox" name="life_stage[]" value="{{ $pt->animal_type . '_' . $stageVal }}"
+                                    {{ in_array($pt->animal_type . '_' . $stageVal, request()->input('life_stage', [])) ? 'checked' : '' }}
+                                    onchange="document.getElementById('filterForm').submit()">
+                                <span style="font-size: 13px;">{{ $stageLabel }}</span>
+                            </div>
+                        </label>
+                        @endforeach
+                    </div>
+                    @endif
                 @endforeach
             </div>
 
@@ -398,15 +455,45 @@
                     <span>∨</span>
                 </div>
                 @foreach($categories as $cat)
-                    <label class="filter-label">
-                        <div class="filter-label-left">
-                            <input type="checkbox" name="category[]" value="{{ $cat->id }}"
-                                {{ in_array($cat->id, request()->input('category', [])) ? 'checked' : '' }}
-                                onchange="document.getElementById('filterForm').submit()">
-                            <span>{{ $cat->category_name }}</span>
-                        </div>
-                        <span class="filter-count">({{ $cat->products_count ?? 0 }})</span>
-                    </label>
+                    @php 
+                        $hasFoodSubFiltersChecked = stripos($cat->category_name, 'food') !== false && !empty(request()->input('food_type', []));
+                    @endphp
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: {{ stripos($cat->category_name, 'food') !== false ? '6px' : '10px' }};">
+                        <label class="filter-label" style="margin-bottom: 0; flex: 1;">
+                            <div class="filter-label-left">
+                                <input type="checkbox" name="category[]" value="{{ $cat->id }}"
+                                    {{ in_array($cat->id, request()->input('category', [])) ? 'checked' : '' }}
+                                    onchange="document.getElementById('filterForm').submit()">
+                                <span>{{ $cat->category_name }}</span>
+                            </div>
+                            <span class="filter-count">({{ $cat->products_count ?? 0 }})</span>
+                        </label>
+                        @if(stripos($cat->category_name, 'food') !== false)
+                        <button type="button" class="btn-toggle-sub {{ $hasFoodSubFiltersChecked ? 'expanded' : '' }}" onclick="toggleSubgroup('sub_cat_{{ $cat->id }}', this)" aria-label="Toggle subfilters">
+                            <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                        </button>
+                        @endif
+                    </div>
+                    @if(stripos($cat->category_name, 'food') !== false)
+                    <div id="sub_cat_{{ $cat->id }}" style="margin-left: 26px; margin-bottom: 10px; display: {{ $hasFoodSubFiltersChecked ? 'flex' : 'none' }}; flex-direction: column; gap: 8px;">
+                        <label class="filter-label" style="margin-bottom: 0;">
+                            <div class="filter-label-left">
+                                <input type="checkbox" name="food_type[]" value="wet"
+                                    {{ in_array('wet', request()->input('food_type', [])) ? 'checked' : '' }}
+                                    onchange="document.getElementById('filterForm').submit()">
+                                <span style="font-size: 13px;">Wet Food</span>
+                            </div>
+                        </label>
+                        <label class="filter-label" style="margin-bottom: 0;">
+                            <div class="filter-label-left">
+                                <input type="checkbox" name="food_type[]" value="dry"
+                                    {{ in_array('dry', request()->input('food_type', [])) ? 'checked' : '' }}
+                                    onchange="document.getElementById('filterForm').submit()">
+                                <span style="font-size: 13px;">Dry Food</span>
+                            </div>
+                        </label>
+                    </div>
+                    @endif
                 @endforeach
             </div>
 
@@ -527,42 +614,43 @@
                     </div>
 
                     <div class="product-body">
+                        <div style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: 700; margin-bottom: 2px;">{{ $product->brand_name }}</div>
+                        <h3 class="product-name" style="min-height: auto; margin-bottom: 4px; cursor:pointer; transition:color 0.2s;" onmouseover="this.style.color='#3b7c42'" onmouseout="this.style.color='inherit'" onclick="window.openProductModal({{ $product->id }}, event)">{{ $product->product_name }}</h3>
+
                         <div class="product-rating">
                             <span class="stars">★★★★★</span>
                             <span class="count">(0)</span>
                         </div>
-                        <div style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: 700; margin-bottom: 2px;">{{ $product->brand_name }}</div>
-                        <h3 class="product-name" style="min-height: auto; margin-bottom: 4px; cursor:pointer; transition:color 0.2s;" onmouseover="this.style.color='#FF8C42'" onmouseout="this.style.color='inherit'" onclick="window.openProductModal({{ $product->id }}, event)">{{ $product->product_name }}</h3>
-
-                        @php
-                            $petIcons = ['dogs'=>'🐕','cats'=>'🐱','birds'=>'🐦','fish'=>'🐠','small-mammals'=>'🐹','reptiles'=>'🦎'];
-                            $petIcon = $petIcons[$product->animal_type ?? ''] ?? '🐾';
-                        @endphp
-                        <span class="product-pet-icon">{{ $petIcon }}</span>
 
                         <div class="product-price-row">
                             <span class="product-price">₱{{ number_format((float)$product->price, 0) }}</span>
                         </div>
 
                         <div class="product-stock">
-                            @if($product->stock > 0)
-                                <span class="stock-in">✓ In Stock</span>
+                            @if($product->stock > 4)
+                                <span class="stock-in">✓ In Stock ({{ $product->stock }} left)</span>
+                            @elseif($product->stock > 0)
+                                <span class="stock-low">🔥 Only {{ $product->stock }} left!</span>
                             @else
                                 <span class="stock-out">✗ Out of Stock</span>
                             @endif
                         </div>
 
-                        <form action="{{ route('cart.add') }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            <input type="hidden" name="quantity" value="1">
-                            <button
-                                type="submit"
-                                class="btn-add-to-cart"
-                                {{ $product->stock > 0 ? '' : 'disabled' }}>
-                                Add to Cart
-                            </button>
-                        </form>
+                        @auth
+                            <form action="{{ route('cart.add') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button
+                                    type="submit"
+                                    class="btn-add-to-cart"
+                                    {{ $product->stock > 0 ? '' : 'disabled' }}>
+                                    Add to Cart
+                                </button>
+                            </form>
+                        @else
+                            <a href="{{ route('login') }}" class="btn-add-to-cart" style="display: block; text-align: center; text-decoration: none; box-sizing: border-box;">Add to Cart</a>
+                        @endauth
                     </div>
                 </div>
             @empty
@@ -604,7 +692,19 @@
     function updatePriceLabel(val) {
         document.getElementById('priceMaxLabel').textContent = val;
     }
+    function toggleSubgroup(id, btn) {
+        var el = document.getElementById(id);
+        if (el.style.display === 'none') {
+            el.style.display = 'flex';
+            btn.classList.add('expanded');
+        } else {
+            el.style.display = 'none';
+            btn.classList.remove('expanded');
+        }
+    }
 </script>
 @endpush
 
 @endsection
+
+

@@ -30,6 +30,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'wants_promos',
         'wants_tips',
         'color_theme',
+        'profile_picture',
+        'address',
+        'gender',
+        'bio',
+        'date_of_birth',
     ];
 
     /**
@@ -148,5 +153,17 @@ class User extends Authenticatable implements MustVerifyEmail
     public function riderOrders()
     {
         return $this->hasMany(Order::class, 'rider_id');
+    }
+
+    /**
+     * Get the profile picture URL.
+     */
+    public function getProfilePictureUrlAttribute()
+    {
+        if ($this->profile_picture) {
+            return asset('storage/profile_pictures/' . $this->profile_picture);
+        }
+        
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->full_name) . '&color=ea580c&background=ffedd5';
     }
 }

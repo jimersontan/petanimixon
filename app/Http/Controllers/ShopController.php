@@ -33,10 +33,52 @@ class ShopController extends Controller
         // Merge: best-sellers first, then random
         $heroProducts = $bestSellers->merge($randomProducts);
 
+        $latestProducts = Product::where('product_status', 'active')
+            ->orderBy('created_at', 'desc')
+            ->limit(8)
+            ->get();
+
+        // Animal types for homepage categories icons
+        $animalTypes = \DB::table('animal_types')
+            ->where('status', 'Active')
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+
+        // Homepage promo coupons (linked to specific products)
+        $promoCoupons = \App\Models\Coupon::where('show_on_homepage', true)
+            ->where('is_active', true)
+            ->where('valid_until', '>=', now())
+            ->whereNotNull('featured_product_id')
+            ->with('featuredProduct')
+            ->orderByDesc('discount_amount')
+            ->limit(2)
+            ->get();
+
+        // Sales products (products marked as reduced/on sale)
+        $saleProducts = Product::where('product_status', 'active')
+            ->where('is_reduced', true)
+            ->orderByDesc('created_at')
+            ->limit(6)
+            ->get();
+
+        // Featured sale products for homepage right side (max 2)
+        $featuredSaleProducts = Product::where('product_status', 'active')
+            ->where('is_reduced', true)
+            ->where('is_featured', true)
+            ->orderByDesc('updated_at')
+            ->limit(2)
+            ->get();
+
         return view('user_dashboard', [
             'categories' => $categories,
             'featuredProducts' => $featured,
             'heroProducts' => $heroProducts,
+            'latestProducts' => $latestProducts,
+            'animalTypes' => $animalTypes,
+            'promoCoupons' => $promoCoupons,
+            'saleProducts' => $saleProducts,
+            'featuredSaleProducts' => $featuredSaleProducts,
         ]);
     }
 
@@ -60,6 +102,30 @@ class ShopController extends Controller
         // Filter by category
         if ($request->has('category') && !empty($request->input('category'))) {
             $query->whereIn('animal_category_id', $request->input('category'));
+        }
+
+        // Filter by food type (wet / dry)
+        if ($request->has('food_type') && !empty($request->input('food_type'))) {
+            $foodTypes = $request->input('food_type');
+            $query->whereIn('wet_or_dry', $foodTypes);
+        }
+
+        // Filter by life stage (puppy, kitten, adult, etc.)
+        if ($request->has('life_stage') && !empty($request->input('life_stage'))) {
+            $lifeStages = $request->input('life_stage');
+            $query->where(function($q) use ($lifeStages) {
+                foreach ($lifeStages as $ls) {
+                    if (strpos($ls, '_') !== false) {
+                        list($pet, $stage) = explode('_', $ls, 2);
+                        $q->orWhere(function($subQ) use ($pet, $stage) {
+                            $subQ->where('animal_type', $pet)
+                                 ->where('life_stage', $stage);
+                        });
+                    } else {
+                        $q->orWhere('life_stage', $ls);
+                    }
+                }
+            });
         }
 
         // Filter by price range

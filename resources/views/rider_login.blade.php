@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rider Login - Pet Animixon</title>
+    <title>Rider Login - PetMarkt-PH</title>
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
     <style>
         .register-left.rider-sidebar-bg {
@@ -24,7 +24,10 @@
 <body>
     <div class="register-container">
         <div class="register-header-top">
-            <div class="register-logo"><h1>🐾 Pet Animixon</h1></div>
+            <div class="register-logo" style="display:flex; align-items:center; gap:0;">
+                <img src="{{ asset('images/logo.png') }}" alt="PetMarkt-PH Logo" style="max-height: 38px; margin-right: -8px;">
+                <h1 style="margin:0; font-size:24px; color:#1f2937;">Pet <span style="color:#059669;">Markt-PH</span></h1>
+            </div>
             <a href="{{ route('login') }}" class="need-help">Customer Login →</a>
         </div>
 
@@ -79,7 +82,7 @@
                             <label for="email">Email Address</label>
                             <div class="input-wrapper">
                                 <i class="input-icon">📧</i>
-                                <input type="email" id="email" name="email" placeholder="rider@petanimixon.com" class="form-control" value="{{ old('email') }}" required autofocus>
+                                <input type="email" id="email" name="email" placeholder="jimersontan@petmarkt.com" class="form-control" value="{{ old('email') }}" required autofocus>
                             </div>
                         </div>
 
@@ -152,3 +155,5 @@
     </script>
 </body>
 </html>
+
+

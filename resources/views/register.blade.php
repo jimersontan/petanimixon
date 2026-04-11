@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account - Pet Animixon</title>
+    <title>Create Account - PetMarkt-PH</title>
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
     <link rel="stylesheet" href="{{ asset('css/themes.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/animations.css') }}">
 </head>
 <body>
     <div class="register-container">
         <div class="register-header-top">
-            <div class="register-logo"><h1>🐾 Pet Animixon</h1></div>
+            <div class="register-logo" style="display:flex; align-items:center; gap:0;">
+                <img src="{{ asset('images/logo.png') }}" alt="PetMarkt-PH Logo" style="max-height: 44px; margin-right: -10px;">
+                <h1 style="margin:0; font-size:24px; color:#1f2937;">Pet <span style="color:#ff8a00;">Markt-PH</span></h1>
+            </div>
             <a href="#" class="need-help">Need help?</a>
         </div>
 
@@ -108,6 +112,31 @@
                         <div class="form-group pet-section">
                             <label class="pet-label">Tell Us About Your Pet (Optional)</label>
                             <p class="pet-subtitle">Get personalized product recommendations!</p>
+                            <style>
+                                .pet-dropdown-btn {
+                                    padding: 16px 10px;
+                                    background: #f8f9fa;
+                                    border: 2px dashed #cbd5e1;
+                                    border-radius: 8px;
+                                    cursor: pointer;
+                                    font-size: 12px;
+                                    font-weight: 600;
+                                    color: #475569;
+                                    display: flex;
+                                    flex-direction: column;
+                                    align-items: center;
+                                    justify-content: center;
+                                    transition: all 0.3s ease;
+                                }
+                                .pet-dropdown-btn:hover {
+                                    background: #f1f5f9;
+                                    border-color: #94a3b8;
+                                }
+                                .pet-dropdown-btn .pet-emoji {
+                                    font-size: 28px;
+                                    margin-bottom: 6px;
+                                }
+                            </style>
                             <div class="pet-grid">
                                 <button type="button" class="pet-chip" data-value="dog">
                                     <span class="pet-emoji">🐕</span>
@@ -121,23 +150,29 @@
                                     <span class="pet-emoji">🐦</span>
                                     <span>Bird</span>
                                 </button>
-                                <button type="button" class="pet-chip" data-value="fish">
+                                
+                                <button type="button" id="show-more-pets" class="pet-dropdown-btn" onclick="document.querySelectorAll('.hidden-pet').forEach(el=>el.style.display='flex'); this.style.display='none';">
+                                    <span class="pet-emoji">🔽</span>
+                                    <span>More...</span>
+                                </button>
+
+                                <button type="button" class="pet-chip hidden-pet" data-value="fish" style="display:none;">
                                     <span class="pet-emoji">🐠</span>
                                     <span>Fish</span>
                                 </button>
-                                <button type="button" class="pet-chip" data-value="rabbit">
+                                <button type="button" class="pet-chip hidden-pet" data-value="rabbit" style="display:none;">
                                     <span class="pet-emoji">🐰</span>
                                     <span>Rabbit</span>
                                 </button>
-                                <button type="button" class="pet-chip" data-value="reptile">
+                                <button type="button" class="pet-chip hidden-pet" data-value="reptile" style="display:none;">
                                     <span class="pet-emoji">🦎</span>
                                     <span>Reptile</span>
                                 </button>
-                                <button type="button" class="pet-chip" data-value="insect">
+                                <button type="button" class="pet-chip hidden-pet" data-value="insect" style="display:none;">
                                     <span class="pet-emoji">🐛</span>
                                     <span>Insect</span>
                                 </button>
-                                <button type="button" class="pet-chip" data-value="other">
+                                <button type="button" class="pet-chip hidden-pet" data-value="other" style="display:none;">
                                     <span class="pet-emoji">🐾</span>
                                     <span>Other</span>
                                 </button>
@@ -209,6 +244,9 @@
         window.routes.login = "{{ route('login') }}";
     </script>
     <script src="{{ asset('js/auth.js') }}"></script>
+    <script src="{{ asset('js/animations.js') }}"></script>
 
 </body>
 </html>
+
+

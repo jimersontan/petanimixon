@@ -1,4 +1,4 @@
-<?php $__env->startSection('title', 'Checkout - Pet Animixon'); ?>
+<?php $__env->startSection('title', 'Checkout - PetMarkt-PH'); ?>
 
 <?php $__env->startPush('styles'); ?>
 <style>
@@ -13,7 +13,7 @@
     width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;
     font-size:14px; font-weight:700; background:#e0e0e0; color:#999; transition:all .3s;
 }
-.co-step.active .co-step-circle { background:#FF8C42; color:#fff; box-shadow:0 4px 12px rgba(255,140,66,.35); }
+.co-step.active .co-step-circle { background:#3b7c42; color:#fff; box-shadow:0 4px 12px rgba(255,140,66,.35); }
 .co-step.done .co-step-circle { background:#3DB868; color:#fff; }
 .co-step-label { font-size:11px; margin-top:6px; color:#999; font-weight:600; text-align:center; }
 .co-step.active .co-step-label, .co-step.done .co-step-label { color:#333; }
@@ -33,24 +33,24 @@
 .co-item-meta { font-size:12px; color:#888; }
 .co-item-price { text-align:right; white-space:nowrap; }
 .co-item-unit { font-size:12px; color:#888; }
-.co-item-total { font-size:15px; font-weight:700; color:#FF8C42; }
+.co-item-total { font-size:15px; font-weight:700; color:#3b7c42; }
 
 /* ═══ Step 2: Address ═══ */
 .co-addr-card {
     border:2px solid #e0e0e0; border-radius:12px; padding:16px; margin-bottom:12px;
     cursor:pointer; position:relative; transition:all .2s;
 }
-.co-addr-card.selected { border-color:#FF8C42; background:#fffaf5; }
-.co-addr-card input[type=radio] { position:absolute; top:16px; right:16px; accent-color:#FF8C42; }
+.co-addr-card.selected { border-color:#3b7c42; background:#fffaf5; }
+.co-addr-card input[type=radio] { position:absolute; top:16px; right:16px; accent-color:#3b7c42; }
 .co-addr-name { font-weight:700; font-size:15px; color:#222; }
 .co-addr-detail { font-size:13px; color:#666; margin-top:4px; line-height:1.5; }
-.co-new-addr-toggle { display:flex; align-items:center; gap:8px; padding:14px; border:2px dashed #ddd; border-radius:12px; cursor:pointer; color:#FF8C42; font-weight:600; font-size:14px; transition:all .2s; }
-.co-new-addr-toggle:hover { border-color:#FF8C42; background:#fffaf5; }
+.co-new-addr-toggle { display:flex; align-items:center; gap:8px; padding:14px; border:2px dashed #ddd; border-radius:12px; cursor:pointer; color:#3b7c42; font-weight:600; font-size:14px; transition:all .2s; }
+.co-new-addr-toggle:hover { border-color:#3b7c42; background:#fffaf5; }
 .co-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 .co-form-group { margin-bottom:0; }
 .co-form-group label { display:block; font-size:12px; font-weight:600; color:#555; margin-bottom:4px; }
 .co-form-group input { width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:8px; font-size:14px; }
-.co-form-group input:focus { border-color:#FF8C42; outline:none; }
+.co-form-group input:focus { border-color:#3b7c42; outline:none; }
 .co-form-full { grid-column:1/-1; }
 
 /* ═══ Geolocation Button ═══ */
@@ -90,13 +90,13 @@
     border:2px solid #e0e0e0; border-radius:12px; padding:18px 20px; margin-bottom:12px;
     cursor:pointer; display:flex; align-items:center; gap:16px; transition:all .2s;
 }
-.co-ship-option.selected { border-color:#FF8C42; background:#fffaf5; }
-.co-ship-option input[type=radio] { accent-color:#FF8C42; flex-shrink:0; width:18px; height:18px; }
+.co-ship-option.selected { border-color:#3b7c42; background:#fffaf5; }
+.co-ship-option input[type=radio] { accent-color:#3b7c42; flex-shrink:0; width:18px; height:18px; }
 .co-ship-icon { font-size:28px; flex-shrink:0; }
 .co-ship-info { flex:1; }
 .co-ship-name { font-size:15px; font-weight:700; color:#222; }
 .co-ship-desc { font-size:12px; color:#888; margin-top:2px; }
-.co-ship-price { font-size:16px; font-weight:700; color:#FF8C42; white-space:nowrap; }
+.co-ship-price { font-size:16px; font-weight:700; color:#3b7c42; white-space:nowrap; }
 .co-ship-free { color:#3DB868; }
 
 /* ═══ Step 4: Payment ═══ */
@@ -104,15 +104,15 @@
     border:2px solid #e0e0e0; border-radius:12px; padding:18px 20px; margin-bottom:12px;
     cursor:pointer; display:flex; align-items:center; gap:16px; transition:all .2s;
 }
-.co-pay-option.selected { border-color:#FF8C42; background:#fffaf5; }
-.co-pay-option input[type=radio] { accent-color:#FF8C42; flex-shrink:0; width:18px; height:18px; }
+.co-pay-option.selected { border-color:#3b7c42; background:#fffaf5; }
+.co-pay-option input[type=radio] { accent-color:#3b7c42; flex-shrink:0; width:18px; height:18px; }
 .co-pay-icon { font-size:28px; flex-shrink:0; }
 .co-pay-name { font-size:15px; font-weight:700; color:#222; }
 .co-pay-desc { font-size:12px; color:#888; margin-top:2px; }
 .co-voucher-row { display:flex; gap:10px; margin-top:16px; }
 .co-voucher-input { flex:1; padding:10px 14px; border:1px solid #ddd; border-radius:8px; font-size:14px; }
-.co-voucher-input:focus { border-color:#FF8C42; outline:none; }
-.co-voucher-btn { padding:10px 20px; background:#FF8C42; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:14px; white-space:nowrap; }
+.co-voucher-input:focus { border-color:#3b7c42; outline:none; }
+.co-voucher-btn { padding:10px 20px; background:#3b7c42; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:14px; white-space:nowrap; }
 .co-voucher-btn:hover { opacity:.88; }
 .co-voucher-msg { font-size:13px; margin-top:8px; }
 .co-voucher-msg.success { color:#3DB868; }
@@ -124,7 +124,7 @@
 .co-review-value { font-size:14px; color:#333; line-height:1.6; }
 .co-summary-row { display:flex; justify-content:space-between; padding:8px 0; font-size:14px; color:#555; }
 .co-summary-row.total { border-top:2px solid #eee; padding-top:14px; margin-top:6px; font-size:18px; font-weight:800; color:#222; }
-.co-summary-row.total span:last-child { color:#FF8C42; }
+.co-summary-row.total span:last-child { color:#3b7c42; }
 .co-discount-row { color:#3DB868; }
 
 /* ═══ Navigation Buttons ═══ */
@@ -132,9 +132,9 @@
 .co-btn { padding:14px 32px; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; border:none; transition:all .2s; }
 .co-btn-back { background:#f0f0f0; color:#555; }
 .co-btn-back:hover { background:#e0e0e0; }
-.co-btn-next { background:#FF8C42; color:#fff; }
+.co-btn-next { background:#3b7c42; color:#fff; }
 .co-btn-next:hover { opacity:.9; }
-.co-btn-place { background:#FF8C42; color:#fff; padding:16px 40px; font-size:16px; }
+.co-btn-place { background:#3b7c42; color:#fff; padding:16px 40px; font-size:16px; }
 .co-btn-place:hover { opacity:.9; }
 
 /* ═══ Responsive ═══ */
@@ -353,7 +353,7 @@
             <div class="co-card">
                 <h2>🏷️ Voucher Code <span style="font-size:13px;color:#888;font-weight:400;">(optional)</span></h2>
                 <div class="co-voucher-row">
-                    <input type="text" class="co-voucher-input" id="voucherInput" placeholder="Enter voucher code (e.g. PETLOVE10)">
+                    <input type="text" class="co-voucher-input" id="voucherInput" placeholder="Enter voucher code (e.g. PETLOVE10)" value="<?php echo e(session('active_voucher')); ?>">
                     <button type="button" class="co-voucher-btn" onclick="applyVoucher()">Apply</button>
                 </div>
                 <div class="co-voucher-msg" id="voucherMsg"></div>
@@ -442,6 +442,13 @@ function goStep(n) {
     if (n === 5) buildReview();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// Auto-activate session voucher on load
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('voucherInput').value) {
+        setTimeout(applyVoucher, 500); 
+    }
+});
 
 // Address selection
 function selectAddr(el, id) {
@@ -592,7 +599,7 @@ function useMyLocation() {
 
             // Reverse geocode using free Nominatim API (OpenStreetMap)
             fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&zoom=18&accept-language=en`, {
-                headers: { 'User-Agent': 'PetAnimixon/1.0' }
+                headers: { 'User-Agent': 'PetMarkt-PH/1.0' }
             })
             .then(r => r.json())
             .then(data => {
@@ -752,5 +759,7 @@ function fillAddressFromGeo(addr, lat, lng) {
 <script src="<?php echo e(asset('js/ph-address.js')); ?>"></script>
 <?php $__env->stopPush(); ?>
 <?php $__env->stopSection(); ?>
+
+
 
 <?php echo $__env->make('frontend.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views/frontend/checkout.blade.php ENDPATH**/ ?>

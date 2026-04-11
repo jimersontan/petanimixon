@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Sign Up - Pet Animixon</title>
+    <title>Admin Sign Up - PetMarkt-PH</title>
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
 </head>
 <body>
     <div class="admin-page">
         <div class="admin-header">
-            <div class="admin-logo"><h1>🐾 Pet Animixon</h1></div>
+            <div class="admin-logo" style="display:flex; align-items:center; gap:0;">
+                <img src="{{ asset('images/logo.png') }}" alt="PetMarkt-PH Logo" style="max-height: 38px; margin-right: -8px;">
+                <h1 style="margin:0; font-size:24px; color:#1f2937;">Pet <span style="color:#2E6C34;">Markt-PH</span></h1>
+            </div>
             <a href="{{ route('admin.login') }}" class="back-link">← Back to Admin Log In</a>
         </div>
 
@@ -38,7 +41,7 @@
                     <div class="form-group">
                         <label for="admin_email">Email*</label>
                         <div class="input-wrapper">
-                            <input type="email" id="admin_email" name="email" placeholder="admin@petanimixon.com" class="form-control" required>
+                            <input type="email" id="admin_email" name="email" placeholder="admin@petmrkt.com" class="form-control" required>
                         </div>
                         <span id="adminEmailError" class="error-message"></span>
                     </div>
@@ -94,3 +97,4 @@
     <script src="{{ asset('js/auth.js') }}"></script>
 </body>
 </html>
+

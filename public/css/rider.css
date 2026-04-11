@@ -1068,3 +1068,170 @@
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+/* ===== Mobile Fit Improvements (Rider) ===== */
+@media (max-width: 992px) {
+    .rider-body {
+        overflow-x: hidden;
+    }
+
+    .rider-layout {
+        display: block;
+        min-height: auto;
+    }
+
+    .rider-header {
+        height: auto;
+        min-height: 56px;
+        padding: 8px 12px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .rider-header .logo {
+        gap: 6px;
+        font-size: 0.95rem;
+        min-width: 0;
+    }
+
+    .rider-header .logo img {
+        max-height: 22px;
+    }
+
+    .rider-header .rider-name {
+        font-size: 0.8rem;
+        max-width: 48vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .rider-sidebar {
+        width: 100%;
+        border-right: 0;
+        border-bottom: 1px solid var(--rider-border);
+        padding: 10px;
+        overflow-x: auto;
+        overflow-y: visible;
+        white-space: nowrap;
+    }
+
+    .rider-sidebar nav {
+        display: inline-flex;
+        gap: 8px;
+        min-width: max-content;
+    }
+
+    .rider-sidebar .nav-item {
+        margin-bottom: 0;
+        padding: 9px 12px;
+    }
+
+    .rider-sidebar .logout-link {
+        display: none;
+    }
+
+    .rider-main {
+        padding: 12px;
+        overflow-x: hidden;
+    }
+
+    .rider-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        margin-bottom: 14px;
+    }
+
+    .rider-page-header h1 {
+        font-size: 1.25rem;
+    }
+
+    .rider-stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .rider-stat-card {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .rider-stat-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .active-delivery-banner .banner-details,
+    .active-order-detail .customer-info {
+        grid-template-columns: 1fr;
+    }
+
+    .order-queue {
+        gap: 10px;
+    }
+
+    .order-queue-item {
+        padding: 12px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .order-queue-actions {
+        width: 100%;
+        align-items: flex-start;
+    }
+
+    .order-queue-actions form,
+    .order-queue-actions .btn-rider-primary,
+    .order-queue-actions .btn-rider-secondary {
+        width: 100%;
+    }
+
+    .rider-card,
+    .rider-card-body,
+    .active-delivery-banner {
+        max-width: 100%;
+    }
+
+    .rider-table-wrap,
+    .table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .rider-table,
+    table {
+        min-width: 680px;
+    }
+
+    .rider-products-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .rider-header .logo .rider-badge {
+        display: none;
+    }
+
+    .rider-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rider-products-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .btn-rider-primary,
+    .btn-rider-secondary,
+    .btn-rider-white {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+

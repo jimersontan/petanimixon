@@ -35,36 +35,40 @@
         </div>
         <!-- End: Product Name -->
 
-        <!-- Field: Animal Type (searchable dropdown with Manage button) -->
+        <!-- Field: Animal Type (Multiple Selection with Chips) -->
         <div class="form-group">
-            <label for="animal_type_id">Animal Type</label>
-            <!-- Flex container: Select2 dropdown + Manage button side by side -->
-            <div style="display: flex; gap: 8px; align-items: center;">
-                <!-- Select2 Searchable Dropdown: Loads animal types from database -->
-                <div style="flex: 1;">
-                    <select name="animal_type_id" id="animal_type_id" class="form-control select2-animal" required>
-                        <option value="">Search Animal Type...</option>
-                        <!-- Loop: Render each active animal type as a dropdown option -->
-                        @foreach($animal_types as $at)
-                            <option value="{{ $at->id }}" {{ (old('animal_type_id') == $at->id || (!old('animal_type_id') && ($product->animal_type ?? '') === $at->animal_type)) ? 'selected' : '' }}>{{ $at->animal_type }}</option>
-                        @endforeach
-                        <!-- End: Animal Types Loop -->
-                    </select>
-                </div>
-                <!-- End: Select2 Dropdown -->
-
-                <!-- + Manage Button: Opens the Manage Animal Types mini modal -->
-                <button type="button" class="btn-manage-animals" id="btnManageAnimals" title="Manage Animal Types" style="
-                    background: #ea580c; color: #fff; border: none; padding: 8px 12px; border-radius: 6px;
-                    font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;
-                    display: inline-flex; align-items: center; gap: 4px; transition: background 0.2s;">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    Manage
-                </button>
-                <!-- End: Manage Button -->
+            <label>Animal Types (Select Multiple)</label>
+            <!-- Chips Container: Shows selected animals as pills -->
+            <div id="animalChipsContainer" style="
+                display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;
+                min-height: 32px; padding: 8px; background: #f9fafb; border-radius: 6px;
+                border: 1px solid #e5e7eb;">
             </div>
+            <!-- Hidden multi-select for form submission -->
+            <select name="animal_type_ids[]" id="animal_type_ids" multiple style="display: none;">
+                @foreach($animal_types as $at)
+                    <option value="{{ $at->id }}">{{ $at->animal_type }}</option>
+                @endforeach
+            </select>
+            
+            <!-- Available Animals Buttons Row -->
+            <div id="availableAnimalsRow" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+            </div>
+
+            <!-- + Manage Button -->
+            <button type="button" class="btn-manage-animals" id="btnManageAnimals" title="Manage Animal Types" style="
+                background: #ea580c; color: #fff; border: none; padding: 8px 12px; border-radius: 6px;
+                font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;
+                display: inline-flex; align-items: center; gap: 4px; transition: background 0.2s;">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Manage
+            </button>
         </div>
         <!-- End: Animal Type -->
+
+        <!-- Dynamic Life Stage Selectors (One per Selected Animal) -->
+        <div id="lifeStageContainers" style="display: none;"></div>
+        <!-- End: Life Stages -->
 
         <!-- Field: Category (required dropdown from categories table) -->
         <div class="form-group">
@@ -79,6 +83,17 @@
             </select>
         </div>
         <!-- End: Category -->
+
+        <!-- Field: Wet or Dry (conditional field for Food & Nutrition category) -->
+        <div class="form-group" id="wetOrDryGroup" style="display: none;">
+            <label for="wet_or_dry">Wet or Dry</label>
+            <select name="wet_or_dry" id="wet_or_dry" class="form-control">
+                <option value="">Select type</option>
+                <option value="wet" {{ (old('wet_or_dry', $product->wet_or_dry) == 'wet') ? 'selected' : '' }}>Wet</option>
+                <option value="dry" {{ (old('wet_or_dry', $product->wet_or_dry) == 'dry') ? 'selected' : '' }}>Dry</option>
+            </select>
+        </div>
+        <!-- End: Wet or Dry -->
 
         <!-- Field: Brand (optional dropdown from brands table) -->
         <div class="form-group">
@@ -379,6 +394,137 @@ document.addEventListener('DOMContentLoaded', function() {
     $(document).on('shown.bs.modal', function() { initSelect2(); });
     // ===== END SELECT2 INITIALIZATION =====
 
+    // ===== MULTIPLE ANIMAL TYPE SELECTION WITH PER-ANIMAL LIFE STAGES =====
+    const animalChipsContainer = document.getElementById('animalChipsContainer');
+    const availableAnimalsRow = document.getElementById('availableAnimalsRow');
+    const animalTypeSelect = document.getElementById('animal_type_ids');
+    const lifeStageContainers = document.getElementById('lifeStageContainers');
+    
+    // Life stages per animal type
+    const lifeStagesByAnimal = {
+        'cat': ['Kitten', 'Adult', 'Senior'],
+        'dog': ['Puppy', 'Adult', 'Senior'],
+        'bird': ['Chick', 'Juvenile', 'Adult'],
+        'rabbit': ['Baby', 'Adult', 'Senior'],
+        'guinea pig': ['Baby', 'Adult', 'Senior'],
+        'hamster': ['Baby', 'Adult', 'Senior'],
+        'ferret': ['Kit', 'Adult', 'Senior'],
+        'chinchilla': ['Baby', 'Adult', 'Senior'],
+        'reptile': ['Hatchling', 'Juvenile', 'Adult'],
+        'fish': ['Fry', 'Juvenile', 'Adult']
+    };
+
+    // Initialize available animals buttons
+    function renderAvailableAnimals() {
+        const selectedIds = Array.from(animalTypeSelect.selectedOptions).map(o => o.value);
+        availableAnimalsRow.innerHTML = '';
+        
+        Array.from(animalTypeSelect.options).forEach(opt => {
+            if (opt.value && !selectedIds.includes(opt.value)) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.textContent = opt.text;
+                btn.style.cssText = `
+                    padding: 8px 14px; background: #f3f4f6; border: 1px solid #d1d5db;
+                    border-radius: 20px; font-size: 13px; cursor: pointer; transition: all 0.2s;
+                    color: #374151; font-weight: 500;`;
+                btn.onmouseover = () => { btn.style.background = '#ea580c'; btn.style.color = '#fff'; btn.style.borderColor = '#ea580c'; };
+                btn.onmouseout = () => { btn.style.background = '#f3f4f6'; btn.style.color = '#374151'; btn.style.borderColor = '#d1d5db'; };
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    selectAnimal(opt.value, opt.text);
+                };
+                availableAnimalsRow.appendChild(btn);
+            }
+        });
+    }
+
+    // Select an animal type as a chip
+    function selectAnimal(value, text) {
+        const selectedIds = Array.from(animalTypeSelect.selectedOptions).map(o => o.value);
+        if (!selectedIds.includes(value)) {
+            animalTypeSelect.querySelector(`option[value="${value}"]`).selected = true;
+            updateChips();
+        }
+    }
+
+    // Remove an animal type
+    window.removeAnimal = function(value) {
+        animalTypeSelect.querySelector(`option[value="${value}"]`).selected = false;
+        updateChips();
+    };
+
+    // Update chips display and life stage selectors
+    function updateChips() {
+        const selectedIds = Array.from(animalTypeSelect.selectedOptions).map(o => o.value);
+        const selectedOptions = selectedIds.map(id => animalTypeSelect.querySelector(`option[value="${id}"]`));
+        
+        // Update chips
+        animalChipsContainer.innerHTML = '';
+        selectedOptions.forEach(opt => {
+            const chip = document.createElement('div');
+            chip.style.cssText = `
+                display: inline-flex; align-items: center; gap: 6px;
+                background: #ea580c; color: #fff; padding: 6px 12px;
+                border-radius: 20px; font-size: 13px; font-weight: 500;`;
+            chip.innerHTML = `
+                ${opt.text}
+                <button type="button" onclick="window.removeAnimal('${opt.value}')" 
+                    style="background: none; border: none; color: #fff; cursor: pointer; font-size: 16px; padding: 0;">×</button>
+            `;
+            animalChipsContainer.appendChild(chip);
+        });
+
+        // Update life stage selectors
+        updateLifeStageSelectors(selectedOptions);
+        
+        // Rebuild available animals buttons
+        renderAvailableAnimals();
+    }
+
+    // Update per-animal life stage selectors
+    function updateLifeStageSelectors(selectedOptions) {
+        lifeStageContainers.innerHTML = '';
+        
+        if (selectedOptions.length === 0) {
+            lifeStageContainers.style.display = 'none';
+            return;
+        }
+
+        lifeStageContainers.style.display = 'block';
+
+        selectedOptions.forEach((opt, idx) => {
+            const animalName = opt.text.toLowerCase();
+            const stages = lifeStagesByAnimal[animalName] || ['Adult'];
+            
+            const container = document.createElement('div');
+            container.className = 'form-group';
+            container.style.marginTop = '12px';
+            container.innerHTML = `
+                <label for="life_stage_${opt.value}" style="font-size: 13px; font-weight: 600; color: #374151;">
+                    ${opt.text} - Life Stage
+                </label>
+                <select name="life_stages[${opt.value}]" id="life_stage_${opt.value}" class="form-control">
+                    <option value="">Select life stage</option>
+                    ${stages.map(stage => `<option value="${stage.toLowerCase()}">${stage}</option>`).join('')}
+                </select>
+            `;
+            lifeStageContainers.appendChild(container);
+        });
+    }
+
+    // Initialize on page load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            renderAvailableAnimals();
+            updateChips();
+        });
+    } else {
+        renderAvailableAnimals();
+        updateChips();
+    }
+    // ===== END MULTIPLE ANIMAL TYPE SELECTION =====
+
 
     // ===== MANAGE MODAL: Element References =====
     const overlay = document.getElementById('manageAnimalOverlay');
@@ -660,3 +806,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 @endpush
 <!-- ===== END JAVASCRIPT ===== -->
+
+

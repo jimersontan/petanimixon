@@ -37,7 +37,7 @@
     display: flex; align-items: center; justify-content: center;
     margin-bottom: 16px; font-size: 26px;
 }
-.cat-icon.orange { background: #fff3e0; color: #E85D04; }
+.cat-icon.orange { background: #e9f2ea; color: #E85D04; }
 .cat-icon.blue   { background: #e3f0ff; color: #2563eb; }
 .cat-icon.red    { background: #fce4ec; color: #e53935; }
 .cat-icon.teal   { background: #e0f2f1; color: #00897b; }
@@ -100,7 +100,11 @@ $iconMap = [
                 $productCount = $category->products()->count();
             @endphp
             <a href="{{ route('categories.show', $category->id) }}" class="cat-card">
-                <div class="cat-icon {{ $map['color'] }}">{{ $map['icon'] }}</div>
+                @if($category->image_url)
+                    <div style="width: 72px; height: 72px; margin-bottom: 16px; border-radius: 50%; background-color: #f9f9f9; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; padding: 12px; box-sizing: border-box;">
+                        <img src="{{ asset('storage/' . $category->image_url) }}" alt="{{ $category->category_name }}" style="width: 100%; height: 100%; object-fit: contain;">
+                    </div>
+                @endif
                 <div class="cat-name">{{ $category->category_name }}</div>
                 <div class="cat-desc">{{ $category->description ?: 'Explore our selection' }}</div>
                 <div class="cat-count">{{ $productCount }} {{ Str::plural('product', $productCount) }}</div>
@@ -116,3 +120,5 @@ $iconMap = [
 
 </div>
 @endsection
+
+

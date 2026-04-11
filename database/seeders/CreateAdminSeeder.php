@@ -40,11 +40,11 @@ class CreateAdminSeeder extends Seeder
         }
 
         // Update or create admin user - forces is_admin = true
-        $admin = User::where('email', 'admin@petverse.com')->first();
+        $admin = User::where('email', 'admin@petmrkt.com')->first();
         if ($admin) {
             $admin->update($adminData);
         } else {
-            $adminData['email'] = 'admin@petverse.com';
+            $adminData['email'] = 'admin@petmrkt.com';
             $admin = User::create($adminData);
         }
 
@@ -64,16 +64,16 @@ class CreateAdminSeeder extends Seeder
         }
 
         // Update or create test user - forces is_admin = false
-        $user = User::where('email', 'user@petverse.com')->first();
+        $user = User::where('email', 'user@petmarkt.com')->first();
         if ($user) {
             $user->update($userData);
         } else {
-            $userData['email'] = 'user@petverse.com';
+            $userData['email'] = 'user@petmarkt.com';
             User::create($userData);
         }
 
         echo "Admin user seeded successfully!" . PHP_EOL;
-        echo "Admin: admin@petverse.com | Password: Admin@123456" . PHP_EOL;
-        echo "Test User: user@petverse.com | Password: User@123456" . PHP_EOL;
+        echo "Admin: admin@petmrkt.com | Password: Admin@123456" . PHP_EOL;
+        echo "Test User: user@petmarkt.com | Password: User@123456" . PHP_EOL;
     }
 }

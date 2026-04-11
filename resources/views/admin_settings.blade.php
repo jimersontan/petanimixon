@@ -475,12 +475,12 @@
                     <div class="grid-column">
                         <div class="form-group">
                             <label for="store_name">Store Name</label>
-                            <input type="text" id="store_name" name="store_name" class="settings-input" value="{{ old('store_name', $s->store_name ?? '') }}" placeholder="e.g. Pet Animixon">
+                            <input type="text" id="store_name" name="store_name" class="settings-input" value="{{ old('store_name', $s->store_name ?? '') }}" placeholder="e.g. PetMarkt-PH">
                         </div>
                         
                         <div class="form-group">
                             <label for="store_email">Store Email</label>
-                            <input type="email" id="store_email" name="store_email" class="settings-input" value="{{ old('store_email', $s->store_email ?? '') }}" placeholder="support@petanimixon.com">
+                            <input type="email" id="store_email" name="store_email" class="settings-input" value="{{ old('store_email', $s->store_email ?? '') }}" placeholder="support@petmarkt-ph.com">
                         </div>
                         
                         <div class="form-group">
@@ -490,7 +490,7 @@
                         
                         <div class="form-group">
                             <label for="store_url">Store URL</label>
-                            <input type="text" id="store_url" name="store_url" class="settings-input" value="{{ old('store_url', $s->store_url ?? '') }}" placeholder="www.petanimixon.com">
+                            <input type="text" id="store_url" name="store_url" class="settings-input" value="{{ old('store_url', $s->store_url ?? '') }}" placeholder="www.petmarkt-ph.com">
                         </div>
                         
                         <div class="form-group" style="flex: 1; display:flex; flex-direction:column;">
@@ -797,7 +797,7 @@
                 </div>
                 <div class="form-group">
                     <label for="email_from_name">From Name</label>
-                    <input type="text" name="email_from_name" class="settings-input" value="{{ $extra['email_from_name'] ?? ($s->store_name ?? 'Pet Animixon') }}">
+                    <input type="text" name="email_from_name" class="settings-input" value="{{ $extra['email_from_name'] ?? ($s->store_name ?? 'PetMarkt-PH') }}">
                 </div>
 
                 <div class="panel-footer">
@@ -991,3 +991,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 @endpush
 @endsection
+
+

@@ -1,6 +1,6 @@
 
 
-<?php $__env->startSection('title', 'FAQ - Pet Animixon'); ?>
+<?php $__env->startSection('title', 'FAQ - PetMarkt-PH'); ?>
 
 <?php $__env->startPush('styles'); ?>
 <style>
@@ -17,7 +17,7 @@
     .faq-container { max-width: 800px; margin: 40px auto; padding: 0 20px 60px; }
 
     .faq-category { margin-bottom: 36px; }
-    .faq-category-title { font-size: 20px; font-weight: 700; color: #FF8C42; margin: 0 0 16px; display: flex; align-items: center; gap: 10px; }
+    .faq-category-title { font-size: 20px; font-weight: 700; color: #3b7c42; margin: 0 0 16px; display: flex; align-items: center; gap: 10px; }
     .faq-category-title svg { flex-shrink: 0; }
 
     .faq-item { background: #fff; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden; }
@@ -31,7 +31,7 @@
     }
     .faq-question:hover { background: #fff8f3; }
     .faq-question .arrow { font-size: 18px; color: #999; transition: transform 0.3s; flex-shrink: 0; }
-    .faq-item.open .faq-question .arrow { transform: rotate(180deg); color: #FF8C42; }
+    .faq-item.open .faq-question .arrow { transform: rotate(180deg); color: #3b7c42; }
     .faq-answer {
         max-height: 0; overflow: hidden;
         transition: max-height 0.35s ease, padding 0.35s ease;
@@ -48,7 +48,7 @@
     .faq-cta p { font-size: 14px; color: #777; margin: 0 0 20px; }
     .faq-cta a {
         display: inline-block; padding: 12px 30px;
-        background: #FF8C42; color: #fff; border-radius: 8px;
+        background: #3b7c42; color: #fff; border-radius: 8px;
         text-decoration: none; font-weight: 700; font-size: 15px;
         transition: opacity 0.2s;
     }
@@ -68,7 +68,7 @@
 <div class="faq-hero">
     <div class="faq-hero-wave"></div>
     <h1>🐾 Frequently Asked Questions</h1>
-    <p>Everything you need to know about shopping at Pet Animixon</p>
+    <p>Everything you need to know about shopping at PetMarkt-PH</p>
 </div>
 
 <div class="faq-container">
@@ -180,5 +180,7 @@ function toggleFaq(btn) {
 <?php $__env->stopPush(); ?>
 
 <?php $__env->stopSection(); ?>
+
+
 
 <?php echo $__env->make('frontend.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views/frontend/faq.blade.php ENDPATH**/ ?>

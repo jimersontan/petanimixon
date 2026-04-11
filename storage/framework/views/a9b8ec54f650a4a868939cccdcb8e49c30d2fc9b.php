@@ -66,6 +66,15 @@
         </div>
         <!-- End: Animal Type -->
 
+        <!-- Field: Life Stage (conditional, depends on animal type) -->
+        <div class="form-group" id="lifeStageGroup" style="display: none;">
+            <label for="life_stage">Life Stage</label>
+            <select name="life_stage" id="life_stage" class="form-control">
+                <option value="">Select life stage</option>
+            </select>
+        </div>
+        <!-- End: Life Stage -->
+
         <!-- Field: Category (required dropdown from categories table) -->
         <div class="form-group">
             <label for="animal_category_id">Category</label>
@@ -79,6 +88,17 @@
             </select>
         </div>
         <!-- End: Category -->
+
+        <!-- Field: Wet or Dry (conditional field for Food & Nutrition category) -->
+        <div class="form-group" id="wetOrDryGroup" style="display: none;">
+            <label for="wet_or_dry">Wet or Dry</label>
+            <select name="wet_or_dry" id="wet_or_dry" class="form-control">
+                <option value="">Select type</option>
+                <option value="wet" <?php echo e((old('wet_or_dry', $product->wet_or_dry) == 'wet') ? 'selected' : ''); ?>>Wet</option>
+                <option value="dry" <?php echo e((old('wet_or_dry', $product->wet_or_dry) == 'dry') ? 'selected' : ''); ?>>Dry</option>
+            </select>
+        </div>
+        <!-- End: Wet or Dry -->
 
         <!-- Field: Brand (optional dropdown from brands table) -->
         <div class="form-group">
@@ -379,6 +399,60 @@ document.addEventListener('DOMContentLoaded', function() {
     $(document).on('shown.bs.modal', function() { initSelect2(); });
     // ===== END SELECT2 INITIALIZATION =====
 
+    // ===== LIFE STAGE CONDITIONAL LOGIC =====
+    // Map animal type names (lowercase) to their life stage options
+    const lifeStageMap = {
+        'dog':   ['Puppy', 'Adult', 'Senior'],
+        'dogs':  ['Puppy', 'Adult', 'Senior'],
+        'cat':   ['Kitten', 'Adult', 'Senior'],
+        'cats':  ['Kitten', 'Adult', 'Senior'],
+        'bird':  ['Chick', 'Adult'],
+        'birds': ['Chick', 'Adult'],
+        'fish':  ['Fry', 'Adult'],
+        'reptile':  ['Juvenile', 'Adult'],
+        'reptiles': ['Juvenile', 'Adult'],
+        'small-mammals': ['Young', 'Adult'],
+        'small mammals': ['Young', 'Adult'],
+    };
+
+    function toggleLifeStageField() {
+        const lifeStageGroup = document.getElementById('lifeStageGroup');
+        const lifeStageSelect = document.getElementById('life_stage');
+        if (!lifeStageGroup || !lifeStageSelect) return;
+
+        // Get the selected animal type text from Select2
+        const $sel = $('#animal_type_id');
+        const selectedText = $sel.find('option:selected').text().trim().toLowerCase();
+
+        const stages = lifeStageMap[selectedText] || null;
+
+        if (stages) {
+            // Save current value before rebuilding
+            const currentVal = lifeStageSelect.value;
+            lifeStageSelect.innerHTML = '<option value="">Select life stage</option>';
+            stages.forEach(stage => {
+                const opt = document.createElement('option');
+                opt.value = stage.toLowerCase();
+                opt.textContent = stage;
+                if (stage.toLowerCase() === currentVal) opt.selected = true;
+                lifeStageSelect.appendChild(opt);
+            });
+            lifeStageGroup.style.display = 'block';
+        } else {
+            lifeStageGroup.style.display = 'none';
+            lifeStageSelect.value = '';
+        }
+    }
+
+    // Listen for Select2 change events on animal type
+    $('#animal_type_id').on('change', function() {
+        toggleLifeStageField();
+    });
+
+    // Make it accessible globally for the modal open function
+    window.toggleLifeStageField = toggleLifeStageField;
+    // ===== END LIFE STAGE CONDITIONAL LOGIC =====
+
 
     // ===== MANAGE MODAL: Element References =====
     const overlay = document.getElementById('manageAnimalOverlay');
@@ -660,4 +734,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <?php $__env->stopPush(); ?>
 <!-- ===== END JAVASCRIPT ===== -->
+
+
 <?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views/products/_form.blade.php ENDPATH**/ ?>

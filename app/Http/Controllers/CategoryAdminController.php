@@ -37,7 +37,18 @@ class CategoryAdminController extends Controller
         // for modal creation form
         $parents = Category::orderBy('category_name')->get();
 
-        return view('categories_admin', compact('stats', 'categories', 'parents', 'status'));
+        // Animal types for the second table
+        $animalTypes = \DB::table('animal_types')
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get()
+            ->map(function ($t) {
+                $t->product_count = Product::where('animal_type', $t->animal_type)->count();
+                $t->image_full_url = $t->image_url ? asset('storage/' . $t->image_url) : '';
+                return $t;
+            });
+
+        return view('categories_admin', compact('stats', 'categories', 'parents', 'status', 'animalTypes'));
     }
 
 
@@ -106,6 +117,9 @@ class CategoryAdminController extends Controller
         // Only allow permanent deletion of inactive (draft) categories
         if ($category->is_active) {
             return redirect()->route('categories.admin')->with('error', 'Only inactive categories can be permanently deleted. Move to draft first.');
+        }
+        if ($category->products()->count() > 0) {
+            return redirect()->route('categories.admin')->with('error', 'Cannot delete category. It contains products. Reassign or delete the products first.');
         }
         $category->delete();
         return redirect()->route('categories.admin')->with('success', 'Category permanently deleted');

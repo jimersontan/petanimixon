@@ -1,6 +1,6 @@
 
 
-<?php $__env->startSection('title', 'Shopping Cart - Pet Animixon'); ?>
+<?php $__env->startSection('title', 'Shopping Cart - PetMarkt-PH'); ?>
 
 <?php $__env->startPush('styles'); ?>
 <style>
@@ -32,13 +32,13 @@
     }
     .cart-item-tag {
         display: inline-block; font-size: 11.5px; font-weight: 600;
-        color: #FF8C42; background: #fff4ec; border-radius: 20px;
+        color: #3b7c42; background: #fff4ec; border-radius: 20px;
         padding: 2px 10px; margin-bottom: 6px;
     }
     .cart-item-details { font-size: 12.5px; color: #888; margin-bottom: 4px; }
     .cart-item-status-in   { font-size: 12px; color: #3DB868; font-weight: 600; }
-    .cart-item-status-low  { font-size: 12px; color: #FF8C42; font-weight: 600; }
-    .cart-item-wishlist    { font-size: 12px; color: #FF8C42; text-decoration: none; font-weight: 600; }
+    .cart-item-status-low  { font-size: 12px; color: #3b7c42; font-weight: 600; }
+    .cart-item-wishlist    { font-size: 12px; color: #3b7c42; text-decoration: none; font-weight: 600; }
     .cart-item-wishlist:hover { text-decoration: underline; }
 
     /* Qty + price row */
@@ -65,7 +65,7 @@
     }
     .cart-item-price-col { text-align: right; }
     .each-label  { font-size: 11.5px; color: #aaa; }
-    .item-total  { font-size: 17px; font-weight: 800; color: #FF8C42; }
+    .item-total  { font-size: 17px; font-weight: 800; color: #3b7c42; }
     .delete-btn  {
         background: #fee2e2; border: none; cursor: pointer;
         font-size: 15px; color: #ef4444; 
@@ -92,16 +92,16 @@
         border-top: 1px solid #eee; padding-top: 14px;
         margin-top: 4px;
     }
-    .summary-row.total .total-val { color: #FF8C42; font-size: 20px; }
+    .summary-row.total .total-val { color: #3b7c42; font-size: 20px; }
     .free-ship { color: #3DB868; font-weight: 700; font-size: 13px; }
     .promo-link {
         font-size: 12px; color: #888; cursor: pointer;
         display: block; margin-bottom: 18px;
     }
-    .promo-link:hover { color: #FF8C42; }
+    .promo-link:hover { color: #3b7c42; }
     .btn-checkout {
         width: 100%; padding: 14px;
-        background: #FF8C42; color: white;
+        background: #3b7c42; color: white;
         border: none; border-radius: 10px;
         font-size: 15px; font-weight: 800;
         cursor: pointer; transition: opacity .2s;
@@ -131,7 +131,7 @@
     }
     .continue-link { 
         padding: 8px 20px; border-radius: 20px;
-        font-size: 13px; color: #FF8C42; text-decoration: none; font-weight: 600; 
+        font-size: 13px; color: #3b7c42; text-decoration: none; font-weight: 600; 
         background: #fff4ec; transition: all .2s;
         display: inline-flex; align-items: center; justify-content: center;
     }
@@ -153,7 +153,7 @@
     .ymal-img   { width: 100%; height: 160px; object-fit: cover; }
     .ymal-body  { padding: 12px; }
     .ymal-name  { font-size: 13px; font-weight: 600; color: #222; margin: 0 0 4px; }
-    .ymal-price { font-size: 14px; font-weight: 800; color: #FF8C42; }
+    .ymal-price { font-size: 14px; font-weight: 800; color: #3b7c42; }
 
     /* ========== RESPONSIVE ========== */
     @media (max-width: 768px) {
@@ -235,6 +235,18 @@
 
 <?php $__env->startSection('content'); ?>
 <div class="cart-page">
+    <?php if(session('error')): ?>
+        <div style="background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; font-size: 14px; font-weight: 600;">
+            ⚠️ <?php echo e(session('error')); ?>
+
+        </div>
+    <?php endif; ?>
+    <?php if(session('message')): ?>
+        <div style="background: #dcfce7; color: #16a34a; border: 1px solid #86efac; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; font-size: 14px; font-weight: 600;">
+            ✓ <?php echo e(session('message')); ?>
+
+        </div>
+    <?php endif; ?>
     <h1 class="cart-heading">Shopping Cart</h1>
     <p class="cart-sub">(<?php echo e($cart->items->count()); ?> items in your cart)</p>
 
@@ -250,7 +262,14 @@
                         <h3 class="cart-item-name"><?php echo e($item->product->product_name); ?></h3>
                         <span class="cart-item-tag">🐕 <?php echo e($item->product->category->category_name ?? 'Pet'); ?></span>
                         <div class="cart-item-details"><?php echo e($item->product->short_description); ?></div>
-                        <div class="cart-item-status-in">In Stock</div>
+                        <?php $itemStock = $item->product->stock; ?>
+                        <?php if($itemStock > 4): ?>
+                            <div class="cart-item-status-in">✓ In Stock (<?php echo e($itemStock); ?> available)</div>
+                        <?php elseif($itemStock > 0): ?>
+                            <div class="cart-item-status-low" style="color: #e67e22;">🔥 Only <?php echo e($itemStock); ?> left!</div>
+                        <?php else: ?>
+                            <div style="font-size: 12px; color: #ef4444; font-weight: 600;">✗ Out of Stock</div>
+                        <?php endif; ?>
                         
                         <div class="cart-item-bottom">
                             <div>
@@ -258,9 +277,9 @@
                                 <div class="qty-control">
                                     <form action="<?php echo e(route('cart.update', $item->id)); ?>" method="POST" style="display: flex; align-items: center;">
                                         <?php echo csrf_field(); ?>
-                                        <button type="button" class="qty-btn" onclick="this.form.quantity.value--; this.form.submit()">−</button>
+                                        <button type="button" class="qty-btn" onclick="let v=this.form.quantity;if(+v.value>1){v.value=+v.value-1;this.form.submit();}">−</button>
                                         <input type="number" name="quantity" value="<?php echo e($item->quantity); ?>" class="qty-val" readonly>
-                                        <button type="button" class="qty-btn" onclick="this.form.quantity.value++; this.form.submit()">+</button>
+                                        <button type="button" class="qty-btn" onclick="let v=this.form.quantity;let mx=<?php echo e($itemStock); ?>;if(+v.value<mx){v.value=+v.value+1;this.form.submit();}else{alert('Only '+mx+' unit(s) available.')}">+</button>
                                     </form>
                                 </div>
                             </div>
@@ -327,5 +346,7 @@
     </div>
 </div>
 <?php $__env->stopSection(); ?>
+
+
 
 <?php echo $__env->make('frontend.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views/frontend/cart.blade.php ENDPATH**/ ?>

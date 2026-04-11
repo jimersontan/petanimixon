@@ -39,7 +39,7 @@ class RegisterController extends Controller
             'pet_type' => $validated['pet_type'] ?? null,
             'wants_promos' => $request->boolean('promos'),
             'wants_tips' => $request->boolean('tips'),
-            'color_theme' => 'sunset_orange',
+            'color_theme' => 'citrus_tail',
         ]);
 
         event(new \Illuminate\Auth\Events\Registered($user));

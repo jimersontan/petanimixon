@@ -1,133 +1,141 @@
 /* ═══════════════════════════════════════════════════════════════
-   PET ANIMIXON — MULTI-THEME COLOR PALETTE SYSTEM
+   PETMARKT-PH — MULTI-THEME COLOR PALETTE SYSTEM
    Each theme overrides the CSS custom properties defined in
    user_dashboard.css :root. Because the entire site already
    uses var(--ud-*) tokens, a single body class is all it takes
    to re-skin every page.
    ═══════════════════════════════════════════════════════════════ */
 
-/* ─────────── 1. Sunset Orange (Default) ──────────────────────
-   This is the original palette. We keep it as the baseline in
-   :root so no extra class is needed. Listed here only for
-   reference / explicit override if someone adds the class.     */
-body.theme-sunset_orange {
-    --ud-orange: #FF8844;
-    --ud-orange-light: #FFF3E0;
-    --ud-orange-dark: #e67333;
-    --ud-gradient-primary: linear-gradient(135deg, #FF8844 0%, #FF6B35 100%);
-    --ud-gradient-hero: linear-gradient(135deg, #FF8844 0%, #FF6B35 100%);
-    --ud-shadow-primary: rgba(255, 107, 53, 0.25);
-    --ud-accent: #FF6B35;
-    --ud-accent-light: #FFF0E8;
-    --ud-border-accent: rgba(255, 136, 68, 0.3);
-    --ud-border-accent-hover: rgba(255, 136, 68, 0.6);
-    --ud-hero-bg: #fdf0e6;
-    --ud-category-1: #FFD4E5;
-    --ud-category-2: #FFFFE0;
-    --ud-category-3: #D4F1F4;
-    --ud-category-4: #E0D5F0;
-    --ud-why-bg: #FFEB3B;
-    --ud-check-bullet: #FF6B35;
-}
-
-/* ─────────── 2. Golden Sunshine ──────────────────────────────
-   Warm yellow primary · Cool blue accent · Clean white base    */
-body.theme-golden_sunshine {
-    --ud-orange: #E5A700;
-    --ud-orange-light: #FFFDE7;
-    --ud-orange-dark: #C99200;
-    --ud-gradient-primary: linear-gradient(135deg, #F5B800 0%, #E5A700 100%);
-    --ud-gradient-hero: linear-gradient(135deg, #F5B800 0%, #3B82F6 100%);
-    --ud-shadow-primary: rgba(245, 184, 0, 0.25);
-    --ud-accent: #3B82F6;
-    --ud-accent-light: #EFF6FF;
-    --ud-border-accent: rgba(245, 184, 0, 0.25);
-    --ud-border-accent-hover: rgba(245, 184, 0, 0.5);
-    --ud-hero-bg: #FFFDE7;
-    --ud-category-1: #FFF9C4;
-    --ud-category-2: #DBEAFE;
-    --ud-category-3: #FEF3C7;
-    --ud-category-4: #E0E7FF;
-    --ud-why-bg: #FEF9C3;
-    --ud-check-bullet: #3B82F6;
-
-    --ud-blue: #3B82F6;
-    --ud-blue-light: #EFF6FF;
-}
-
-/* ─────────── 3. Nature Fresh ─────────────────────────────────
-   Lush green primary · Warm yellow accent · Fresh white base   */
-body.theme-nature_fresh {
-    --ud-orange: #16A34A;
-    --ud-orange-light: #F0FDF4;
-    --ud-orange-dark: #15803D;
-    --ud-gradient-primary: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
-    --ud-gradient-hero: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
-    --ud-shadow-primary: rgba(34, 197, 94, 0.25);
-    --ud-accent: #EAB308;
-    --ud-accent-light: #FEFCE8;
-    --ud-border-accent: rgba(34, 197, 94, 0.25);
-    --ud-border-accent-hover: rgba(34, 197, 94, 0.5);
-    --ud-hero-bg: #F0FDF4;
-    --ud-category-1: #DCFCE7;
-    --ud-category-2: #FEF9C3;
-    --ud-category-3: #D1FAE5;
-    --ud-category-4: #ECFDF5;
+/* ─────────── 1. Meadow & Honey (Natural) ────────────────────────
+   Lush green primary · Warm yellow accent · Fresh white base    */
+body.theme-meadow_honey {
+    --ud-orange: #10B981;
+    --ud-orange-light: #ECFDF5;
+    --ud-orange-dark: #059669;
+    --ud-gradient-primary: linear-gradient(135deg, #10B981 0%, #F59E0B 100%);
+    --ud-gradient-hero: linear-gradient(135deg, #10B981 0%, #F59E0B 100%);
+    --ud-shadow-primary: rgba(16, 185, 129, 0.25);
+    --ud-accent: #F59E0B;
+    --ud-accent-light: #FEF3C7;
+    --ud-border-accent: rgba(16, 185, 129, 0.25);
+    --ud-border-accent-hover: rgba(16, 185, 129, 0.5);
+    --ud-hero-bg: #ECFDF5;
+    --ud-category-1: #D1FAE5;
+    --ud-category-2: #FEF3C7;
+    --ud-category-3: #CCFBF1;
+    --ud-category-4: #F0FDF4;
     --ud-why-bg: #D1FAE5;
-    --ud-check-bullet: #16A34A;
-
-    --ud-green: #22C55E;
-    --ud-green-light: #F0FDF4;
+    --ud-check-bullet: #10B981;
 }
 
-/* ─────────── 4. Sakura Bloom ─────────────────────────────────
-   Calm blue primary · Soft pink accent · Airy white base       */
-body.theme-sakura_bloom {
-    --ud-orange: #3B82F6;
-    --ud-orange-light: #EFF6FF;
-    --ud-orange-dark: #2563EB;
-    --ud-gradient-primary: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
-    --ud-gradient-hero: linear-gradient(135deg, #3B82F6 0%, #EC4899 100%);
-    --ud-shadow-primary: rgba(59, 130, 246, 0.25);
-    --ud-accent: #EC4899;
-    --ud-accent-light: #FDF2F8;
-    --ud-border-accent: rgba(59, 130, 246, 0.2);
-    --ud-border-accent-hover: rgba(59, 130, 246, 0.5);
-    --ud-hero-bg: #EFF6FF;
-    --ud-category-1: #DBEAFE;
-    --ud-category-2: #FCE7F3;
-    --ud-category-3: #E0E7FF;
-    --ud-category-4: #FDF2F8;
-    --ud-why-bg: #DBEAFE;
-    --ud-check-bullet: #EC4899;
-
-    --ud-blue: #3B82F6;
-    --ud-blue-light: #EFF6FF;
+/* ─────────── 2. Sunny Paws (Energetic) ────────────────────────
+   Vibrant coral primary · Sunny yellow accent · Clean base     */
+body.theme-sunny_paws {
+    --ud-orange: #F43F5E;
+    --ud-orange-light: #FFF1F2;
+    --ud-orange-dark: #E11D48;
+    --ud-gradient-primary: linear-gradient(135deg, #F43F5E 0%, #F59E0B 100%);
+    --ud-gradient-hero: linear-gradient(135deg, #F43F5E 0%, #F59E0B 100%);
+    --ud-shadow-primary: rgba(244, 63, 94, 0.25);
+    --ud-accent: #F59E0B;
+    --ud-accent-light: #FEF3C7;
+    --ud-border-accent: rgba(244, 63, 94, 0.25);
+    --ud-border-accent-hover: rgba(244, 63, 94, 0.5);
+    --ud-hero-bg: #FFF1F2;
+    --ud-category-1: #FFE4E6;
+    --ud-category-2: #FEF3C7;
+    --ud-category-3: #FFEDD5;
+    --ud-category-4: #FFF7ED;
+    --ud-why-bg: #FFE4E6;
+    --ud-check-bullet: #F43F5E;
 }
 
-/* ─────────── 5. Cosmic Violet ────────────────────────────────
-   Rich violet primary · Pink accent · Misty white base         */
-body.theme-cosmic_violet {
-    --ud-orange: #7C3AED;
+/* ─────────── 3. Ocean Breeze (Fresh & Clean) ──────────────────
+   Calming blue primary · Mint green accent · Airy white base    */
+body.theme-ocean_breeze {
+    --ud-orange: #0EA5E9;
+    --ud-orange-light: #F0F9FF;
+    --ud-orange-dark: #0284C7;
+    --ud-gradient-primary: linear-gradient(135deg, #0EA5E9 0%, #2DD4BF 100%);
+    --ud-gradient-hero: linear-gradient(135deg, #0EA5E9 0%, #2DD4BF 100%);
+    --ud-shadow-primary: rgba(14, 165, 233, 0.25);
+    --ud-accent: #2DD4BF;
+    --ud-accent-light: #F0FDFA;
+    --ud-border-accent: rgba(14, 165, 233, 0.2);
+    --ud-border-accent-hover: rgba(14, 165, 233, 0.5);
+    --ud-hero-bg: #F0F9FF;
+    --ud-category-1: #E0F2FE;
+    --ud-category-2: #CCFBF1;
+    --ud-category-3: #CFFAFE;
+    --ud-category-4: #F0FDFA;
+    --ud-why-bg: #E0F2FE;
+    --ud-check-bullet: #0EA5E9;
+}
+
+/* ─────────── 4. Citrus Tail (Warm & Bright) ───────────────────
+   Warm orange primary · Bright yellow accent · Clean base       */
+body.theme-citrus_tail {
+    --ud-orange: #F97316;
+    --ud-orange-light: #FFF7ED;
+    --ud-orange-dark: #EA580C;
+    --ud-gradient-primary: linear-gradient(135deg, #F97316 0%, #FBBF24 100%);
+    --ud-gradient-hero: linear-gradient(135deg, #F97316 0%, #FBBF24 100%);
+    --ud-shadow-primary: rgba(249, 115, 22, 0.25);
+    --ud-accent: #FBBF24;
+    --ud-accent-light: #FFFBEB;
+    --ud-border-accent: rgba(249, 115, 22, 0.2);
+    --ud-border-accent-hover: rgba(249, 115, 22, 0.5);
+    --ud-hero-bg: #FFF7ED;
+    --ud-category-1: #FFEDD5;
+    --ud-category-2: #FEF3C7;
+    --ud-category-3: #FFFBEB;
+    --ud-category-4: #FFFAF0;
+    --ud-why-bg: #FFEDD5;
+    --ud-check-bullet: #F97316;
+}
+
+/* ─────────── 5. Lavender Sky (Soft & Calm) ────────────────────
+   Soft purple primary · Calming blue accent · Misty white base  */
+body.theme-lavender_sky {
+    --ud-orange: #8B5CF6;
     --ud-orange-light: #F5F3FF;
     --ud-orange-dark: #6D28D9;
-    --ud-gradient-primary: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
-    --ud-gradient-hero: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+    --ud-gradient-primary: linear-gradient(135deg, #8B5CF6 0%, #60A5FA 100%);
+    --ud-gradient-hero: linear-gradient(135deg, #8B5CF6 0%, #60A5FA 100%);
     --ud-shadow-primary: rgba(139, 92, 246, 0.25);
-    --ud-accent: #EC4899;
-    --ud-accent-light: #FDF2F8;
+    --ud-accent: #60A5FA;
+    --ud-accent-light: #EFF6FF;
     --ud-border-accent: rgba(139, 92, 246, 0.2);
     --ud-border-accent-hover: rgba(139, 92, 246, 0.5);
     --ud-hero-bg: #F5F3FF;
     --ud-category-1: #EDE9FE;
-    --ud-category-2: #FCE7F3;
+    --ud-category-2: #DBEAFE;
     --ud-category-3: #F3E8FF;
-    --ud-category-4: #FDF2F8;
+    --ud-category-4: #EFF6FF;
     --ud-why-bg: #EDE9FE;
-    --ud-check-bullet: #EC4899;
+    --ud-check-bullet: #8B5CF6;
+}
 
-    --ud-purple: #EDE9FE;
-    --ud-purple-light: #F5F3FF;
+/* ─────────── 6. Rosy Petal (Cute & Cozy) ──────────────────────
+   Sweet pink primary · Light pink accent · Soft white base     */
+body.theme-rosy_petal {
+    --ud-orange: #EC4899;
+    --ud-orange-light: #FDF2F8;
+    --ud-orange-dark: #DB2777;
+    --ud-gradient-primary: linear-gradient(135deg, #EC4899 0%, #FBCFE8 100%);
+    --ud-gradient-hero: linear-gradient(135deg, #EC4899 0%, #FBCFE8 100%);
+    --ud-shadow-primary: rgba(236, 72, 153, 0.25);
+    --ud-accent: #FBCFE8;
+    --ud-accent-light: #FCE7F3;
+    --ud-border-accent: rgba(236, 72, 153, 0.2);
+    --ud-border-accent-hover: rgba(236, 72, 153, 0.5);
+    --ud-hero-bg: #FDF2F8;
+    --ud-category-1: #FCE7F3;
+    --ud-category-2: #FBCFE8;
+    --ud-category-3: #F9A8D4;
+    --ud-category-4: #FDF2F8;
+    --ud-why-bg: #FCE7F3;
+    --ud-check-bullet: #EC4899;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -200,7 +208,7 @@ body.theme-cosmic_violet {
 }
 
 .theme-swatch.selected {
-    border-color: var(--swatch-primary, #FF8844);
+    border-color: var(--swatch-primary, #3b7c42);
     box-shadow: 0 4px 16px rgba(0,0,0,0.12), 0 0 0 3px var(--swatch-glow, rgba(255,136,68,0.2));
     transform: translateY(-3px);
 }
@@ -212,7 +220,7 @@ body.theme-cosmic_violet {
     right: -8px;
     width: 22px;
     height: 22px;
-    background: var(--swatch-primary, #FF8844);
+    background: var(--swatch-primary, #3b7c42);
     color: white;
     border-radius: 50%;
     display: flex;
@@ -279,7 +287,7 @@ body[class*="theme-"] .ud-hero-right.ud-hero-products-right {
 }
 
 /* Promo banner orange */
-body[class*="theme-"] .ud-promo-orange {
+body[class*="theme-"] .ud-promo-green {
     background: var(--ud-gradient-primary);
 }
 
@@ -295,7 +303,7 @@ body[class*="theme-"] .ud-why-choose {
 
 /* Why list check bullets */
 body[class*="theme-"] .ud-why-list li::before {
-    background: var(--ud-check-bullet, #FF6B35);
+    background: var(--ud-check-bullet, #2E6C34);
 }
 
 /* Category card alternating colors */
@@ -455,3 +463,5 @@ body[class*="theme-"] .product-name:hover,
 body[class*="theme-"] .ud-product-card h4 a:hover {
     color: var(--ud-orange) !important;
 }
+
+

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Available Orders - Pet Animixon Rider</title>
+    <title>Available Orders - PetMarkt-PH Rider</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/rider.css') }}">
 </head>
@@ -16,7 +16,7 @@
     <header class="rider-header">
         <div class="logo">
             <img src="{{ asset('images/logo.png') }}" alt="Logo">
-            <span>Pet <span style="color: #059669;">Animixon</span></span>
+            <span>Pet <span style="color: #059669;">Markt-PH</span></span>
             <span class="rider-badge">🛵 Rider</span>
         </div>
         <div class="header-right">
@@ -122,3 +122,5 @@
     </div>
 </body>
 </html>
+
+

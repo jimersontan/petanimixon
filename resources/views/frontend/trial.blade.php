@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Free Trial - Pet Animixon')
+@section('title', 'Free Trial - PetMarkt-PH')
 
 @push('styles')
 <style>
@@ -9,7 +9,7 @@
         color: #fff; text-align: center; padding: 60px 20px 80px; position: relative;
     }
     .trial-hero h1 { font-size: 42px; font-weight: 800; margin: 0 0 14px; }
-    .trial-hero h1 span { color: #FF8C42; }
+    .trial-hero h1 span { color: #3b7c42; }
     .trial-hero p { font-size: 16px; color: rgba(255,255,255,0.7); margin: 0 auto; max-width: 550px; }
     .trial-hero-wave { position: absolute; bottom: -2px; left: 0; right: 0; height: 40px; background: #fafafa; clip-path: ellipse(55% 100% at 50% 100%); }
 
@@ -23,7 +23,7 @@
     }
     .trial-step:hover { transform: translateY(-4px); }
     .trial-step .step-num {
-        width: 40px; height: 40px; border-radius: 50%; background: #FF8C42; color: #fff;
+        width: 40px; height: 40px; border-radius: 50%; background: #3b7c42; color: #fff;
         display: flex; align-items: center; justify-content: center;
         font-size: 18px; font-weight: 800; margin: 0 auto 16px;
     }
@@ -48,14 +48,14 @@
 
     .trial-cta {
         text-align: center;
-        background: linear-gradient(135deg, #FF8C42, #FF6B35);
+        background: linear-gradient(135deg, #3b7c42, #2E6C34);
         border-radius: 20px; padding: 50px 30px; color: #fff;
     }
     .trial-cta h3 { font-size: 26px; font-weight: 800; margin: 0 0 10px; }
     .trial-cta p { font-size: 15px; opacity: 0.9; margin: 0 0 24px; }
     .trial-cta a {
         display: inline-block; padding: 14px 36px;
-        background: #fff; color: #FF8C42; border-radius: 8px;
+        background: #fff; color: #3b7c42; border-radius: 8px;
         text-decoration: none; font-weight: 700; font-size: 15px;
         transition: transform 0.2s, box-shadow 0.2s;
     }
@@ -101,7 +101,7 @@
         padding: 10px 14px;
         border: none;
         border-radius: 8px;
-        background: #FF8C42;
+        background: #3b7c42;
         color: #fff;
         font-weight: 700;
         cursor: pointer;
@@ -168,7 +168,7 @@
             <div class="step-num">1</div>
             <span class="step-icon">📝</span>
             <h3>Sign Up</h3>
-            <p>Create your free Pet Animixon account and browse eligible trial products.</p>
+            <p>Create your free PetMarkt-PH account and browse eligible trial products.</p>
         </div>
         <div class="trial-step">
             <div class="step-num">2</div>
@@ -302,3 +302,5 @@
 })();
 </script>
 @endpush
+
+

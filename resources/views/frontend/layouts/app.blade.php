@@ -9,14 +9,15 @@
     <link rel="stylesheet" href="{{ asset('css/user_dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/themes.css') }}">
     <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/animations.css') }}">
     @stack('styles')
 </head>
-<body class="user-dashboard theme-{{ Auth::check() ? (Auth::user()->color_theme ?? 'sunset_orange') : 'sunset_orange' }}">
+<body class="user-dashboard theme-{{ Auth::check() ? (Auth::user()->color_theme ?? 'citrus_tail') : 'citrus_tail' }}">
     <header class="ud-header">
         <div class="ud-header-inner">
-            <a href="{{ route('shop') }}" class="ud-logo" style="display:flex; align-items:center; text-decoration:none;">
-                <img src="{{ asset('images/logo.png') }}" alt="Pet Animixon Logo" style="max-height: 38px; margin-right: 8px;">
-                <span class="ud-logo-text" style="font-size: 24px; color:#1f2937;">Pet <span style="color: #ff8a00; font-weight: 700;">Animixon</span></span>
+            <a href="{{ route('shop') }}" class="ud-logo" style="display:flex; align-items:center; gap:0; text-decoration:none;">
+                <img src="{{ asset('images/logo.png') }}" alt="PetMarkt-PH Logo" style="max-height: 38px; margin-right: -8px;">
+                <span class="ud-logo-text" style="font-size: 24px; color:#1f2937; margin:0;">Pet <span style="color: #ff8a00; font-weight: 700;">Markt-PH</span></span>
             </a>
 
             <nav class="ud-nav">
@@ -37,13 +38,15 @@
 
             @auth
                 <div class="ud-header-actions">
-                    <button type="button" class="ud-icon-btn hide-on-mobile" aria-label="Favorites">
+                    @include('components.user_notifications')
+
+                    <a href="{{ route('wishlist.index') }}" class="ud-icon-btn hide-on-mobile" aria-label="Wishlist" style="text-decoration:none;">
                         <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
                             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                         </svg>
-                    </button>
+                    </a>
 
-                    <a href="{{ route('cart.index') }}" class="ud-icon-btn hide-on-mobile" aria-label="Cart" style="text-decoration:none;">
+                    <a href="{{ route('cart.index') }}" class="ud-icon-btn" aria-label="Cart" style="text-decoration:none;">
                         <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
                             <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
                         </svg>
@@ -63,13 +66,16 @@
                                     Favorites <span class="ud-wishlist-count-badge" style="background:#e91e63; color:white; padding:2px 8px; border-radius:10px; font-size:11px;">0</span>
                                 </a>
                                 <a href="{{ route('cart.index') }}" style="display: flex; justify-content: space-between; align-items: center;">
-                                    Cart <span class="ud-cart-count" style="background:#FF8844; color:white; padding:2px 8px; border-radius:10px; font-size:11px;">0</span>
+                                    Cart <span class="ud-cart-count" style="background:#3b7c42; color:white; padding:2px 8px; border-radius:10px; font-size:11px;">0</span>
                                 </a>
                                 <hr style="border:0; border-top:1px solid #f0f0f0; margin: 4px 0;">
                             </div>
                             <a href="{{ route('profile.edit') }}">My Account</a>
+                            <a href="{{ route('user.notifications') }}">Notifications</a>
+                            <a href="{{ route('wishlist.index') }}">My Wishlist</a>
                             @if(! (Auth::user()->isAdmin() ?? false))
                                 <a href="{{ route('orders') }}">My Orders</a>
+                                <a href="{{ route('returns.index') }}">My Returns</a>
                             @endif
                             <a href="{{ route('faq') }}">FAQ</a>
                             <form method="POST" action="{{ route('logout') }}">
@@ -97,9 +103,9 @@
     <footer class="site-footer">
         <div class="footer-inner">
             <div class="footer-col footer-brand">
-                <a href="{{ route('shop') }}" class="footer-logo">
-                    <img src="{{ asset('images/logo.png') }}" alt="Pet Animixon" style="max-height:36px;">
-                    <span>Pet <strong>Animixon</strong></span>
+                <a href="{{ route('shop') }}" class="footer-logo" style="display:flex; align-items:center; gap:0; text-decoration:none;">
+                    <img src="{{ asset('images/logo.png') }}" alt="PetMarkt-PH" style="max-height:36px; margin-right: -8px;">
+                    <span style="font-size: 20px; font-weight: 400;">Pet <strong style="font-weight:700;">Markt-PH</strong></span>
                 </a>
                 <p class="footer-tagline">Your one-stop shop for premium pet products. Quality care for every furry, feathered & scaly friend.</p>
                 <div class="footer-socials">
@@ -115,6 +121,7 @@
                     <li><a href="{{ route('shop.all') }}">Shop</a></li>
                     <li><a href="{{ route('categories') }}">Categories</a></li>
                     <li><a href="{{ route('brands') }}">Brands</a></li>
+                    <li><a href="{{ route('vouchers') }}">Vouchers & Promos</a></li>
                 </ul>
             </div>
             <div class="footer-col">
@@ -133,8 +140,22 @@
                 </ul>
             </div>
         </div>
+
+        {{-- Newsletter Subscription --}}
+        <div class="footer-newsletter" style="background: linear-gradient(135deg, #ea580c15, #f9731620); border-radius: 12px; padding: 24px 32px; margin: 0 24px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+            <div>
+                <h4 style="margin: 0 0 4px; font-size: 16px; color: #1a1a2e; font-weight: 700;">🐾 Get Pet Deals & Tips</h4>
+                <p style="margin: 0; font-size: 13px; color: #666;">Subscribe to our newsletter for exclusive offers!</p>
+            </div>
+            <form id="newsletterForm" style="display: flex; gap: 8px; flex: 1; max-width: 400px;" onsubmit="return submitNewsletter(event)">
+                <input type="email" id="newsletterEmail" placeholder="your@email.com" required style="flex: 1; padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none;">
+                <button type="submit" style="background: #ea580c; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; white-space: nowrap; transition: background 0.2s;">Subscribe</button>
+            </form>
+            <div id="newsletterMsg" style="display:none; font-size: 13px; font-weight: 600; width: 100%; text-align: center;"></div>
+        </div>
+
         <div class="footer-bottom">
-            <p>&copy; {{ date('Y') }} Pet Animixon. All rights reserved.</p>
+            <p>&copy; {{ date('Y') }} PetMarkt-PH. All rights reserved.</p>
         </div>
     </footer>
 
@@ -183,6 +204,43 @@
     </div>
 
     <script src="{{ asset('js/user_dashboard.js') }}"></script>
+    <script src="{{ asset('js/animations.js') }}"></script>
+    <script>
+    function submitNewsletter(e) {
+        e.preventDefault();
+        const email = document.getElementById('newsletterEmail').value;
+        const msg = document.getElementById('newsletterMsg');
+        const form = document.getElementById('newsletterForm');
+
+        fetch('{{ route("newsletter.subscribe") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ email: email })
+        })
+        .then(r => r.json())
+        .then(data => {
+            msg.style.display = 'block';
+            msg.style.color = data.success ? '#16a34a' : '#dc2626';
+            msg.textContent = data.message;
+            if (data.success) {
+                form.reset();
+                setTimeout(() => { msg.style.display = 'none'; }, 5000);
+            }
+        })
+        .catch(() => {
+            msg.style.display = 'block';
+            msg.style.color = '#dc2626';
+            msg.textContent = 'Something went wrong. Please try again.';
+        });
+        return false;
+    }
+
+    </script>
     @stack('scripts')
 </body>
 </html>
+

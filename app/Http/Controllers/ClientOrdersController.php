@@ -28,7 +28,7 @@ class ClientOrdersController extends Controller
         $orders = $query
             ->orderByDesc('created_at')
             ->paginate(12)
-            ->withQueryString();
+            ->appends($request->query());
 
         // Order summary stats
         $allOrders = Order::where('user_id', $user->id);

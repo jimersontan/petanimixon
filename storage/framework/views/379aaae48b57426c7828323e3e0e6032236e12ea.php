@@ -1,6 +1,6 @@
 
 
-<?php $__env->startSection('title', 'Track Order - Pet Animixon'); ?>
+<?php $__env->startSection('title', 'Track Order - PetMarkt-PH'); ?>
 
 <?php $__env->startPush('styles'); ?>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -9,7 +9,7 @@
 .track-header { text-align: center; margin-bottom: 28px; }
 .track-header h1 { font-size: 28px; font-weight: 800; color: #222; margin: 0 0 6px; }
 .track-header p { font-size: 14px; color: #888; margin: 0; }
-.track-id-badge { display: inline-block; background: #fff4ec; color: #FF8C42; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-top: 10px; }
+.track-id-badge { display: inline-block; background: #fff4ec; color: #3b7c42; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-top: 10px; }
 
 .track-card { background: #fff; border-radius: 14px; padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,.06); margin-bottom: 20px; position: relative; overflow: hidden; z-index: 0; }
 .track-card h3 { font-size: 16px; font-weight: 700; color: #222; margin: 0 0 18px; }
@@ -23,7 +23,7 @@
 }
 .eta-item { text-align: center; flex: 1; min-width: 100px; }
 .eta-label { font-size: 11px; text-transform: uppercase; font-weight: 700; color: #999; letter-spacing: .5px; }
-.eta-value { font-size: 20px; font-weight: 800; color: #FF8C42; margin-top: 2px; }
+.eta-value { font-size: 20px; font-weight: 800; color: #3b7c42; margin-top: 2px; }
 .eta-value.live { animation: pulse 1.5s infinite; }
 @keyframes  pulse { 0%,100% { opacity: 1; } 50% { opacity: .6; } }
 .eta-sub { font-size: 11px; color: #888; margin-top: 2px; }
@@ -49,7 +49,7 @@
     font-size: 10px; color: #fff;
 }
 .track-step.done .track-dot { background: #3DB868; }
-.track-step.current .track-dot { background: #FF8C42; box-shadow: 0 0 0 5px rgba(255,140,66,.2); }
+.track-step.current .track-dot { background: #3b7c42; box-shadow: 0 0 0 5px rgba(255,140,66,.2); }
 .track-step-title { font-size: 14px; font-weight: 700; color: #999; }
 .track-step.done .track-step-title, .track-step.current .track-step-title { color: #222; }
 .track-step-desc { font-size: 12px; color: #aaa; margin-top: 2px; }
@@ -61,7 +61,7 @@
 .track-detail-label { color: #888; }
 .track-detail-value { color: #333; font-weight: 600; }
 .track-detail-value.status { text-transform: uppercase; font-size: 12px; letter-spacing: .5px; padding: 3px 10px; border-radius: 12px; }
-.status-pending { background: #FFF3E0; color: #FF8C42; }
+.status-pending { background: #e9f2ea; color: #3b7c42; }
 .status-processing { background: #E3F2FD; color: #1976D2; }
 .status-shipped { background: #E8F5E9; color: #2E7D32; }
 .status-delivered { background: #E8F5E9; color: #2E7D32; }
@@ -73,11 +73,11 @@
 .track-item-img { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; background: #f5f5f5; }
 .track-item-name { font-size: 13px; font-weight: 600; color: #222; }
 .track-item-meta { font-size: 12px; color: #888; }
-.track-item-price { margin-left: auto; font-size: 14px; font-weight: 700; color: #FF8C42; }
+.track-item-price { margin-left: auto; font-size: 14px; font-weight: 700; color: #3b7c42; }
 
 .track-actions { display: flex; gap: 12px; justify-content: center; margin-top: 24px; }
 .track-btn { padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 700; text-decoration: none; transition: all .2s; }
-.track-btn-primary { background: #FF8C42; color: #fff; }
+.track-btn-primary { background: #3b7c42; color: #fff; }
 .track-btn-primary:hover { opacity: .88; }
 .track-btn-secondary { background: #f0f0f0; color: #555; }
 .track-btn-secondary:hover { background: #e0e0e0; }
@@ -224,7 +224,7 @@
         <div class="track-detail-row"><span class="track-detail-label" style="color:#3DB868;">Discount</span><span class="track-detail-value" style="color:#3DB868;">-₱<?php echo e(number_format($order->discount_amount, 2)); ?></span></div>
         <?php endif; ?>
         <div class="track-detail-row" style="font-size:16px;font-weight:800;border-top:2px solid #eee;padding-top:12px;margin-top:4px;">
-            <span>Total</span><span style="color:#FF8C42;">₱<?php echo e(number_format($order->total_amount, 2)); ?></span>
+            <span>Total</span><span style="color:#3b7c42;">₱<?php echo e(number_format($order->total_amount, 2)); ?></span>
         </div>
     </div>
 
@@ -241,8 +241,8 @@
     // ═══ CONFIG ═══
     const ORDER_STATUS = '<?php echo e($order->order_status); ?>';
 
-    // Origin: Pet Animixon store — Libertad, Butuan City
-    const ORIGIN = { lat: 8.9475, lng: 125.5406, label: 'Pet Animixon Store (Butuan, Libertad)' };
+    // Origin: PetMarkt-PH store — Libertad, Butuan City
+    const ORIGIN = { lat: 8.9475, lng: 125.5406, label: 'PetMarkt-PH Store (Butuan, Libertad)' };
 
     // Destination: buyer's address (approximate using city name for demo)
     <?php
@@ -451,7 +451,7 @@
     }
 
     function sendNotification() {
-        new Notification('🚚 Pet Animixon — Order On The Way!', {
+        new Notification('🚚 PetMarkt-PH — Order On The Way!', {
             body: 'Your order <?php echo e($order->order_id); ?> has been shipped and is heading your way. Track it live on the tracking page!',
             icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🐾</text></svg>',
             tag: 'order-shipped-<?php echo e($order->order_id); ?>',
@@ -468,5 +468,7 @@
 </script>
 <?php $__env->stopPush(); ?>
 <?php $__env->stopSection(); ?>
+
+
 
 <?php echo $__env->make('frontend.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views/frontend/order_tracking.blade.php ENDPATH**/ ?>

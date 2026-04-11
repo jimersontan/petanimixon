@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Requests - Pet Animixon Admin</title>
+    <title>Admin Requests - PetMarkt-PH Admin</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/orders.css') }}"> <!-- reuse table styles -->
 </head>
@@ -66,3 +66,4 @@
     <script src="{{ asset('js/dashboard.js') }}"></script>
 </body>
 </html>
+

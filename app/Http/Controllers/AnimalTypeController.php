@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Product;
 
 class AnimalTypeController extends Controller
@@ -13,12 +14,13 @@ class AnimalTypeController extends Controller
      */
     public function index()
     {
-        $types = DB::table('animal_types')->orderBy('id')->get();
+        $types = DB::table('animal_types')->orderBy('sort_order')->orderBy('id')->get();
 
-        // Attach usage count for each type
         $types->transform(function ($t) {
             $t->product_count = Product::where('animal_type', $t->animal_type)->count();
             $t->name = $t->animal_type;
+            $t->image_full_url = $t->image_url ? asset('storage/' . $t->image_url) : '';
+            $t->life_stages = $t->life_stages ? json_decode($t->life_stages, true) : [];
             return $t;
         });
 
@@ -45,9 +47,21 @@ class AnimalTypeController extends Controller
             return response()->json(['error' => 'This animal type already exists!'], 409);
         }
 
+        $imageUrl = null;
+        if ($request->hasFile('image')) {
+            $imageUrl = $request->file('image')->store('animal_types', 'public');
+        }
+
+        $lifeStages = $request->input('life_stages', []);
+        $lifeStagesJson = is_array($lifeStages) ? json_encode(array_values(array_filter($lifeStages))) : null;
+
         $id = DB::table('animal_types')->insertGetId([
             'animal_type' => $name,
             'status' => 'Active',
+            'image_url' => $imageUrl,
+            'description' => $request->input('description', ''),
+            'sort_order' => (int) $request->input('sort_order', 0),
+            'life_stages' => $lifeStagesJson,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -57,6 +71,11 @@ class AnimalTypeController extends Controller
             'name' => $name,
             'status' => 'Active',
             'product_count' => 0,
+            'image_url' => $imageUrl,
+            'image_full_url' => $imageUrl ? asset('storage/' . $imageUrl) : '',
+            'description' => $request->input('description', ''),
+            'sort_order' => (int) $request->input('sort_order', 0),
+            'life_stages' => $lifeStagesJson ? json_decode($lifeStagesJson, true) : [],
             'message' => 'Animal type added successfully.',
         ]);
     }
@@ -86,12 +105,38 @@ class AnimalTypeController extends Controller
             return response()->json(['error' => 'This animal type already exists!'], 409);
         }
 
-        DB::table('animal_types')->where('id', $id)->update([
-            'animal_type' => $name,
-            'updated_at' => now(),
-        ]);
+        $lifeStages = $request->input('life_stages', []);
+        $lifeStagesJson = is_array($lifeStages) ? json_encode(array_values(array_filter($lifeStages))) : null;
 
-        return response()->json(['message' => 'Animal type updated successfully.', 'name' => $name]);
+        $updateData = [
+            'animal_type' => $name,
+            'description' => $request->input('description', ''),
+            'sort_order' => (int) $request->input('sort_order', 0),
+            'life_stages' => $lifeStagesJson,
+            'updated_at' => now(),
+        ];
+
+        if ($request->hasFile('image')) {
+            // Delete old image
+            if ($type->image_url && Storage::disk('public')->exists($type->image_url)) {
+                Storage::disk('public')->delete($type->image_url);
+            }
+            $updateData['image_url'] = $request->file('image')->store('animal_types', 'public');
+        }
+
+        DB::table('animal_types')->where('id', $id)->update($updateData);
+
+        $imageUrl = $updateData['image_url'] ?? $type->image_url;
+
+        return response()->json([
+            'message' => 'Animal type updated successfully.',
+            'name' => $name,
+            'image_url' => $imageUrl,
+            'image_full_url' => $imageUrl ? asset('storage/' . $imageUrl) : '',
+            'description' => $request->input('description', ''),
+            'sort_order' => (int) $request->input('sort_order', 0),
+            'life_stages' => $lifeStagesJson ? json_decode($lifeStagesJson, true) : [],
+        ]);
     }
 
     /**
@@ -111,6 +156,11 @@ class AnimalTypeController extends Controller
                 'error' => 'This animal type is currently used by existing products. You can Draft it instead.',
                 'used_count' => $usedCount,
             ], 409);
+        }
+
+        // Delete image
+        if ($type->image_url && Storage::disk('public')->exists($type->image_url)) {
+            Storage::disk('public')->delete($type->image_url);
         }
 
         DB::table('animal_types')->where('id', $id)->delete();

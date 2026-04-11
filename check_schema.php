@@ -11,7 +11,7 @@ $cols = Schema::getColumnListing('users');
 echo "Users columns: " . implode(', ', $cols) . "\n";
 
 // Check if admin already exists
-$existing = DB::table('users')->where('email', 'admin@petverse.com')->first();
+$existing = DB::table('users')->where('email', 'admin@petmarkt-ph.com')->first();
 if ($existing) {
     echo "Admin already exists with ID: " . $existing->id . "\n";
 } else {

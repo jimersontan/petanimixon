@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'About Us - Pet Animixon')
+@section('title', 'About Us - PetMarkt-PH')
 
 @push('styles')
 <style>
@@ -12,7 +12,7 @@
         position: relative;
     }
     .about-hero h1 { font-size: 42px; font-weight: 800; margin: 0 0 14px; }
-    .about-hero h1 span { color: #FF8C42; }
+    .about-hero h1 span { color: #3b7c42; }
     .about-hero p { font-size: 16px; color: rgba(255,255,255,0.7); margin: 0; max-width: 600px; margin: 0 auto; }
     .about-hero-wave { position: absolute; bottom: -2px; left: 0; right: 0; height: 40px; background: #fafafa; clip-path: ellipse(55% 100% at 50% 100%); }
 
@@ -20,11 +20,11 @@
 
     .about-section { margin-bottom: 60px; }
     .about-section h2 { font-size: 28px; font-weight: 800; color: #222; margin: 0 0 16px; text-align: center; }
-    .about-section .accent-line { width: 50px; height: 3px; background: #FF8C42; border-radius: 2px; margin: 0 auto 30px; }
+    .about-section .accent-line { width: 50px; height: 3px; background: #3b7c42; border-radius: 2px; margin: 0 auto 30px; }
 
     .about-story { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
     .about-story-text p { font-size: 15px; line-height: 1.8; color: #555; margin: 0 0 16px; }
-    .about-story-img { border-radius: 16px; overflow: hidden; background: linear-gradient(135deg, #FF8C42, #FF6B35); min-height: 300px; display: flex; align-items: center; justify-content: center; }
+    .about-story-img { border-radius: 16px; overflow: hidden; background: linear-gradient(135deg, #3b7c42, #2E6C34); min-height: 300px; display: flex; align-items: center; justify-content: center; }
     .about-story-img .emoji-placeholder { font-size: 80px; }
 
     .mission-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
@@ -56,14 +56,14 @@
 
     .about-cta {
         text-align: center; margin-top: 50px;
-        background: linear-gradient(135deg, #FF8C42, #FF6B35);
+        background: linear-gradient(135deg, #3b7c42, #2E6C34);
         border-radius: 20px; padding: 50px 30px; color: #fff;
     }
     .about-cta h3 { font-size: 26px; font-weight: 800; margin: 0 0 10px; }
     .about-cta p { font-size: 15px; opacity: 0.9; margin: 0 0 24px; }
     .about-cta a {
         display: inline-block; padding: 14px 36px;
-        background: #fff; color: #FF8C42; border-radius: 8px;
+        background: #fff; color: #3b7c42; border-radius: 8px;
         text-decoration: none; font-weight: 700; font-size: 15px;
         transition: transform 0.2s, box-shadow 0.2s;
     }
@@ -90,7 +90,7 @@
 @section('content')
 <div class="about-hero">
     <div class="about-hero-wave"></div>
-    <h1>About <span>Pet Animixon</span></h1>
+    <h1>About <span>PetMarkt-PH</span></h1>
     <p>We're passionate pet lovers on a mission to provide the best products for your furry, feathered, and scaly family members.</p>
 </div>
 
@@ -101,7 +101,7 @@
         <div class="accent-line"></div>
         <div class="about-story">
             <div class="about-story-text">
-                <p>Pet Animixon was born from a simple belief: every pet deserves access to quality products that enhance their health, happiness, and well-being.</p>
+                <p>PetMarkt-PH was born from a simple belief: every pet deserves access to quality products that enhance their health, happiness, and well-being.</p>
                 <p>Founded by a group of dedicated pet enthusiasts, we've grown from a small local shop to a trusted online destination for pet parents across the Philippines. We carefully curate our product selection, partnering with top brands to bring you only the best.</p>
                 <p>Whether you have a playful pup, a curious cat, a chirpy bird, or a scaly companion — we're here to make pet parenthood a joyful experience.</p>
             </div>
@@ -145,7 +145,7 @@
                 <p>We only stock products we'd use for our own pets.</p>
             </div>
             <div class="value-card">
-                <div class="icon-circle" style="background: #FFF3E0;">🤝</div>
+                <div class="icon-circle" style="background: #e9f2ea;">🤝</div>
                 <h4>Trust & Care</h4>
                 <p>Honest pricing, genuine products, and responsive support.</p>
             </div>
@@ -160,3 +160,5 @@
     </div>
 </div>
 @endsection
+
+

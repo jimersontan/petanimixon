@@ -113,4 +113,6 @@
     }
 </style>
 <?php $__env->stopPush(); ?>
+
+
 <?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views/brands/_form.blade.php ENDPATH**/ ?>

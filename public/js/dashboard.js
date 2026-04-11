@@ -1,5 +1,5 @@
 /**
- * Pet Animixon Admin Dashboard - JavaScript
+ * PetMarkt-PH Admin Dashboard - JavaScript
  */
 
 (function () {

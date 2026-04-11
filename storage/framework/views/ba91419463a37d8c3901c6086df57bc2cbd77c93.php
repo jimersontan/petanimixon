@@ -92,4 +92,6 @@
     <!-- ===== END RIGHT PANEL ===== -->
 
 </div>
-<!-- ===== END TWO-PANEL FORM LAYOUT ===== --><?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views/categories/_form.blade.php ENDPATH**/ ?>
+<!-- ===== END TWO-PANEL FORM LAYOUT ===== -->
+
+<?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views/categories/_form.blade.php ENDPATH**/ ?>

@@ -1,6 +1,6 @@
 
 
-<?php $__env->startSection('title', 'My Orders - Pet Animixon'); ?>
+<?php $__env->startSection('title', 'My Orders - PetMarkt-PH'); ?>
 
 <?php $__env->startPush('styles'); ?>
 <style>
@@ -24,7 +24,7 @@
     width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
     font-size: 18px; flex-shrink: 0;
 }
-.mo-stat-icon.total { background: #fff3e0; color: #E85D04; }
+.mo-stat-icon.total { background: #e9f2ea; color: #E85D04; }
 .mo-stat-icon.pending { background: #fff8e1; color: #ff9800; }
 .mo-stat-icon.out_for_delivery { background: #e3f2fd; color: #1e88e5; }
 .mo-stat-icon.shipped { background: #f3e5f5; color: #9c27b0; }
@@ -64,7 +64,7 @@
     padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
     text-transform: capitalize; display: inline-flex; align-items: center; justify-content: center;
 }
-.mo-badge.pending { background: #fff3e0; color: #e65100; }
+.mo-badge.pending { background: #e9f2ea; color: #e65100; }
 .mo-badge.out_for_delivery, .mo-badge.out_for_delivery { background: #e1f5fe; color: #0277bd; }
 .mo-badge.shipped { background: #f3e5f5; color: #7b1fa2; }
 .mo-badge.delivered { background: #e8f5e9; color: #2e7d32; }
@@ -272,6 +272,9 @@
                                 <a href="<?php echo e(route('order.track', $order->order_id)); ?>" class="mo-btn mo-btn-primary">📍 Track Package</a>
                             <?php elseif($order->order_status === 'delivered'): ?>
                                 <a href="<?php echo e(route('order.track', $order->order_id)); ?>" class="mo-btn mo-btn-primary">⭐ Write Review</a>
+                                <?php if($order->orderItems->first()): ?>
+                                    <a href="<?php echo e(route('returns.create', $order->orderItems->first()->id)); ?>" class="mo-btn mo-btn-outline" style="border-color: #ef4444; color: #ef4444;">↩ Return</a>
+                                <?php endif; ?>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -299,7 +302,7 @@
                             <img src="<?php echo e($product->image_url); ?>" alt="<?php echo e($product->product_name); ?>" class="mo-rec-img">
                         </div>
                         <div class="mo-rec-body">
-                            <div class="mo-rec-brand"><?php echo e($product->brand_name ?: 'Pet Animixon'); ?></div>
+                            <div class="mo-rec-brand"><?php echo e($product->brand_name ?: 'PetMarkt-PH'); ?></div>
                             <h4 class="mo-rec-name"><?php echo e($product->product_name); ?></h4>
                             <div class="mo-rec-rating">
                                 <span class="mo-rec-stars">
@@ -320,5 +323,7 @@
 
 </div>
 <?php $__env->stopSection(); ?>
+
+
 
 <?php echo $__env->make('frontend.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views/frontend/orders.blade.php ENDPATH**/ ?>

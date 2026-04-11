@@ -1,0 +1,553 @@
+/* ════════════════════════════════════════════════════════════
+   PETMARKT-PH — GLOBAL ANIMATIONS
+   Scroll reveals, hover micro-interactions, staggered entrances
+   ════════════════════════════════════════════════════════════ */
+
+/* ── KEYFRAMES ─────────────────────────────────────────────── */
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInLeft {
+    from { opacity: 0; transform: translateX(-30px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideInUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.05); }
+}
+
+@keyframes ripple {
+    to { transform: scale(4); opacity: 0; }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+}
+
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+
+/* ── SCROLL REVEAL BASE ────────────────────────────────────── */
+/* Elements start invisible, JS adds .anim-visible on scroll   */
+
+.anim-fade-up,
+.anim-fade-down,
+.anim-fade-left,
+.anim-fade-right,
+.anim-fade-in,
+.anim-scale-in {
+    opacity: 0;
+    will-change: opacity, transform;
+    transition: none;
+}
+
+.anim-fade-up.anim-visible    { animation: fadeInUp    0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.anim-fade-down.anim-visible  { animation: fadeInDown  0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.anim-fade-left.anim-visible  { animation: fadeInLeft  0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.anim-fade-right.anim-visible { animation: fadeInRight 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.anim-fade-in.anim-visible    { animation: fadeIn      0.6s ease forwards; }
+.anim-scale-in.anim-visible   { animation: scaleIn    0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+/* Stagger delays for child items in grids/lists */
+.anim-stagger > *:nth-child(1)  { animation-delay: 0ms; }
+.anim-stagger > *:nth-child(2)  { animation-delay: 60ms; }
+.anim-stagger > *:nth-child(3)  { animation-delay: 120ms; }
+.anim-stagger > *:nth-child(4)  { animation-delay: 180ms; }
+.anim-stagger > *:nth-child(5)  { animation-delay: 240ms; }
+.anim-stagger > *:nth-child(6)  { animation-delay: 300ms; }
+.anim-stagger > *:nth-child(7)  { animation-delay: 360ms; }
+.anim-stagger > *:nth-child(8)  { animation-delay: 420ms; }
+.anim-stagger > *:nth-child(9)  { animation-delay: 480ms; }
+.anim-stagger > *:nth-child(10) { animation-delay: 540ms; }
+.anim-stagger > *:nth-child(11) { animation-delay: 600ms; }
+.anim-stagger > *:nth-child(12) { animation-delay: 660ms; }
+
+
+/* ── PAGE LOAD ANIMATIONS (auto, no JS needed) ─────────────── */
+
+/* Header slides down on load */
+.ud-header,
+.dashboard-header {
+    animation: fadeInDown 0.5s ease both;
+}
+
+/* Sidebar slides in from left */
+.sidebar,
+.shop-sidebar {
+    animation: fadeInLeft 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+
+/* Main content fades in */
+.main-content,
+.ud-main {
+    animation: fadeIn 0.5s ease 0.15s both;
+}
+
+/* Page titles */
+.page-title,
+.content-header h1 {
+    animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+}
+
+/* Footer */
+.site-footer {
+    animation: fadeInUp 0.6s ease 0.3s both;
+}
+
+
+/* ── METRIC / STAT CARDS (admin) ───────────────────────────── */
+
+.metrics-grid .metric-card {
+    animation: scaleIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.metrics-grid .metric-card:nth-child(1) { animation-delay: 0.15s; }
+.metrics-grid .metric-card:nth-child(2) { animation-delay: 0.25s; }
+.metrics-grid .metric-card:nth-child(3) { animation-delay: 0.35s; }
+.metrics-grid .metric-card:nth-child(4) { animation-delay: 0.45s; }
+
+.metric-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.metric-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+}
+
+.metric-value {
+    animation: countUp 0.5s ease 0.4s both;
+}
+
+
+/* ── TABLE ROWS ────────────────────────────────────────────── */
+
+.orders-table tbody tr {
+    animation: fadeInUp 0.35s ease both;
+}
+.orders-table tbody tr:nth-child(1)  { animation-delay: 0.05s; }
+.orders-table tbody tr:nth-child(2)  { animation-delay: 0.1s; }
+.orders-table tbody tr:nth-child(3)  { animation-delay: 0.15s; }
+.orders-table tbody tr:nth-child(4)  { animation-delay: 0.2s; }
+.orders-table tbody tr:nth-child(5)  { animation-delay: 0.25s; }
+.orders-table tbody tr:nth-child(6)  { animation-delay: 0.3s; }
+.orders-table tbody tr:nth-child(7)  { animation-delay: 0.35s; }
+.orders-table tbody tr:nth-child(8)  { animation-delay: 0.4s; }
+.orders-table tbody tr:nth-child(9)  { animation-delay: 0.45s; }
+.orders-table tbody tr:nth-child(10) { animation-delay: 0.5s; }
+
+.orders-table tbody tr {
+    transition: background 0.2s ease;
+}
+.orders-table tbody tr:hover {
+    background: rgba(234, 88, 12, 0.03);
+}
+
+
+/* ── PRODUCT CARDS (frontend) ──────────────────────────────── */
+
+.product-card,
+.ud-product-card {
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.3s ease;
+}
+.product-card:hover,
+.ud-product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+}
+
+/* Product image zoom on hover */
+.product-card .product-img-wrap img,
+.ud-product-card .ud-product-img img {
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.product-card:hover .product-img-wrap img,
+.ud-product-card:hover .ud-product-img img {
+    transform: scale(1.07);
+}
+
+
+/* ── BUTTONS ───────────────────────────────────────────────── */
+
+/* Universal button press effect */
+.btn-primary,
+.btn-secondary,
+.btn-add-to-cart,
+.ud-add-cart,
+.ud-btn {
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary:active,
+.btn-add-to-cart:active,
+.ud-add-cart:active,
+.ud-btn:active {
+    transform: scale(0.96);
+}
+
+/* Ripple effect container */
+.btn-ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.35);
+    transform: scale(0);
+    animation: ripple 0.6s ease-out;
+    pointer-events: none;
+}
+
+
+/* ── SIDEBAR NAV ITEMS ─────────────────────────────────────── */
+
+.sidebar .nav-item {
+    transition: background 0.2s ease, color 0.2s ease, padding-left 0.25s ease, transform 0.2s ease;
+}
+.sidebar .nav-item:hover {
+    padding-left: 18px;
+    background: rgba(234, 88, 12, 0.06);
+}
+.sidebar .nav-item .nav-icon svg {
+    transition: transform 0.25s ease;
+}
+.sidebar .nav-item:hover .nav-icon svg {
+    transform: scale(1.15);
+}
+
+
+/* ── BADGES & STATUS ───────────────────────────────────────── */
+
+.badge,
+.product-badge {
+    transition: transform 0.2s ease;
+}
+.badge:hover,
+.product-badge:hover {
+    transform: scale(1.08);
+}
+
+
+/* ── CARDS & PANELS ────────────────────────────────────────── */
+
+.card,
+.orders-table-card {
+    animation: scaleIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+    transition: box-shadow 0.3s ease;
+}
+.card:hover {
+    box-shadow: 0 8px 28px rgba(0,0,0,0.08);
+}
+
+
+/* ── MODALS ────────────────────────────────────────────────── */
+
+.modal.open,
+.ud-modal-overlay[style*="flex"],
+.ud-modal-overlay[style*="block"] {
+    animation: fadeIn 0.25s ease;
+}
+
+.modal.open .modal-header,
+.ud-modal-container {
+    animation: fadeInUp 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+
+/* ── FILTER TABS ───────────────────────────────────────────── */
+
+.order-status-tabs .order-tab {
+    transition: color 0.2s ease, border-color 0.25s ease, background 0.2s ease;
+    position: relative;
+}
+.order-status-tabs .order-tab::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: #ea580c;
+    transition: width 0.3s ease, left 0.3s ease;
+}
+.order-status-tabs .order-tab:hover::after,
+.order-status-tabs .order-tab.active::after {
+    width: 100%;
+    left: 0;
+}
+
+
+/* ── SEARCH BAR ────────────────────────────────────────────── */
+
+.search-bar,
+.ud-search-bar {
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.search-bar:focus-within,
+.ud-search-bar:focus-within {
+    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+}
+
+
+/* ── CATEGORY CARDS (frontend) ─────────────────────────────── */
+
+.ud-catcard {
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.3s ease;
+}
+.ud-catcard:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+}
+.ud-catcard img {
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ud-catcard:hover img {
+    transform: scale(1.1);
+}
+
+
+/* ── HERO SLIDER ───────────────────────────────────────────── */
+
+.ud-hero-section {
+    animation: fadeIn 0.8s ease 0.1s both;
+}
+
+
+/* ── FOOTER LINKS ──────────────────────────────────────────── */
+
+.site-footer a {
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.site-footer a:hover {
+    transform: translateX(3px);
+}
+
+.footer-socials a {
+    transition: transform 0.25s ease, background 0.25s ease;
+}
+.footer-socials a:hover {
+    transform: translateY(-3px) scale(1.1);
+}
+
+
+/* ── TOOLTIPS & ICON BUTTONS ───────────────────────────────── */
+
+.icon-btn,
+.action-btn,
+.ud-icon-btn {
+    transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+.icon-btn:hover,
+.action-btn:hover,
+.ud-icon-btn:hover {
+    transform: scale(1.12);
+}
+.icon-btn:active,
+.action-btn:active,
+.ud-icon-btn:active {
+    transform: scale(0.92);
+}
+
+
+/* ── LOADING SKELETON ──────────────────────────────────────── */
+
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 6px;
+}
+
+
+/* ── NOTIFICATION / ALERT ──────────────────────────────────── */
+
+.alert {
+    animation: fadeInDown 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+
+/* ── MOBILE BOTTOM NAV ─────────────────────────────────────── */
+
+.mobile-bottom-nav .bottom-nav-item {
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.mobile-bottom-nav .bottom-nav-item:active {
+    transform: scale(0.9);
+}
+.mobile-bottom-nav .bottom-nav-item.active svg {
+    animation: pulse 0.4s ease;
+}
+
+
+/* ── AUTH PAGES (Login / Register) ─────────────────────────── */
+
+.login-container,
+.register-container {
+    animation: fadeIn 0.5s ease;
+}
+
+.login-left,
+.register-left {
+    animation: fadeInLeft 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+
+.login-right,
+.register-right {
+    animation: fadeInRight 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+}
+
+.login-form-container,
+.register-form-wrapper {
+    animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
+}
+
+.form-group {
+    animation: fadeInUp 0.4s ease both;
+}
+.form-group:nth-child(1) { animation-delay: 0.2s; }
+.form-group:nth-child(2) { animation-delay: 0.3s; }
+.form-group:nth-child(3) { animation-delay: 0.4s; }
+.form-group:nth-child(4) { animation-delay: 0.5s; }
+
+.login-btn,
+.create-btn {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.login-btn:hover,
+.create-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(234, 88, 12, 0.3);
+}
+.login-btn:active,
+.create-btn:active {
+    transform: scale(0.97);
+}
+
+.social-btn {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.social-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.pet-chip {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.pet-chip:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.pet-illustration img {
+    animation: float 3s ease-in-out infinite;
+}
+
+.illustration-box img {
+    animation: float 3s ease-in-out infinite;
+}
+
+
+/* ── RIDER STAT CARDS ──────────────────────────────────────── */
+
+.rider-stat-card {
+    animation: scaleIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.rider-stat-card:nth-child(1) { animation-delay: 0.15s; }
+.rider-stat-card:nth-child(2) { animation-delay: 0.25s; }
+.rider-stat-card:nth-child(3) { animation-delay: 0.35s; }
+
+.rider-stat-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+}
+
+.rider-card {
+    animation: scaleIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+}
+
+.rider-table tbody tr {
+    animation: fadeInUp 0.35s ease both;
+}
+.rider-table tbody tr:nth-child(1)  { animation-delay: 0.05s; }
+.rider-table tbody tr:nth-child(2)  { animation-delay: 0.1s; }
+.rider-table tbody tr:nth-child(3)  { animation-delay: 0.15s; }
+.rider-table tbody tr:nth-child(4)  { animation-delay: 0.2s; }
+.rider-table tbody tr:nth-child(5)  { animation-delay: 0.25s; }
+
+.rider-table tbody tr {
+    transition: background 0.2s ease;
+}
+.rider-table tbody tr:hover {
+    background: rgba(234, 88, 12, 0.03);
+}
+
+.rider-modal-overlay[style*="flex"] .rider-modal {
+    animation: fadeInUp 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rider-toast {
+    animation: fadeInDown 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+
+/* ── SMOOTH SCROLLING ──────────────────────────────────────── */
+
+html {
+    scroll-behavior: smooth;
+}
+
+
+/* ── REDUCED MOTION (accessibility) ────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

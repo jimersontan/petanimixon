@@ -16,7 +16,7 @@
                     <img src="{{ $product->image_url }}" alt="{{ $product->product_name }}"
                          onerror="this.onerror=null; this.src='{{ asset('images/placeholder.png') }}'"
                          onclick="window.openProductModal({{ $product->id }}, event)" style="cursor:pointer;">
-                    <h4 onclick="window.openProductModal({{ $product->id }}, event)" style="cursor:pointer; transition:color 0.2s;" onmouseover="this.style.color='#FF8C42'" onmouseout="this.style.color='inherit'">{{ $product->product_name }}</h4>
+                    <h4 onclick="window.openProductModal({{ $product->id }}, event)" style="cursor:pointer; transition:color 0.2s;" onmouseover="this.style.color='#3b7c42'" onmouseout="this.style.color='inherit'">{{ $product->product_name }}</h4>
                     <p class="ud-price">₱{{ number_format((float)$product->price, 2) }}</p>
                     @auth
                     <form action="{{ route('cart.add') }}" method="POST">
@@ -37,3 +37,5 @@
         </div>
     </section>
 @endsection
+
+

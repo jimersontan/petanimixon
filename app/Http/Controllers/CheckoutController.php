@@ -6,6 +6,9 @@ use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\UserAddress;
+use App\Models\Coupon;
+use App\Models\CouponUsage;
+use App\Services\MockPaymentGateway;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -73,6 +76,22 @@ class CheckoutController extends Controller
                 $addressId = $address->id;
             }
 
+            // ── Stock Validation ──────────────────────────────
+            // Check every cart item has enough stock before proceeding
+            foreach ($cart->items as $item) {
+                $product = $item->product;
+                if (!$product) continue;
+
+                $availableStock = $product->stock; // sum of variant quantities
+                if ($item->quantity > $availableStock) {
+                    $name = $product->product_name;
+                    $msg = $availableStock > 0
+                        ? "Sorry, only {$availableStock} unit(s) of \"{$name}\" are in stock. Please reduce your quantity."
+                        : "\"{$name}\" is currently out of stock. Please remove it from your cart.";
+                    return redirect()->route('cart.index')->with('error', $msg);
+                }
+            }
+
             // Calculate amounts
             $subtotal = $cart->items->sum('subtotal');
             $shippingFee = $this->getShippingFee($request->shipping_method, $subtotal);
@@ -106,9 +125,49 @@ class CheckoutController extends Controller
                     'unit_price' => $item->unit_price,
                     'total_amount' => $item->subtotal,
                 ]);
+
+                // ── Instant Stock Deduction ──────────────────
+                // Reduce variant stock immediately when order is placed
+                if ($item->product) {
+                    $remaining = $item->quantity;
+                    $variants = $item->product->variants()->orderBy('id')->get();
+
+                    foreach ($variants as $variant) {
+                        if ($remaining <= 0) break;
+
+                        $deduct = min($remaining, $variant->variant_quantity);
+                        $variant->update([
+                            'variant_quantity' => max(0, $variant->variant_quantity - $deduct),
+                        ]);
+                        $remaining -= $deduct;
+                    }
+                }
+            }
+
+            // Record coupon usage if a valid coupon was applied
+            if ($request->voucher_code) {
+                $coupon = Coupon::where('coupon_code', strtoupper(trim($request->voucher_code)))->first();
+                if ($coupon) {
+                    CouponUsage::create([
+                        'coupon_id' => $coupon->id,
+                        'user_id' => Auth::id(),
+                        'order_id' => $order->id,
+                    ]);
+                }
             }
 
             $cart->update(['cart_status' => 'completed']);
+
+            $order->notifyOrderPlaced();
+
+            // Handle GCash / online payment via gateway
+            if ($request->payment_method === 'gcash') {
+                $gateway = new MockPaymentGateway();
+                $result = $gateway->createPayment($order);
+                if ($result['success'] && $result['redirect_url']) {
+                    return redirect($result['redirect_url']);
+                }
+            }
 
             return redirect()->route('checkout.success', $order->order_id);
         });
@@ -124,30 +183,45 @@ class CheckoutController extends Controller
         $code = strtoupper(trim($request->voucher_code));
         $subtotal = (float) $request->subtotal;
 
-        // Simple built-in vouchers for demo
-        $vouchers = [
-            'PETLOVE10' => ['type' => 'percent', 'value' => 10, 'min' => 0],
-            'SAVE50' => ['type' => 'fixed', 'value' => 50, 'min' => 500],
-            'FREESHIP' => ['type' => 'fixed', 'value' => 0, 'min' => 0, 'free_shipping' => true],
-            'WELCOME20' => ['type' => 'percent', 'value' => 20, 'min' => 300],
-        ];
+        // Query the coupons table for a valid, active coupon
+        $coupon = Coupon::where('coupon_code', $code)->first();
 
-        if (!isset($vouchers[$code])) {
+        if (!$coupon) {
             return response()->json(['valid' => false, 'message' => 'Invalid voucher code.']);
         }
 
-        $v = $vouchers[$code];
-        if ($subtotal < $v['min']) {
-            return response()->json(['valid' => false, 'message' => "Minimum order of ₱" . number_format($v['min']) . " required."]);
+        if (!$coupon->is_active) {
+            return response()->json(['valid' => false, 'message' => 'This coupon is no longer active.']);
         }
 
-        $discount = $v['type'] === 'percent' ? round($subtotal * $v['value'] / 100, 2) : $v['value'];
+        $now = now();
+        if ($coupon->valid_from->isAfter($now) || $coupon->valid_until->isBefore($now)) {
+            return response()->json(['valid' => false, 'message' => 'This coupon has expired.']);
+        }
+
+        if ($coupon->hasReachedMaxUsage()) {
+            return response()->json(['valid' => false, 'message' => 'This coupon has reached its usage limit.']);
+        }
+
+        if (Auth::check() && $coupon->hasUserExceededLimit(Auth::id())) {
+            return response()->json(['valid' => false, 'message' => 'You have already used this coupon the maximum number of times.']);
+        }
+
+        $discount = $coupon->calculateDiscount($subtotal);
+
+        if ($discount <= 0 && $coupon->min_order_value) {
+            return response()->json(['valid' => false, 'message' => 'Minimum order of ₱' . number_format((float) $coupon->min_order_value) . ' required.']);
+        }
+
+        $message = ($coupon->discount_type === 'percent' || $coupon->discount_type === 'percentage')
+            ? (int) $coupon->discount_amount . '% off applied!'
+            : '₱' . number_format($discount) . ' discount applied!';
 
         return response()->json([
             'valid' => true,
             'discount' => $discount,
-            'message' => $v['type'] === 'percent' ? "{$v['value']}% off applied!" : "₱" . number_format($discount) . " discount applied!",
-            'free_shipping' => $v['free_shipping'] ?? false,
+            'message' => $message,
+            'free_shipping' => false,
         ]);
     }
 
@@ -191,25 +265,51 @@ class CheckoutController extends Controller
     }
 
     /**
-     * Get discount amount from voucher code.
+     * Get discount amount from voucher code — queries the coupons table.
      */
     private function getVoucherDiscount(?string $code, float $subtotal): float
     {
         if (!$code) return 0;
 
-        $vouchers = [
-            'PETLOVE10' => ['type' => 'percent', 'value' => 10, 'min' => 0],
-            'SAVE50' => ['type' => 'fixed', 'value' => 50, 'min' => 500],
-            'FREESHIP' => ['type' => 'fixed', 'value' => 0, 'min' => 0],
-            'WELCOME20' => ['type' => 'percent', 'value' => 20, 'min' => 300],
-        ];
+        $coupon = Coupon::where('coupon_code', strtoupper(trim($code)))
+            ->where('is_active', true)
+            ->where('valid_from', '<=', now())
+            ->where('valid_until', '>=', now())
+            ->first();
 
-        $code = strtoupper(trim($code));
-        if (!isset($vouchers[$code])) return 0;
+        if (!$coupon) return 0;
 
-        $v = $vouchers[$code];
-        if ($subtotal < $v['min']) return 0;
+        return $coupon->calculateDiscount($subtotal);
+    }
 
-        return $v['type'] === 'percent' ? round($subtotal * $v['value'] / 100, 2) : $v['value'];
+    /**
+     * Payment gateway callback — handles return from external payment.
+     */
+    public function paymentCallback(Request $request)
+    {
+        $orderId = $request->query('order_id');
+        $status = $request->query('status');
+        $reference = $request->query('reference');
+
+        $order = Order::where('order_id', $orderId)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$order) {
+            return redirect()->route('orders')->with('error', 'Order not found.');
+        }
+
+        if ($status === 'success') {
+            $order->update([
+                'payment_status' => Order::PAYMENT_PENDING,
+                'payment_reference' => $reference,
+            ]);
+            return redirect()->route('checkout.success', $order->order_id);
+        }
+
+        // Payment failed
+        $order->update(['payment_status' => 'failed']);
+        return redirect()->route('checkout.success', $order->order_id)
+            ->with('error', 'Payment could not be processed. Please try again.');
     }
 }

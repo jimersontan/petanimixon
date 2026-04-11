@@ -160,7 +160,7 @@
                             @csrf
                             @method('PATCH')
                             <button type="submit" class="action-btn" title="Deactivate Brand (Move to Draft)" onclick="return confirm('Deactivate this brand and move to Draft?')">
-                                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg>
                             </button>
                         </form>
                         @else
@@ -242,6 +242,8 @@
 @push('scripts')
 <!-- Orders JS: Table interaction scripts -->
 <script src="{{ asset('js/orders.js') }}"></script>
+<!-- Image Upload Logic -->
+<script src="{{ asset('js/paste-upload.js') }}"></script>
 <script>
     function openBrandModal(mode, data = null) {
         const modal = document.getElementById('brand-modal');
@@ -293,3 +295,5 @@
     }
 </script>
 @endpush
+
+

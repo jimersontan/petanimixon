@@ -1,6 +1,6 @@
 
 
-<?php $__env->startSection('title', 'Brands - Pet Animixon'); ?>
+<?php $__env->startSection('title', 'Brands - PetMarkt-PH'); ?>
 
 <?php $__env->startSection('content'); ?>
 <!-- Hero Section -->
@@ -59,7 +59,7 @@
 
             <!-- Track Record -->
             <div style="text-align: center;">
-                <div style="font-size: 40px; margin-bottom: 15px; color: var(--ud-orange, #FF8C42);">★</div>
+                <div style="font-size: 40px; margin-bottom: 15px; color: var(--ud-orange, #3b7c42);">★</div>
                 <h3 style="font-size: 18px; color: #333; margin: 0 0 10px 0; font-weight: 600;">Proven Track Record</h3>
                 <p style="font-size: 14px; color: #666; margin: 0;">Brands with years of positive customer feedback</p>
             </div>
@@ -90,7 +90,7 @@
 
             <!-- Right: Info -->
             <div class="featured-brand-info">
-                <div style="display: inline-block; background-color: var(--ud-orange, #FF8C42); color: white; padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 20px;">Featured Brand</div>
+                <div style="display: inline-block; background-color: var(--ud-orange, #3b7c42); color: white; padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 20px;">Featured Brand</div>
                 
                 <h2 style="font-size: 32px; color: #333; margin: 0 0 15px 0; font-weight: 700;"><?php echo e($featuredBrand->name); ?></h2>
                 
@@ -108,7 +108,7 @@
                     <li style="padding: 8px 0; font-size: 14px; color: #333;">✓ Sustainable practices</li>
                 </ul>
 
-                <a href="<?php echo e(route('shop.all', ['brand' => $featuredBrand->name])); ?>" style="display: inline-block; padding: 12px 35px; background-color: var(--ud-orange, #FF8C42); color: white; text-decoration: none; border-radius: 6px; font-weight: 600; transition: background-color 0.3s;" class="btn-shop-brand">Shop Brand</a>
+                <a href="<?php echo e(route('shop.all', ['brand' => $featuredBrand->name])); ?>" style="display: inline-block; padding: 12px 35px; background-color: var(--ud-orange, #3b7c42); color: white; text-decoration: none; border-radius: 6px; font-weight: 600; transition: background-color 0.3s;" class="btn-shop-brand">Shop Brand</a>
             </div>
         </div>
     </div>
@@ -156,8 +156,8 @@
         white-space: nowrap;
     }
     .brand-tab.active {
-        border-bottom-color: var(--ud-orange, #FF8C42); 
-        color: var(--ud-orange, #FF8C42);
+        border-bottom-color: var(--ud-orange, #3b7c42); 
+        color: var(--ud-orange, #3b7c42);
     }
     .brand-tab:hover {
         opacity: 0.8;
@@ -202,7 +202,7 @@
         width: 80px;
         height: 80px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #FF8C42, #f97316);
+        background: linear-gradient(135deg, #3b7c42, #f97316);
         color: white;
         display: flex;
         align-items: center;
@@ -231,8 +231,8 @@
     .btn-view-brand {
         display: inline-block; 
         padding: 10px 25px; 
-        border: 2px solid var(--ud-orange, #FF8C42); 
-        color: var(--ud-orange, #FF8C42); 
+        border: 2px solid var(--ud-orange, #3b7c42); 
+        color: var(--ud-orange, #3b7c42); 
         text-decoration: none; 
         border-radius: 6px; 
         font-weight: 600; 
@@ -240,7 +240,7 @@
         width: 100%;
     }
     .btn-view-brand:hover {
-        background-color: var(--ud-orange, #FF8C42);
+        background-color: var(--ud-orange, #3b7c42);
         color: white !important;
         opacity: 0.9;
     }
@@ -302,9 +302,9 @@
             white-space: nowrap;
         }
         .brand-tab.active {
-            background: var(--ud-orange-light, #FFF3E0);
-            border: 1px solid var(--ud-orange, #FF8C42);
-            color: var(--ud-orange, #FF8C42);
+            background: var(--ud-orange-light, #e9f2ea);
+            border: 1px solid var(--ud-orange, #3b7c42);
+            color: var(--ud-orange, #3b7c42);
         }
 
         .brands-grid {
@@ -400,5 +400,7 @@
     }
 </style>
 <?php $__env->stopSection(); ?>
+
+
 
 <?php echo $__env->make('frontend.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views/frontend/brands.blade.php ENDPATH**/ ?>

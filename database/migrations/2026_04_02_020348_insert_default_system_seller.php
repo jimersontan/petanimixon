@@ -19,7 +19,7 @@ class InsertDefaultSystemSeller extends Migration
             ['id' => 0],
             [
                 'business_name' => 'System Admin',
-                'business_email' => 'admin@petanimixon.local',
+                'business_email' => 'admin@petmarkt-ph.local',
                 'business_phone' => '0000000000',
                 'business_registration_number' => 'SYS-000',
                 'business_registration_number_type' => 'System',

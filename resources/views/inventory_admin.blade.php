@@ -204,20 +204,31 @@
                     <td class="col-actions">
                         <!-- Edit Button -->
                         @php
-                            $animalTypeId = null;
-                            if (isset($animal_types) && $product->animal_type) {
-                                foreach ($animal_types as $at) {
-                                    if ($at->animal_type === $product->animal_type) {
-                                        $animalTypeId = $at->id;
-                                        break;
+                            // Build animal type IDs and life stages from pivot
+                            $pivotAnimalTypeIds = [];
+                            $pivotLifeStages = [];
+                            if ($product->relationLoaded('animalTypes')) {
+                                foreach ($product->animalTypes as $at) {
+                                    $pivotAnimalTypeIds[] = $at->id;
+                                    if ($at->pivot->life_stage) {
+                                        $pivotLifeStages[$at->id] = $at->pivot->life_stage;
                                     }
                                 }
                             }
-                            
+                            // Fallback: if no pivot data, try to match from animal_type text
+                            if (empty($pivotAnimalTypeIds) && $product->animal_type && isset($animal_types)) {
+                                foreach ($animal_types as $at) {
+                                    if (str_contains($product->animal_type, $at->animal_type)) {
+                                        $pivotAnimalTypeIds[] = $at->id;
+                                    }
+                                }
+                            }
+
                             $prodData = [
                                 "id" => $product->id,
                                 "product_name" => $product->product_name,
-                                "animal_type_id" => $animalTypeId,
+                                "animal_type_ids" => $pivotAnimalTypeIds,
+                                "animal_life_stages" => (object) $pivotLifeStages,
                                 "animal_category_id" => $product->animal_category_id,
                                 "brand_name" => $product->brand_name,
                                 "price" => $product->price,
@@ -227,7 +238,8 @@
                                 "short_description" => $product->short_description,
                                 "full_description" => $product->full_description,
                                 "image_url" => $product->image_url,
-                                "animal_image_url" => $product->animal_image_url
+                                "animal_image_url" => $product->animal_image_url,
+                                "wet_or_dry" => $product->wet_or_dry,
                             ];
                         @endphp
                         <button type="button" class="action-btn" title="Edit" aria-label="Edit product"
@@ -241,8 +253,7 @@
                             @csrf
                             @method('PATCH')
                             <button type="submit" class="action-btn" title="Hide this product (Move to Draft)" onclick="return confirm('Hide this product from the storefront and move it to Draft?')">
-                                <!-- Open Eye to indicate it's currently visible and clicking will hide it -->
-                                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg>
                             </button>
                         </form>
                         @else
@@ -327,7 +338,44 @@
 @push('scripts')
 <!-- Orders JS: Additional table interaction scripts for this page -->
 <script src="{{ asset('js/orders.js') }}"></script>
+<!-- Image Upload Logic -->
+<script src="{{ asset('js/paste-upload.js') }}"></script>
 <script>
+    // ===== WET OR DRY FIELD LOGIC =====
+    // Show/hide the wet_or_dry field based on category selection
+    document.addEventListener('DOMContentLoaded', function() {
+        const categorySelect = document.getElementById('animal_category_id');
+        const wetOrDryGroup = document.getElementById('wetOrDryGroup');
+        
+        // Function to check if "Food & Nutrition" is selected and show/hide field
+        function toggleWetOrDryField() {
+            if (!categorySelect || !wetOrDryGroup) return;
+            
+            const selectedOption = categorySelect.options[categorySelect.selectedIndex];
+            const selectedText = selectedOption ? selectedOption.text : '';
+            
+            // Show the field if "Food & Nutrition" is selected
+            if (selectedText.includes('Food & Nutrition') || selectedText.includes('Food &') ) {
+                wetOrDryGroup.style.display = 'block';
+            } else {
+                wetOrDryGroup.style.display = 'none';
+                // Clear the value when hiding
+                const wetOrDrySelect = document.getElementById('wet_or_dry');
+                if (wetOrDrySelect) {
+                    wetOrDrySelect.value = '';
+                }
+            }
+        }
+        
+        // Add event listener to category select
+        if (categorySelect) {
+            categorySelect.addEventListener('change', toggleWetOrDryField);
+            // Check initial state
+            toggleWetOrDryField();
+        }
+    });
+    // ===== END WET OR DRY FIELD LOGIC =====
+
     function openProductModal(mode, data = null) {
         const modal = document.getElementById('product-modal');
         const backdrop = document.querySelector('.modal-backdrop[data-modal-id="product-modal"]');
@@ -345,9 +393,10 @@
         if (pasteZone) pasteZone.classList.remove('has-file');
         if (preview) preview.innerHTML = '';
         
-        // Reset Select2 properly
-        if ($.fn.select2) {
-            $('#animal_type_id').val('').trigger('change');
+        // Reset multi-animal selection
+        const animalTypeSelect = document.getElementById('animal_type_ids');
+        if (animalTypeSelect) {
+            Array.from(animalTypeSelect.options).forEach(opt => opt.selected = false);
         }
         
         if (mode === 'add') {
@@ -357,7 +406,11 @@
             methodContainer.innerHTML = '';
             
             // Set simple defaults
-            document.getElementById('product_status').value = 'active';
+            const statusSelect = document.getElementById('status');
+            if (statusSelect) statusSelect.value = 'Active';
+            
+            // Trigger update for new form state
+            if (window.updateChips) window.updateChips();
             
         } else if (mode === 'edit' && data) {
             title.textContent = 'Edit Product';
@@ -366,32 +419,57 @@
             methodContainer.innerHTML = '<input type="hidden" name="_method" value="PUT">';
             
             // Set text and select inputs
-            document.getElementById('product_name').value = data.product_name || '';
-            document.getElementById('animal_category_id').value = data.animal_category_id || '';
-            document.getElementById('brand_name').value = data.brand_name || '';
-            document.getElementById('price').value = data.price || '';
-            document.getElementById('stock').value = data.stock || '';
-            document.getElementById('sku').value = data.sku || '';
-            document.getElementById('product_status').value = data.product_status || 'active';
-            document.getElementById('short_description').value = data.short_description || '';
-            document.getElementById('full_description').value = data.full_description || '';
+            const fields = {
+                'product_name': data.product_name,
+                'animal_category_id': data.animal_category_id,
+                'brand_name': data.brand_name,
+                'price': data.price,
+                'stock': data.stock,
+                'sku': data.sku,
+                'status': data.product_status || 'Active',
+                'short_description': data.short_description,
+                'full_description': data.full_description,
+                'wet_or_dry': data.wet_or_dry
+            };
             
-            // Set Select2 specifically
-            if ($.fn.select2 && data.animal_type_id) {
-                $('#animal_type_id').val(data.animal_type_id).trigger('change');
+            Object.keys(fields).forEach(fieldId => {
+                const el = document.getElementById(fieldId);
+                if (el) el.value = fields[fieldId] || '';
+            });
+            
+            // Pre-select animal types for multi-select
+            if (animalTypeSelect && data.animal_type_ids) {
+                Array.from(animalTypeSelect.options).forEach(opt => {
+                    opt.selected = data.animal_type_ids.includes(parseInt(opt.value));
+                });
             }
             
+            // Update chips and life stage selectors
+            if (window.updateChips) window.updateChips();
+            
             // Handle image preview
-            if (data.animal_image_url) {
+            if (data.image_url) {
                 if (pasteZone) pasteZone.classList.add('has-file');
                 if (preview) {
                     preview.innerHTML = `<img src="${data.image_url}" alt="Preview"><div class="upload-filename">Current Image</div>`;
                 }
             }
+            
+            // Trigger the wet/dry field visibility check
+            setTimeout(function() {
+                const categorySelect = document.getElementById('animal_category_id');
+                if (categorySelect) {
+                    const event = new Event('change', { bubbles: true });
+                    categorySelect.dispatchEvent(event);
+                }
+            }, 150);
         }
         
-        modal.classList.add('open');
-        backdrop.classList.add('open');
+        // Show modal
+        if (modal) modal.classList.add('open');
+        if (backdrop) backdrop.classList.add('open');
     }
 </script>
 @endpush
+
+

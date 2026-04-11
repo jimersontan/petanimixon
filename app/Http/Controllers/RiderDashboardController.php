@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Product;
+use App\Events\OrderDelivered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -94,6 +95,9 @@ class RiderDashboardController extends Controller
             'order_status' => Order::STATUS_OUT_FOR_DELIVERY,
         ]);
 
+        $order->refresh();
+        $order->notifyRiderAssigned();
+
         return redirect()->route('rider.active')->with('success', 'Order accepted! Head to the store for pickup.');
     }
 
@@ -129,6 +133,8 @@ class RiderDashboardController extends Controller
             'rider_picked_up_at' => now(),
         ]);
 
+        $order->notifyRiderOutForDelivery();
+
         return redirect()->route('rider.active')->with('success', 'Order marked as picked up! Now deliver to customer.');
     }
 
@@ -148,6 +154,11 @@ class RiderDashboardController extends Controller
             'rider_delivered_at' => now(),
             'rider_notes' => $request->input('rider_notes', ''),
         ]);
+
+        // Dispatch event to reduce stock for delivered order
+        OrderDelivered::dispatch($order);
+
+        $order->notifyOrderDelivered();
 
         return redirect()->route('rider.dashboard')->with('success', 'Delivery completed! Great job! 🎉');
     }
@@ -171,7 +182,7 @@ class RiderDashboardController extends Controller
 
         $orders = $query->orderByDesc('rider_delivered_at')
             ->paginate(15)
-            ->withQueryString();
+            ->appends($request->query());
 
         // Stats
         $allTime = Order::where('rider_id', $rider->id);
@@ -204,7 +215,7 @@ class RiderDashboardController extends Controller
 
         $products = $query->orderBy('product_name')
             ->paginate(20)
-            ->withQueryString();
+            ->appends($request->query());
 
         return view('rider.products', [
             'products' => $products,

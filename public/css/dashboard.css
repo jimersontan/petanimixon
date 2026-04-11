@@ -1,10 +1,10 @@
-/* Pet Animixon Admin Dashboard - Styles */
+/* PetMarkt-PH Admin Dashboard - Styles */
 
 :root {
     --sidebar-bg: #1c2536;
     /* Darker blue-grey to contrast with white header */
     --header-bg: #ffffff;
-    --accent: #ff6b35;
+    --accent: #FF8C00;
     --accent-hover: #e85a2e;
     --text-dark: #1f2937;
     --text-muted: #6b7280;
@@ -698,6 +698,139 @@
     }
 }
 
+/* ========== Mobile Fit Improvements (Admin) ========== */
+@media (max-width: 992px) {
+    .dashboard-body {
+        overflow-x: hidden;
+    }
+
+    .dashboard-layout,
+    .main-content,
+    .content-card,
+    .table-wrap,
+    .rider-card,
+    .card,
+    .panel {
+        max-width: 100%;
+    }
+
+    .main-content {
+        padding: 14px;
+    }
+
+    .dashboard-header {
+        padding: 8px 12px;
+        gap: 8px;
+    }
+
+    .header-center {
+        margin: 0;
+        min-width: 0;
+    }
+
+    .search-input {
+        min-width: 0;
+    }
+
+    .header-right {
+        gap: 4px;
+    }
+
+    .page-title {
+        font-size: 1.25rem;
+        line-height: 1.2;
+    }
+
+    .content-header {
+        gap: 10px;
+    }
+
+    .content-header .btn-primary,
+    .content-header .btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .table-wrap,
+    .orders-table-wrap,
+    .customers-table-wrap,
+    .products-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        min-width: 680px;
+    }
+
+    .modal,
+    .modal-content,
+    .modal-body {
+        max-width: 100%;
+    }
+
+    .modal-content {
+        width: calc(100vw - 20px) !important;
+        margin: 10px auto !important;
+    }
+
+    .modal-body,
+    .modal-footer {
+        padding: 12px !important;
+    }
+
+    .form-row,
+    .grid-2,
+    .grid-3,
+    .grid-4 {
+        grid-template-columns: 1fr !important;
+    }
+
+    input,
+    select,
+    textarea,
+    .select2-container {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .dashboard-header {
+        position: sticky;
+        top: 0;
+    }
+
+    .header-left .logo img {
+        max-height: 24px;
+    }
+
+    .main-content {
+        padding: 10px;
+    }
+
+    .metrics-grid,
+    .stats-grid,
+    .cards-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px;
+    }
+
+    .metric-card,
+    .stat-card,
+    .content-card,
+    .card {
+        padding: 12px;
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-danger,
+    .btn-success {
+        min-height: 42px;
+    }
+}
+
 /* ========== Recent orders table ========== */
 .btn-primary {
     display: inline-flex;
@@ -1173,3 +1306,4 @@
         grid-template-columns: 1fr;
     }
 }
+

@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'My Orders - Pet Animixon')
+@section('title', 'My Orders - PetMarkt-PH')
 
 @push('styles')
 <style>
@@ -24,7 +24,7 @@
     width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
     font-size: 18px; flex-shrink: 0;
 }
-.mo-stat-icon.total { background: #fff3e0; color: #E85D04; }
+.mo-stat-icon.total { background: #e9f2ea; color: #E85D04; }
 .mo-stat-icon.pending { background: #fff8e1; color: #ff9800; }
 .mo-stat-icon.out_for_delivery { background: #e3f2fd; color: #1e88e5; }
 .mo-stat-icon.shipped { background: #f3e5f5; color: #9c27b0; }
@@ -64,7 +64,7 @@
     padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
     text-transform: capitalize; display: inline-flex; align-items: center; justify-content: center;
 }
-.mo-badge.pending { background: #fff3e0; color: #e65100; }
+.mo-badge.pending { background: #e9f2ea; color: #e65100; }
 .mo-badge.out_for_delivery, .mo-badge.out_for_delivery { background: #e1f5fe; color: #0277bd; }
 .mo-badge.shipped { background: #f3e5f5; color: #7b1fa2; }
 .mo-badge.delivered { background: #e8f5e9; color: #2e7d32; }
@@ -270,6 +270,9 @@
                                 <a href="{{ route('order.track', $order->order_id) }}" class="mo-btn mo-btn-primary">📍 Track Package</a>
                             @elseif($order->order_status === 'delivered')
                                 <a href="{{ route('order.track', $order->order_id) }}" class="mo-btn mo-btn-primary">⭐ Write Review</a>
+                                @if($order->orderItems->first())
+                                    <a href="{{ route('returns.create', $order->orderItems->first()->id) }}" class="mo-btn mo-btn-outline" style="border-color: #ef4444; color: #ef4444;">↩ Return</a>
+                                @endif
                             @endif
                         </div>
                     </div>
@@ -291,12 +294,12 @@
             <h3 class="mo-rec-title">You May Also <span>Like</span></h3>
             <div class="mo-rec-grid">
                 @foreach($recommendedProducts as $product)
-                    <a href="{{ route('product.show', $product->id) }}" class="mo-rec-card">
+                    <a href="{{ route('product.show', $product->id) }}" class="mo-rec-card js-open-product-modal" data-product-id="{{ $product->id }}">
                         <div class="mo-rec-img-wrap">
                             <img src="{{ $product->image_url }}" alt="{{ $product->product_name }}" class="mo-rec-img">
                         </div>
                         <div class="mo-rec-body">
-                            <div class="mo-rec-brand">{{ $product->brand_name ?: 'Pet Animixon' }}</div>
+                            <div class="mo-rec-brand">{{ $product->brand_name ?: 'PetMarkt-PH' }}</div>
                             <h4 class="mo-rec-name">{{ $product->product_name }}</h4>
                             <div class="mo-rec-rating">
                                 <span class="mo-rec-stars">
@@ -316,3 +319,5 @@
 
 </div>
 @endsection
+
+

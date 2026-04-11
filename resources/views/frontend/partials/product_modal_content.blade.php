@@ -18,26 +18,62 @@
             <span class="pd-sold">{{ $product->total_sold }} sold</span>
         </div>
 
-        <div class="pd-price">₱{{ number_format($product->price, 2) }}</div>
+        <div class="pd-price">
+            @if($product->is_sale_active)
+                ₱{{ number_format($product->sale_price, 2) }}
+                <span style="font-size:14px; color:#9ca3af; text-decoration:line-through; margin-left:8px;">₱{{ number_format($product->price, 2) }}</span>
+            @else
+                ₱{{ number_format($product->price, 2) }}
+            @endif
+        </div>
 
         <p class="pd-desc">{{ $product->short_description ?? $product->animal_description }}</p>
 
-        @if($product->stock > 0)
+        @if($product->stock > 4)
             <div class="pd-stock">✓ In Stock ({{ $product->stock }} available)</div>
+        @elseif($product->stock > 0)
+            <div class="pd-stock" style="color: #e67e22;">🔥 Only {{ $product->stock }} left — order soon!</div>
         @else
             <div class="pd-stock out">✕ Out of Stock</div>
         @endif
 
-        <form action="{{ route('cart.add') }}" method="POST" class="pd-add-form">
-            @csrf
-            <input type="hidden" name="product_id" value="{{ $product->id }}">
-            <div class="pd-qty-wrap">
-                <button type="button" class="pd-qty-btn" onclick="let v=this.nextElementSibling;v.value=Math.max(1,+v.value-1)">−</button>
-                <input type="number" name="quantity" value="1" min="1" class="pd-qty-input" readonly>
-                <button type="button" class="pd-qty-btn" onclick="let v=this.previousElementSibling;v.value=+v.value+1">+</button>
+        @auth
+            <form action="{{ route('cart.add') }}" method="POST" class="pd-add-form pd-add-cart-form">
+                @csrf
+                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                <div class="pd-qty-wrap">
+                    <button type="button" class="pd-qty-btn" onclick="let v=this.nextElementSibling;v.value=Math.max(1,+v.value-1)">−</button>
+                    <input type="number" name="quantity" value="1" min="1" max="{{ $product->stock }}" class="pd-qty-input" readonly>
+                    <button type="button" class="pd-qty-btn" onclick="let v=this.previousElementSibling;let mx=+(v.getAttribute('max')||999);v.value=Math.min(mx,+v.value+1)">+</button>
+                </div>
+                <button type="submit" class="pd-add-btn" {{ $product->stock < 1 ? 'disabled style="opacity:.5;cursor:not-allowed;"' : '' }}>🛒 {{ $product->stock < 1 ? 'Out of Stock' : 'Add to Cart' }}</button>
+            </form>
+            @if($product->stock > 0)
+                <form action="{{ route('cart.buy-now') }}" method="POST" class="pd-add-form pd-buy-now-form" style="margin-top: 10px;">
+                    @csrf
+                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                    <input type="hidden" name="quantity" value="1" class="pd-buy-now-qty">
+                    <button type="submit" class="pd-add-btn" style="background:#111827;">⚡ Buy Now</button>
+                </form>
+                <script>
+                    (function() {
+                        var qtyInput = document.querySelector('.pd-add-cart-form input[name="quantity"]');
+                        var buyNowQty = document.querySelector('.pd-buy-now-form .pd-buy-now-qty');
+                        if (!qtyInput || !buyNowQty) return;
+                        var syncQty = function() { buyNowQty.value = qtyInput.value || 1; };
+                        qtyInput.addEventListener('change', syncQty);
+                        qtyInput.addEventListener('input', syncQty);
+                    })();
+                </script>
+            @endif
+        @else
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <a href="{{ route('login') }}" class="pd-add-btn" style="flex: 1; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">🛒 Add to Cart</a>
+                @if($product->stock > 0)
+                <a href="{{ route('login') }}" class="pd-add-btn" style="flex: 1; background: #111827; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">⚡ Buy Now</a>
+                @endif
             </div>
-            <button type="submit" class="pd-add-btn">🛒 Add to Cart</button>
-        </form>
+        @endauth
     </div>
 </div>
 
@@ -162,3 +198,5 @@
         @endforelse
     </div>
 </div>
+
+

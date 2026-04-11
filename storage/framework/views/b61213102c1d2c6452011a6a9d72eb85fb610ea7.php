@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products - Pet Animixon Rider</title>
+    <title>Products - PetMarkt-PH Rider</title>
     <link rel="stylesheet" href="<?php echo e(asset('css/dashboard.css')); ?>">
     <link rel="stylesheet" href="<?php echo e(asset('css/rider.css')); ?>">
 </head>
@@ -12,7 +12,7 @@
     <header class="rider-header">
         <div class="logo">
             <img src="<?php echo e(asset('images/logo.png')); ?>" alt="Logo">
-            <span>Pet <span style="color: #059669;">Animixon</span></span>
+            <span>Pet <span style="color: #059669;">Markt-PH</span></span>
             <span class="rider-badge">🛵 Rider</span>
         </div>
         <div class="header-right">
@@ -117,4 +117,6 @@
     </div>
 </body>
 </html>
+
+
 <?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views/rider/products.blade.php ENDPATH**/ ?>

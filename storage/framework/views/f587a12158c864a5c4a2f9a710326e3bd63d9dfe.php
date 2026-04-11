@@ -3,9 +3,9 @@
         <button type="button" class="icon-btn btn-hamburger" id="sidebarToggle" aria-label="Toggle Sidebar" style="display: none;">
             <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
         </button>
-        <div class="logo" style="display:flex; align-items:center; gap:8px;">
-            <img src="<?php echo e(asset('images/logo.png')); ?>" alt="Pet Animixon Logo" style="max-height: 28px;">
-            <span class="logo-text" style="color:#1f2937;">Pet <span style="color: #ea580c;">Animixon</span></span>
+        <div class="logo" style="display:flex; align-items:center; gap:0;">
+            <img src="<?php echo e(asset('images/logo.png')); ?>" alt="PetMarkt-PH Logo" style="max-height: 28px; margin-right: -6px;">
+            <span class="logo-text" style="color:#1f2937; margin:0;">Pet <span style="color: #ea580c;">Markt-PH</span></span>
         </div>
     </div>
     <div class="header-center">
@@ -15,9 +15,12 @@
         </div>
     </div>
     <div class="header-right">
-        <button type="button" class="icon-btn" aria-label="Notifications">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
-        </button>
+        <div style="position: relative;">
+            <button type="button" class="icon-btn" aria-label="Notifications" id="adminNotificationBtn" title="Notifications">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                <span id="notificationBadge" class="notification-badge" style="display: none;">0</span>
+            </button>
+        </div>
         <div class="dropdown">
             <button type="button" class="icon-btn dropdown-toggle" id="profileMenuButton" aria-haspopup="true" aria-expanded="false" aria-label="Profile">
                 <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
@@ -34,4 +37,55 @@
             <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M11.4 24H0V12.6h2.4v9.4h9v2.4zm12-12H12.6V0H24v2.4h-9.6v9.6H24V12zM2.4 9.6V0h2.4v9.6H2.4zm19.2 0V0H24v9.6h-2.4zM9.6 2.4V0h4.8v2.4H9.6zm4.8 19.2v-2.4h4.8V24h-4.8z"/></svg>
         </button>
     </div>
-</header><?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views/partials/admin_header.blade.php ENDPATH**/ ?>
+</header>
+
+<style>
+    .notification-badge {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        background: #ef4444;
+        color: #fff;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        border: 2px solid #fff;
+    }
+</style>
+
+<script>
+    // Check unread notifications count for admin
+    document.addEventListener('DOMContentLoaded', function() {
+        updateAdminNotificationBadge();
+        // Refresh every 30 seconds
+        setInterval(updateAdminNotificationBadge, 30000);
+    });
+
+    function updateAdminNotificationBadge() {
+        fetch('<?php echo e(route("notifications.unread")); ?>')
+            .then(r => r.json())
+            .then(data => {
+                const badge = document.getElementById('notificationBadge');
+                if (data.unread_count > 0) {
+                    badge.textContent = data.unread_count;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            })
+            .catch(e => console.error('Failed to fetch notifications:', e));
+    }
+
+    // Notification button click handler
+    document.getElementById('adminNotificationBtn').addEventListener('click', function() {
+        // TODO: Open notifications panel
+        alert('Notifications panel coming soon!');
+    });
+</script>
+
+<?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views/partials/admin_header.blade.php ENDPATH**/ ?>

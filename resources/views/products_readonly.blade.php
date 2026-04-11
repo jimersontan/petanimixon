@@ -230,3 +230,5 @@
 <!-- Orders JS: Additional table interaction scripts for this page -->
 <script src="{{ asset('js/orders.js') }}"></script>
 @endpush
+
+

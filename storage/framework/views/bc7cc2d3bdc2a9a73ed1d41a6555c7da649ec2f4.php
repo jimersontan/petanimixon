@@ -36,4 +36,5 @@
         </div>
     </body>
 </html>
+
 <?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\vendor\laravel\framework\src\Illuminate\Foundation\Exceptions/views/minimal.blade.php ENDPATH**/ ?>

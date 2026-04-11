@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Contact Us - Pet Animixon')
+@section('title', 'Contact Us - PetMarkt-PH')
 
 @push('styles')
 <style>
@@ -26,7 +26,7 @@
     .contact-info-card .card-icon {
         width: 54px; height: 54px; border-radius: 50%; margin: 0 auto 14px;
         display: flex; align-items: center; justify-content: center;
-        background: #FFF3E0; color: #FF8C42;
+        background: #e9f2ea; color: #3b7c42;
     }
     .contact-info-card h4 { font-size: 15px; font-weight: 700; color: #222; margin: 0 0 6px; }
     .contact-info-card p { font-size: 13px; color: #666; margin: 0; line-height: 1.5; }
@@ -49,13 +49,13 @@
         transition: border-color 0.2s, background 0.2s;
     }
     .form-group input:focus,
-    .form-group textarea:focus { border-color: #FF8C42; background: #fff; outline: none; }
+    .form-group textarea:focus { border-color: #3b7c42; background: #fff; outline: none; }
     .form-group textarea { resize: vertical; min-height: 120px; }
 
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
     .btn-send {
-        width: 100%; padding: 14px; background: #FF8C42; color: #fff;
+        width: 100%; padding: 14px; background: #3b7c42; color: #fff;
         border: none; border-radius: 8px; font-size: 15px; font-weight: 700;
         cursor: pointer; transition: opacity 0.2s;
     }
@@ -115,7 +115,7 @@
                 <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
             </div>
             <h4>Email</h4>
-            <p>support@petanimixon.com</p>
+            <p>support@petmarkt-ph.com</p>
         </div>
         <div class="contact-info-card">
             <div class="card-icon">
@@ -179,3 +179,5 @@
     </div>
 </div>
 @endsection
+
+

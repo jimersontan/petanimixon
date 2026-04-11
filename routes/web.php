@@ -29,6 +29,16 @@ use App\Http\Controllers\DashboardController;
 
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\ReturnRefundController;
+use App\Http\Controllers\ReturnRefundAdminController;
+use App\Http\Controllers\CouponAdminController;
+use App\Http\Controllers\SellerAdminController;
+use App\Http\Controllers\ProductQuestionController;
+use App\Http\Controllers\ProductQAAdminController;
+use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\VoucherController;
 
 // Public storefront
 Route::get('/', [ShopController::class, 'index'])->name('shop');
@@ -46,15 +56,23 @@ Route::view('/about', 'frontend.about')->name('about');
 Route::view('/contact', 'frontend.contact')->name('contact');
 Route::view('/shipping', 'frontend.shipping')->name('shipping');
 Route::view('/trial', 'frontend.trial')->name('trial');
+Route::get('/vouchers', [VoucherController::class, 'index'])->name('vouchers');
+Route::post('/vouchers/activate', [VoucherController::class, 'activate'])->name('vouchers.activate');
 
 // Cart Routes
 Route::middleware(['auth', 'client'])->group(function () {
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/buy-now', [CartController::class, 'buyNow'])->name('cart.buy-now');
     Route::post('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
     Route::get('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
     Route::get('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
     Route::get('/cart/count', [CartController::class, 'getCount'])->name('cart.count');
+
+    // Notifications
+    Route::get('/notifications', function() {
+        return view('user.notifications');
+    })->name('user.notifications');
 
     // Checkout Routes
     Route::middleware('verified')->group(function () {
@@ -62,8 +80,22 @@ Route::middleware(['auth', 'client'])->group(function () {
         Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
         Route::post('/checkout/apply-voucher', [CheckoutController::class, 'applyVoucher'])->name('checkout.voucher');
         Route::get('/checkout/success/{order_id}', [CheckoutController::class, 'success'])->name('checkout.success');
+        Route::get('/checkout/payment/callback', [CheckoutController::class, 'paymentCallback'])->name('checkout.payment.callback');
         Route::get('/order/{order_id}/track', [CheckoutController::class, 'tracking'])->name('order.track');
     });
+
+    // Wishlists
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    Route::get('/wishlist/remove/{id}', [WishlistController::class, 'remove'])->name('wishlist.remove');
+
+    // Product Questions
+    Route::post('/product/{productId}/question', [ProductQuestionController::class, 'store'])->name('product.question.store');
+
+    // Returns & Refunds (customer)
+    Route::get('/returns', [ReturnRefundController::class, 'index'])->name('returns.index');
+    Route::get('/returns/create/{orderItemId}', [ReturnRefundController::class, 'create'])->name('returns.create');
+    Route::post('/returns', [ReturnRefundController::class, 'store'])->name('returns.store');
 
     // Reviews
     Route::post('/product/{product}/review', [ReviewController::class, 'store'])->name('review.store');
@@ -101,10 +133,14 @@ Route::post('/email/verification-notification', function (\Illuminate\Http\Reque
 Route::get('/admin/login', [AdminLoginController::class, 'show'])->name('admin.login');
 Route::post('/admin/login', [AdminLoginController::class, 'login'])->name('admin.login.submit');
 
-// Placeholder for password reset
-Route::get('/password/reset', function () {
-    return view('password.reset');
-})->name('password.request');
+// Password Reset
+Route::get('/password/reset', [PasswordResetController::class, 'showRequestForm'])->name('password.request');
+Route::post('/password/email', [PasswordResetController::class, 'sendResetLink'])->name('password.email');
+Route::get('/password/reset/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
+Route::post('/password/reset', [PasswordResetController::class, 'reset'])->name('password.update');
+
+// Newsletter (public)
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 
 // Customer home (after login - for regular users)
 Route::get('/home', [ShopController::class, 'index'])->middleware(['auth', 'client'])->name('home');
@@ -168,6 +204,18 @@ Route::put('/admin/inventory/{id}', [ProductAdminController::class, 'update'])
 Route::patch('/admin/inventory/{id}/draft', [ProductAdminController::class, 'draft'])
     ->middleware(['auth', 'admin'])
     ->name('inventory.draft');
+
+Route::patch('/admin/inventory/{id}/toggle-sale', [ProductAdminController::class, 'toggleSale'])
+    ->middleware(['auth', 'admin'])
+    ->name('products.toggle-sale');
+
+Route::post('/admin/inventory/sale', [ProductAdminController::class, 'storeSale'])
+    ->middleware(['auth', 'admin'])
+    ->name('products.storeSale');
+
+Route::patch('/admin/inventory/{id}/toggle-featured', [ProductAdminController::class, 'toggleFeatured'])
+    ->middleware(['auth', 'admin'])
+    ->name('products.toggle-featured');
 
 Route::delete('/admin/inventory/{id}', [ProductAdminController::class, 'destroy'])
     ->middleware(['auth', 'admin'])
@@ -307,6 +355,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin/api/animal-types')->group(fu
     Route::patch('/{id}/status', [AnimalTypeController::class, 'toggleStatus'])->name('animal-types.toggle-status');
 });
 
+// Notifications API routes
+use App\Http\Controllers\NotificationController;
+Route::middleware('auth')->prefix('api/notifications')->group(function () {
+    Route::get('/unread', [NotificationController::class, 'getUnreadCount'])->name('notifications.unread');
+    Route::get('/', [NotificationController::class, 'getNotifications'])->name('notifications.list');
+    Route::patch('/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+    Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+    Route::delete('/{id}', [NotificationController::class, 'delete'])->name('notifications.delete');
+});
+
 // ============================================================
 // RIDER ROUTES
 // ============================================================
@@ -339,4 +397,43 @@ Route::middleware(['auth', 'admin'])->prefix('admin/riders')->group(function () 
     Route::get('/{id}/edit', [RiderAdminController::class, 'edit'])->name('riders.edit');
     Route::put('/{id}', [RiderAdminController::class, 'update'])->name('riders.update');
     Route::patch('/{id}/toggle', [RiderAdminController::class, 'toggleStatus'])->name('riders.toggle');
+});
+
+// ============================================================
+// ADMIN: COUPONS MANAGEMENT
+// ============================================================
+Route::middleware(['auth', 'admin'])->prefix('admin/coupons')->group(function () {
+    Route::get('/', [CouponAdminController::class, 'index'])->name('coupons.admin');
+    Route::post('/', [CouponAdminController::class, 'store'])->name('coupons.store');
+    Route::put('/{id}', [CouponAdminController::class, 'update'])->name('coupons.update');
+    Route::patch('/{id}/toggle', [CouponAdminController::class, 'toggleStatus'])->name('coupons.toggle');
+    Route::delete('/{id}', [CouponAdminController::class, 'destroy'])->name('coupons.destroy');
+});
+
+// ============================================================
+// ADMIN: SELLERS MANAGEMENT
+// ============================================================
+Route::middleware(['auth', 'admin'])->prefix('admin/sellers')->group(function () {
+    Route::get('/', [SellerAdminController::class, 'index'])->name('sellers.admin');
+    Route::post('/', [SellerAdminController::class, 'store'])->name('sellers.store');
+    Route::put('/{id}', [SellerAdminController::class, 'update'])->name('sellers.update');
+    Route::patch('/{id}/toggle', [SellerAdminController::class, 'toggleStatus'])->name('sellers.toggle');
+    Route::post('/payout', [SellerAdminController::class, 'processPayout'])->name('sellers.payout');
+});
+
+// ============================================================
+// ADMIN: PRODUCT Q&A
+// ============================================================
+Route::middleware(['auth', 'admin'])->prefix('admin/qa')->group(function () {
+    Route::get('/', [ProductQAAdminController::class, 'index'])->name('qa.admin');
+    Route::post('/{id}/answer', [ProductQAAdminController::class, 'answer'])->name('qa.answer');
+});
+
+// ============================================================
+// ADMIN: RETURNS & REFUNDS
+// ============================================================
+Route::middleware(['auth', 'admin'])->prefix('admin/returns')->group(function () {
+    Route::get('/', [ReturnRefundAdminController::class, 'index'])->name('returns.admin');
+    Route::post('/{id}/approve', [ReturnRefundAdminController::class, 'approve'])->name('returns.approve');
+    Route::post('/{id}/reject', [ReturnRefundAdminController::class, 'reject'])->name('returns.reject');
 });

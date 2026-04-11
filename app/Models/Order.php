@@ -93,6 +93,94 @@ class Order extends Model
      */
     public function getFormattedTotalAttribute(): string
     {
-        return 'P' . number_format($this->total_amount, 0);
+        return 'P' . number_format((float) $this->total_amount, 0);
+    }
+
+    /**
+     * Trigger notification when order is placed
+     */
+    public function notifyOrderPlaced(): void
+    {
+        \App\Events\OrderNotificationEvent::dispatch($this, 'order_placed');
+    }
+
+    /**
+     * Trigger notification when order is confirmed
+     */
+    public function notifyOrderConfirmed(): void
+    {
+        \App\Events\OrderNotificationEvent::dispatch($this, 'order_confirmed');
+    }
+
+    /**
+     * Trigger notification when order starts processing
+     */
+    public function notifyOrderProcessing(): void
+    {
+        \App\Events\OrderNotificationEvent::dispatch($this, 'order_processing');
+    }
+
+    /**
+     * Trigger notification when order is ready
+     */
+    public function notifyOrderReady(): void
+    {
+        \App\Events\OrderNotificationEvent::dispatch($this, 'order_ready');
+    }
+
+    /**
+     * Trigger notification when rider is assigned
+     */
+    public function notifyRiderAssigned(): void
+    {
+        \App\Events\OrderNotificationEvent::dispatch($this, 'rider_assigned');
+    }
+
+    /**
+     * Trigger notification when rider is out for delivery
+     */
+    public function notifyRiderOutForDelivery(): void
+    {
+        \App\Events\OrderNotificationEvent::dispatch($this, 'rider_out_for_delivery');
+    }
+
+    /**
+     * Trigger notification when rider arrives
+     */
+    public function notifyRiderArrived(): void
+    {
+        \App\Events\OrderNotificationEvent::dispatch($this, 'rider_arrived');
+    }
+
+    /**
+     * Trigger notification when order is delivered
+     */
+    public function notifyOrderDelivered(): void
+    {
+        \App\Events\OrderNotificationEvent::dispatch($this, 'order_delivered');
+    }
+
+    /**
+     * Trigger notification when payment is received
+     */
+    public function notifyPaymentReceived(): void
+    {
+        \App\Events\OrderNotificationEvent::dispatch($this, 'payment_received');
+    }
+
+    /**
+     * Trigger notification when order is cancelled
+     */
+    public function notifyOrderCancelled(): void
+    {
+        \App\Events\OrderNotificationEvent::dispatch($this, 'order_cancelled');
+    }
+
+    /**
+     * Trigger notification when refund is processed
+     */
+    public function notifyRefundProcessed(): void
+    {
+        \App\Events\OrderNotificationEvent::dispatch($this, 'refund_processed');
     }
 }

@@ -11,7 +11,23 @@
         initAddToCart();
         initWishlist();
         initSearch();
+        initProductModalLinks();
     });
+
+    /**
+     * Open product in modal instead of full page navigation (links / buttons with data-product-id).
+     */
+    function initProductModalLinks() {
+        document.addEventListener('click', function (e) {
+            const el = e.target.closest('.js-open-product-modal[data-product-id]');
+            if (!el) return;
+            if (e.target.closest('form, button, input, textarea, select, label')) return;
+            const id = el.getAttribute('data-product-id');
+            if (!id || typeof window.openProductModal !== 'function') return;
+            e.preventDefault();
+            window.openProductModal(id, e);
+        });
+    }
 
     // User dropdown toggle
     function initUserDropdown() {
@@ -51,35 +67,119 @@
 
     // Add to cart
     function initAddToCart() {
-        const cartBtns = document.querySelectorAll('.ud-add-cart');
         const cartCounts = document.querySelectorAll('.ud-cart-count, .ud-cart-count-mobile');
+        const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
 
         // Fetch real count from server
-        fetch('/cart/count')
-            .then(response => response.json())
-            .then(data => {
-                cartCounts.forEach(el => el.textContent = data.count);
-            });
+        function refreshCartCount() {
+            fetch('/cart/count', { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
+                .then(response => response.json())
+                .then(data => {
+                    cartCounts.forEach(el => el.textContent = data.count || 0);
+                })
+                .catch(() => { /* silent */ });
+        }
 
-        cartBtns.forEach(function (btn) {
-            btn.addEventListener('click', function () {
+        function updateCartCount(count) {
+            cartCounts.forEach(el => el.textContent = count || 0);
+        }
+
+        function animateToCart(sourceButton) {
+            const cartTarget = document.querySelector('.ud-header-actions a[aria-label="Cart"]') || document.querySelector('.bottom-nav-item');
+            if (!sourceButton || !cartTarget) return;
+            const start = sourceButton.getBoundingClientRect();
+            const end = cartTarget.getBoundingClientRect();
+
+            const dot = document.createElement('div');
+            dot.className = 'ud-cart-fly-dot';
+            dot.style.left = (start.left + start.width / 2) + 'px';
+            dot.style.top = (start.top + start.height / 2) + 'px';
+            dot.style.setProperty('--fly-x', (end.left - start.left) + 'px');
+            dot.style.setProperty('--fly-y', (end.top - start.top) + 'px');
+            document.body.appendChild(dot);
+            setTimeout(() => dot.remove(), 700);
+        }
+
+        document.addEventListener('submit', function (e) {
+            const form = e.target;
+            if (!(form instanceof HTMLFormElement)) return;
+            if (!form.action || !form.action.includes('/cart/add')) return;
+
+            e.preventDefault();
+            const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('ud-cart-btn-loading');
+            }
+
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrf,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: new FormData(form),
+                credentials: 'same-origin'
+            })
+                .then(async (response) => {
+                    const data = await response.json().catch(() => ({}));
+                    if (!response.ok) throw new Error(data.error || 'Could not add to cart.');
+                    return data;
+                })
+                .then(data => {
+                    if (typeof data.count === 'number') {
+                        updateCartCount(data.count);
+                    } else {
+                        refreshCartCount();
+                    }
+                    if (submitBtn) {
+                        submitBtn.classList.remove('ud-cart-btn-loading');
+                        submitBtn.classList.add('ud-cart-btn-added');
+                        setTimeout(() => submitBtn.classList.remove('ud-cart-btn-added'), 500);
+                    }
+                    animateToCart(submitBtn || form);
+                    showNotification(data.message || 'Product added to cart!');
+                })
+                .catch(err => {
+                    showNotification(err.message || 'Could not add to cart.');
+                })
+                .finally(() => {
+                    if (submitBtn) submitBtn.disabled = false;
+                });
+        });
+
+        // Legacy buttons (if any) that still use data-id without forms
+        document.querySelectorAll('.ud-add-cart[data-id]').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
                 const productId = btn.getAttribute('data-id');
-                // Submit form or use AJAX
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = '/cart/add';
-                const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
-
-                const html = `
-                    <input type="hidden" name="_token" value="${csrf}">
-                    <input type="hidden" name="product_id" value="${productId}">
-                    <input type="hidden" name="quantity" value="1">
-                `;
-                form.innerHTML = html;
-                document.body.appendChild(form);
-                form.submit();
+                if (!productId) return;
+                fetch('/cart/add', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrf,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: new URLSearchParams({ product_id: productId, quantity: 1 }),
+                    credentials: 'same-origin'
+                })
+                    .then(async (response) => {
+                        const data = await response.json().catch(() => ({}));
+                        if (!response.ok) throw new Error(data.error || 'Could not add to cart.');
+                        return data;
+                    })
+                    .then(data => {
+                        updateCartCount(data.count || 0);
+                        animateToCart(btn);
+                        showNotification(data.message || 'Product added to cart!');
+                    })
+                    .catch(err => showNotification(err.message || 'Could not add to cart.'));
             });
         });
+
+        refreshCartCount();
     }
 
     // Wishlist toggle
@@ -133,7 +233,7 @@
 
     // Add animation styles
     const style = document.createElement('style');
-    style.textContent = '@keyframes udFadeIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}@keyframes udFadeOut{from{opacity:1}to{opacity:0}}';
+    style.textContent = '@keyframes udFadeIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}@keyframes udFadeOut{from{opacity:1}to{opacity:0}}@keyframes udCartFly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--fly-x),var(--fly-y)) scale(.3)}}.ud-cart-fly-dot{position:fixed;width:14px;height:14px;border-radius:999px;background:#ff8a00;z-index:10001;pointer-events:none;animation:udCartFly .65s ease-in forwards}.ud-cart-btn-loading{opacity:.75;cursor:wait}.ud-cart-btn-added{transform:scale(1.03);transition:transform .15s ease}';
     document.head.appendChild(style);
 })();
 

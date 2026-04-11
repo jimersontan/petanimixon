@@ -103,10 +103,15 @@ class ProductAdminController extends Controller
             'short_description' => 'nullable|string',
             'full_description' => 'nullable|string',
             'brand_name' => 'nullable|string',
+            'wet_or_dry' => 'nullable|in:wet,dry',
+            'life_stage' => 'nullable|string|max:50',
             'product_status' => 'required|in:active,draft,out_of_stock',
         ]);
         if (($data['brand_name'] ?? '') === '' || ($data['brand_name'] ?? null) === null) {
             $data['brand_name'] = ''; // empty string, not null (column doesn't allow null)
+        }
+        if (($data['short_description'] ?? '') === '' || ($data['short_description'] ?? null) === null) {
+            $data['short_description'] = ''; // empty string, not null (column doesn't allow null)
         }
         // handle product image upload
         if ($request->hasFile('image')) {
@@ -160,10 +165,15 @@ class ProductAdminController extends Controller
             'short_description' => 'nullable|string',
             'full_description' => 'nullable|string',
             'brand_name' => 'nullable|string',
+            'wet_or_dry' => 'nullable|in:wet,dry',
+            'life_stage' => 'nullable|string|max:50',
             'product_status' => 'required|in:active,draft,out_of_stock',
         ]);
         if (($data['brand_name'] ?? '') === '' || $data['brand_name'] === null) {
             $data['brand_name'] = ''; // use empty string, not null (column doesn't allow null)
+        }
+        if (($data['short_description'] ?? '') === '' || ($data['short_description'] ?? null) === null) {
+            $data['short_description'] = ''; // empty string, not null (column doesn't allow null)
         }
         if (array_key_exists('stock', $data) && $data['stock'] === 0) {
             $data['product_status'] = 'out_of_stock';
@@ -228,8 +238,92 @@ class ProductAdminController extends Controller
         if ($product->product_status !== 'draft') {
             return redirect()->route('inventory.admin')->with('error', 'Only draft products can be permanently deleted. Move to draft first.');
         }
-        $product->variants()->delete();
-        $product->delete();
-        return redirect()->route('inventory.admin')->with('success', 'Product permanently deleted');
+
+        // Check if product is in any orders
+        if ($product->orderItems()->count() > 0) {
+            return redirect()->route('inventory.admin')->with('error', 'Cannot delete product because it is linked to past orders. Keep it as Draft instead.');
+        }
+
+        try {
+            $product->variants()->delete();
+            $product->reviews()->delete();
+            \DB::table('cart_items')->where('product_id', $product->id)->delete();
+            \DB::table('wishlists')->where('product_id', $product->id)->delete();
+            \DB::table('product_questions')->where('product_id', $product->id)->delete();
+            $product->delete();
+            return redirect()->route('inventory.admin')->with('success', 'Product permanently deleted');
+        } catch (\Exception $e) {
+            return redirect()->route('inventory.admin')->with('error', 'Cannot delete product due to existing data linkages. Please keep it as Draft.');
+        }
+    }
+
+    /**
+     * Store detailed sale data for a product.
+     */
+    public function storeSale(Request $request)
+    {
+        $data = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'discount_type' => 'required|in:percent,fixed',
+            'discount_amount' => 'required|numeric|min:0',
+            'valid_from' => 'required|date',
+            'valid_until' => 'required|date|after_or_equal:valid_from',
+            'is_featured' => 'nullable|boolean',
+        ]);
+
+        $product = Product::findOrFail($data['product_id']);
+        $product->is_reduced = true;
+        $product->discount_type = $data['discount_type'];
+        $product->discount_amount = $data['discount_amount'];
+        $product->sale_valid_from = $data['valid_from'];
+        $product->sale_valid_until = $data['valid_until'];
+
+        if (isset($data['is_featured']) && $data['is_featured']) {
+            $product->is_featured = true;
+        }
+
+        $product->save();
+
+        return redirect()->back()->with('success', 'Product sale configured successfully.');
+    }
+
+    /**
+     * Toggle product sale status (is_reduced)
+     */
+    public function toggleSale($id)
+    {
+        try {
+            $product = Product::findOrFail($id);
+            $product->is_reduced = !$product->is_reduced;
+            if (!$product->is_reduced) {
+                $product->discount_type = null;
+                $product->discount_amount = null;
+                $product->sale_valid_from = null;
+                $product->sale_valid_until = null;
+            }
+            $product->save();
+
+            $status = $product->is_reduced ? 'added to' : 'removed from';
+            return redirect()->back()->with('success', "Product $status sale.");
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Unable to toggle sale status.');
+        }
+    }
+
+    /**
+     * Toggle product featured status (is_featured) for homepage display
+     */
+    public function toggleFeatured($id)
+    {
+        try {
+            $product = Product::findOrFail($id);
+            $product->is_featured = !$product->is_featured;
+            $product->save();
+
+            $status = $product->is_featured ? 'added to' : 'removed from';
+            return redirect()->back()->with('success', "Product $status homepage featured.");
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Unable to toggle featured status.');
+        }
     }
 }

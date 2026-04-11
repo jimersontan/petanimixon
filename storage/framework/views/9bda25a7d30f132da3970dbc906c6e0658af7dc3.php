@@ -1,4 +1,4 @@
-<?php $__env->startSection('title', 'Order Placed - Pet Animixon'); ?>
+<?php $__env->startSection('title', 'Order Placed - PetMarkt-PH'); ?>
 
 <?php $__env->startPush('styles'); ?>
 <style>
@@ -11,14 +11,14 @@
 .success-row:last-child { border-bottom: none; }
 .success-label { color: #888; }
 .success-value { color: #333; font-weight: 600; }
-.success-total { font-size: 18px; font-weight: 800; color: #FF8C42; border-top: 2px solid #eee; padding-top: 12px; margin-top: 6px; }
+.success-total { font-size: 18px; font-weight: 800; color: #3b7c42; border-top: 2px solid #eee; padding-top: 12px; margin-top: 6px; }
 .success-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 .success-btn { padding: 14px 28px; border-radius: 8px; font-size: 14px; font-weight: 700; text-decoration: none; transition: all .2s; display: inline-flex; align-items: center; gap: 6px; }
-.success-btn-track { background: #FF8C42; color: #fff; }
+.success-btn-track { background: #3b7c42; color: #fff; }
 .success-btn-track:hover { opacity: .88; }
 .success-btn-orders { background: #f0f0f0; color: #555; }
 .success-btn-orders:hover { background: #e0e0e0; }
-.success-btn-shop { background: #fff; color: #FF8C42; border: 2px solid #FF8C42; }
+.success-btn-shop { background: #fff; color: #3b7c42; border: 2px solid #3b7c42; }
 .success-btn-shop:hover { background: #fffaf5; }
 
 @media (max-width: 768px) {
@@ -34,7 +34,7 @@
 <div class="success-page">
     <span class="success-icon">🎉</span>
     <h1>Order Placed Successfully!</h1>
-    <p class="sub">Thank you for shopping at Pet Animixon. We'll start processing your order right away.</p>
+    <p class="sub">Thank you for shopping at PetMarkt-PH. We'll start processing your order right away.</p>
 
     <div class="success-card">
         <div class="success-row">
@@ -70,5 +70,7 @@
     </div>
 </div>
 <?php $__env->stopSection(); ?>
+
+
 
 <?php echo $__env->make('frontend.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views/frontend/checkout_success.blade.php ENDPATH**/ ?>

@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Shipping Info - Pet Animixon')
+@section('title', 'Shipping Info - PetMarkt-PH')
 
 @push('styles')
 <style>
@@ -32,8 +32,8 @@
     .info-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     .info-card h4 { font-size: 16px; font-weight: 700; color: #222; margin: 0 0 8px; }
     .info-card p { font-size: 13px; color: #666; line-height: 1.7; margin: 0; }
-    .note-box { background: #FFF3E0; border-left: 4px solid #FF8C42; border-radius: 0 8px 8px 0; padding: 16px 20px; margin-top: 30px; }
-    .note-box strong { color: #FF8C42; }
+    .note-box { background: #e9f2ea; border-left: 4px solid #3b7c42; border-radius: 0 8px 8px 0; padding: 16px 20px; margin-top: 30px; }
+    .note-box strong { color: #3b7c42; }
     .note-box p { font-size: 13px; color: #666; margin: 4px 0 0; line-height: 1.6; }
     @media (max-width: 768px) {
         .shipping-hero { padding: 30px 16px 40px; }
@@ -109,3 +109,5 @@
     </div>
 </div>
 @endsection
+
+

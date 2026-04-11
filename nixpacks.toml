@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["nodejs_18", "npm-9_x", "nginx", "libmysqlclient"]
+nixPkgs = ["...", "nodejs_18", "npm-9_x", "nginx", "libmysqlclient"]
 
 [phases.build]
 cmds = ["npm run prod", "php artisan optimize:clear"]

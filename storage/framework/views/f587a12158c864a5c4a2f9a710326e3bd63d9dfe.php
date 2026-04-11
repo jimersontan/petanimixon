@@ -15,11 +15,30 @@
         </div>
     </div>
     <div class="header-right">
-        <div style="position: relative;">
+        <div style="position: relative;" id="adminNotificationRoot">
             <button type="button" class="icon-btn" aria-label="Notifications" id="adminNotificationBtn" title="Notifications">
                 <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
                 <span id="notificationBadge" class="notification-badge" style="display: none;">0</span>
             </button>
+            <div id="adminNotificationPanel" class="ud-notification-panel" style="
+                position: absolute; top: 100%; right: 0; margin-top: 8px;
+                background: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+                width: min(350px, 92vw); max-height: 500px; overflow-y: auto; display: none;
+                z-index: 1000; border: 1px solid #e5e7eb; text-align: left;">
+                <div style="
+                    padding: 16px; border-bottom: 1px solid #e5e7eb;
+                    display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; font-size: 14px; font-weight: 700; color: #1f2937;">Notifications</h3>
+                    <button type="button" id="adminMarkAllRead" style="
+                        background: none; border: none; color: #ea580c; font-size: 12px;
+                        font-weight: 600; cursor: pointer;">Mark all as read</button>
+                </div>
+                <div id="adminNotificationList" style="padding: 12px; min-height: 100px;">
+                    <div style="text-align: center; padding: 24px; color: #9ca3af; font-size: 14px;">
+                        Loading notifications...
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="dropdown">
             <button type="button" class="icon-btn dropdown-toggle" id="profileMenuButton" aria-haspopup="true" aria-expanded="false" aria-label="Profile">
@@ -59,20 +78,93 @@
 </style>
 
 <script>
-    // Check unread notifications count for admin
+    function csrfHeaders() {
+        const t = document.querySelector('meta[name="csrf-token"]');
+        return {
+            'X-CSRF-TOKEN': t ? t.content : '',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        };
+    }
+
+    function timeAgo(dateString) {
+        const date = new Date(dateString);
+        const diff = Math.floor((new Date() - date) / 1000);
+        if (diff < 60) return 'just now';
+        if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+        if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+        if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+        return date.toLocaleDateString();
+    }
+
+    function escapeHtml(s) {
+        if (!s) return '';
+        const d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+    }
+
+    // Check unread notifications count for admin — SSE powered
     document.addEventListener('DOMContentLoaded', function() {
         updateAdminNotificationBadge();
-        // Refresh every 30 seconds
-        setInterval(updateAdminNotificationBadge, 30000);
+
+        // Connect SSE for admin
+        let adminSSE = null;
+        function connectAdminSSE() {
+            if (adminSSE) adminSSE.close();
+            adminSSE = new EventSource('<?php echo e(route("sse.admin-stream")); ?>');
+
+            adminSSE.addEventListener('notification_count', function(e) {
+                try {
+                    const data = JSON.parse(e.data);
+                    const badge = document.getElementById('notificationBadge');
+                    if (data.unread_count > 0) {
+                        badge.textContent = data.unread_count > 99 ? '99+' : data.unread_count;
+                        badge.style.display = 'flex';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                } catch(ex) {}
+            });
+
+            adminSSE.addEventListener('new_notification', function(e) {
+                try {
+                    const data = JSON.parse(e.data);
+                    // Show toast if available
+                    if (typeof window.showNotificationToast === 'function') {
+                        window.showNotificationToast(data.title, data.message, data.icon);
+                    }
+                } catch(ex) {}
+            });
+
+            adminSSE.addEventListener('chat_count', function(e) {
+                try {
+                    const data = JSON.parse(e.data);
+                    const chatBadge = document.getElementById('adminChatBadge');
+                    if (chatBadge) {
+                        if (data.unread_count > 0) {
+                            chatBadge.textContent = data.unread_count > 99 ? '99+' : data.unread_count;
+                            chatBadge.style.display = 'flex';
+                        } else {
+                            chatBadge.style.display = 'none';
+                        }
+                    }
+                } catch(ex) {}
+            });
+
+            adminSSE.addEventListener('reconnect', function() { adminSSE.close(); setTimeout(connectAdminSSE, 2000); });
+            adminSSE.onerror = function() { adminSSE.close(); setTimeout(connectAdminSSE, 5000); };
+        }
+
+        connectAdminSSE();
+        window.addEventListener('beforeunload', function() { if (adminSSE) adminSSE.close(); });
     });
 
     function updateAdminNotificationBadge() {
-        fetch('<?php echo e(route("notifications.unread")); ?>')
+        fetch('<?php echo e(route("notifications.unread")); ?>', { headers: csrfHeaders() })
             .then(r => r.json())
             .then(data => {
                 const badge = document.getElementById('notificationBadge');
                 if (data.unread_count > 0) {
-                    badge.textContent = data.unread_count;
+                    badge.textContent = data.unread_count > 99 ? '99+' : data.unread_count;
                     badge.style.display = 'flex';
                 } else {
                     badge.style.display = 'none';
@@ -81,10 +173,66 @@
             .catch(e => console.error('Failed to fetch notifications:', e));
     }
 
-    // Notification button click handler
-    document.getElementById('adminNotificationBtn').addEventListener('click', function() {
-        // TODO: Open notifications panel
-        alert('Notifications panel coming soon!');
+    function loadAdminNotifications() {
+        fetch('<?php echo e(route("notifications.list")); ?>?limit=10', { headers: csrfHeaders() })
+            .then(r => r.json())
+            .then(data => {
+                const list = document.getElementById('adminNotificationList');
+                if (data.data && data.data.length > 0) {
+                    list.innerHTML = data.data.map(n => {
+                        return '<div onclick="window.handleAdminNotifClick(' + n.id + ')" ' +
+                            'style="padding: 12px; margin-bottom: 8px; background: ' + (n.read ? '#f9fafb' : '#fef3c7') + '; ' +
+                            'border-radius: 6px; border-left: 4px solid #ea580c; cursor: pointer; transition: background 0.2s;">' +
+                            '<span style="font-size:20px; margin-right:8px; display:inline-block;">' + (n.icon || '🔔') + '</span>' +
+                            '<div style="display:inline-block; vertical-align: top; width: calc(100% - 32px);">' +
+                                '<span style="font-weight:600; font-size:13px; color:#1f2937; display:block;">' + escapeHtml(n.title) + '</span>' +
+                                '<span style="font-size:12px; color:#6b7280; display:block; margin-top:4px; line-height: 1.4;">' + escapeHtml(n.message) + '</span>' +
+                                '<span style="font-size:11px; color:#9ca3af; display:block; margin-top:6px;">' + timeAgo(n.created_at) + '</span>' +
+                            '</div></div>';
+                    }).join('');
+                } else {
+                    list.innerHTML = '<div style="text-align: center; padding: 24px; color: #9ca3af; font-size: 14px;">No notifications</div>';
+                }
+            });
+    }
+
+    window.handleAdminNotifClick = function(id) {
+        fetch('/api/notifications/' + id + '/read', { method: 'PATCH', headers: csrfHeaders() })
+            .then(() => {
+                loadAdminNotifications();
+                updateAdminNotificationBadge();
+            });
+    };
+
+    var adminNotifOpen = false;
+    document.getElementById('adminNotificationBtn').addEventListener('click', function(e) {
+        e.stopPropagation();
+        var panel = document.getElementById('adminNotificationPanel');
+        if (adminNotifOpen) {
+            panel.style.display = 'none';
+        } else {
+            panel.style.display = 'block';
+            loadAdminNotifications();
+        }
+        adminNotifOpen = !adminNotifOpen;
+    });
+
+    document.addEventListener('click', function(e) {
+        var root = document.getElementById('adminNotificationRoot');
+        var panel = document.getElementById('adminNotificationPanel');
+        if (adminNotifOpen && root && !root.contains(e.target)) {
+            panel.style.display = 'none';
+            adminNotifOpen = false;
+        }
+    });
+
+    document.getElementById('adminMarkAllRead').addEventListener('click', function(e) {
+        e.stopPropagation();
+        fetch('<?php echo e(route("notifications.mark-all-read")); ?>', { method: 'POST', headers: csrfHeaders() })
+            .then(() => {
+                loadAdminNotifications();
+                updateAdminNotificationBadge();
+            });
     });
 </script>
 

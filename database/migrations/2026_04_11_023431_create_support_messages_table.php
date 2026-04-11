@@ -6,24 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateSupportMessagesTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::create('support_messages', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('user_id')->index();
+            $table->enum('sender_type', ['user', 'admin'])->default('user');
+            $table->text('message')->nullable();
+            $table->string('image_path')->nullable();
+            $table->boolean('is_read')->default(false)->index();
+            $table->timestamp('read_at')->nullable();
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('support_messages');

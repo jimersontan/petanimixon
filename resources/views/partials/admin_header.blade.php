@@ -102,10 +102,60 @@
         const d = document.createElement('div'); d.textContent = s; return d.innerHTML;
     }
 
-    // Check unread notifications count for admin
+    // Check unread notifications count for admin — SSE powered
     document.addEventListener('DOMContentLoaded', function() {
         updateAdminNotificationBadge();
-        setInterval(updateAdminNotificationBadge, 30000);
+
+        // Connect SSE for admin
+        let adminSSE = null;
+        function connectAdminSSE() {
+            if (adminSSE) adminSSE.close();
+            adminSSE = new EventSource('{{ route("sse.admin-stream") }}');
+
+            adminSSE.addEventListener('notification_count', function(e) {
+                try {
+                    const data = JSON.parse(e.data);
+                    const badge = document.getElementById('notificationBadge');
+                    if (data.unread_count > 0) {
+                        badge.textContent = data.unread_count > 99 ? '99+' : data.unread_count;
+                        badge.style.display = 'flex';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                } catch(ex) {}
+            });
+
+            adminSSE.addEventListener('new_notification', function(e) {
+                try {
+                    const data = JSON.parse(e.data);
+                    // Show toast if available
+                    if (typeof window.showNotificationToast === 'function') {
+                        window.showNotificationToast(data.title, data.message, data.icon);
+                    }
+                } catch(ex) {}
+            });
+
+            adminSSE.addEventListener('chat_count', function(e) {
+                try {
+                    const data = JSON.parse(e.data);
+                    const chatBadge = document.getElementById('adminChatBadge');
+                    if (chatBadge) {
+                        if (data.unread_count > 0) {
+                            chatBadge.textContent = data.unread_count > 99 ? '99+' : data.unread_count;
+                            chatBadge.style.display = 'flex';
+                        } else {
+                            chatBadge.style.display = 'none';
+                        }
+                    }
+                } catch(ex) {}
+            });
+
+            adminSSE.addEventListener('reconnect', function() { adminSSE.close(); setTimeout(connectAdminSSE, 2000); });
+            adminSSE.onerror = function() { adminSSE.close(); setTimeout(connectAdminSSE, 5000); };
+        }
+
+        connectAdminSSE();
+        window.addEventListener('beforeunload', function() { if (adminSSE) adminSSE.close(); });
     });
 
     function updateAdminNotificationBadge() {

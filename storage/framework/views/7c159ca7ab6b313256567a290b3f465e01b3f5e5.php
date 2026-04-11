@@ -311,11 +311,24 @@
 
         loadUserNotifications();
         updateUserNotificationBadge();
-        setInterval(updateUserNotificationBadge, 20000);
 
+        // SSE-powered badge updates (replaces polling)
+        window.updateNotifBadgeFromSSE = function(count) {
+            const badge = document.getElementById('userNotificationBadge');
+            if (!badge) return;
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        };
+
+        // Fallback: refresh on tab visibility change
         document.addEventListener('visibilitychange', function() {
             if (document.visibilityState === 'visible') {
                 updateUserNotificationBadge();
+                if (notificationPanelOpen) loadUserNotifications();
             }
         });
     });

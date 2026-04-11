@@ -3,16 +3,16 @@ $dirs = [__DIR__ . '/database/seeders', __DIR__ . '/resources/views', __DIR__ . 
 
 $replacements = [
     'admin@petmarkt-ph.com' => 'admin@petmrkt.com',
-    'admin@petanimixon.com' => 'admin@petmrkt.com',
-    'admin@petverse.com'    => 'admin@petmrkt.com',
+    'admin@petmarkt-ph.com' => 'admin@petmrkt.com',
+    'admin@petmarkt-ph.com'    => 'admin@petmrkt.com',
     
-    'jimersontan@petanimixon.com' => 'jimersontan@petmarkt.com',
+    'jimersontan@petmarkt-ph.com' => 'jimersontan@petmarkt.com',
     'jimersontan@petmarkt-ph.com' => 'jimersontan@petmarkt.com',
     'rider@petmarkt-ph.com'       => 'jimersontan@petmarkt.com',
     
-    'user@petverse.com'      => 'user@petmarkt.com',
+    'user@petmarkt-ph.com'      => 'user@petmarkt.com',
     'user@petmarkt-ph.com'   => 'user@petmarkt.com',
-    'user@petanimixon.com'   => 'user@petmarkt.com'
+    'user@petmarkt-ph.com'   => 'user@petmarkt.com'
 ];
 
 function processPath($path, $replacements) {

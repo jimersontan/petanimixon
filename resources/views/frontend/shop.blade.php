@@ -6,8 +6,11 @@
 <style>
     /* ── Hero Banner ───────────────────────────── */
     .shop-hero {
-        background-color: #fdf0e6;
-        padding: 48px 20px 60px;
+        background-color: #FF8C42;
+        background-image: url("{{ asset('images/premium_pet_banner.png') }}");
+        background-size: cover;
+        background-position: center 30%;
+        padding: 90px 20px 105px;
         text-align: center;
         position: relative;
         overflow: hidden;
@@ -16,14 +19,11 @@
         content: '';
         position: absolute;
         inset: 0;
-        background-image:
-            radial-gradient(circle, rgba(255,140,66,.18) 1px, transparent 1px),
-            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Ctext y='28' font-size='18' fill='rgba(255,140,66,0.12)'%3E%F0%9F%90%BE%3C/text%3E%3C/svg%3E");
-        background-size: 30px 30px, 120px 120px;
-        opacity: .7;
+        background: linear-gradient(135deg, rgba(80, 30, 0, 0.45) 0%, rgba(200, 70, 0, 0.3) 100%);
+        opacity: 1;
     }
-    .shop-hero-title { font-size: 38px; font-weight: 800; color: #222; margin: 0 0 10px; position: relative; }
-    .shop-hero-sub   { font-size: 15px; color: #777; margin: 0; position: relative; }
+    .shop-hero-title { font-size: 52px; font-weight: 900; color: #fff; margin: 0 0 10px; position: relative; text-shadow: 0 4px 15px rgba(0,0,0,0.3); letter-spacing: -1px; }
+    .shop-hero-sub   { font-size: 18px; color: rgba(255,255,255,0.95); margin: 0; position: relative; font-weight: 500; text-shadow: 0 2px 8px rgba(0,0,0,0.2); }
     /* curved bottom wave */
     .shop-hero-wave {
         position: absolute; bottom: -2px; left: 0; right: 0;
@@ -116,10 +116,14 @@
     /* Dropdown Toggle Button */
     .btn-toggle-sub {
         background: none; border: none; cursor: pointer; color: #888;
-        padding: 4px; display: flex; align-items: center; justify-content: center;
+        padding: 0; display: flex; align-items: center; justify-content: center;
         transition: transform 0.2s, color 0.2s;
         border-radius: 4px;
         margin-left: 8px;
+        height: 20px;
+        max-height: 20px;
+        line-height: 1;
+        outline: none;
     }
     .btn-toggle-sub:hover { color: #3b7c42; background: #f0fdf4; }
     .btn-toggle-sub.expanded { transform: rotate(180deg); color: #3b7c42; }
@@ -415,24 +419,24 @@
                             }
                         }
                     @endphp
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: {{ isset($lifeStageMap[$ptKey]) ? '6px' : '10px' }};">
-                        <label class="filter-label" style="margin-bottom: 0; flex: 1;">
-                            <div class="filter-label-left">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; height: 28px; min-height: 28px;">
+                        <label class="filter-label" style="margin-bottom: 0; flex: 1; height: 100%; display: flex; align-items: center;">
+                            <div class="filter-label-left" style="display: flex; align-items: center; height: 100%;">
                                 <input type="checkbox" name="pet_type[]" value="{{ $pt->animal_type }}"
                                     {{ in_array($pt->animal_type, request()->input('pet_type', [])) ? 'checked' : '' }}
-                                    onchange="document.getElementById('filterForm').submit()">
-                                <span>{{ ucfirst($pt->animal_type) }}</span>
+                                    onchange="document.getElementById('filterForm').submit()" style="margin: 0;">
+                                <span style="line-height: 1;">{{ ucfirst($pt->animal_type) }}</span>
                             </div>
-                            <span class="filter-count">({{ $pt->count }})</span>
+                            <span class="filter-count" style="line-height: 1;">({{ $pt->count }})</span>
                         </label>
                         @if(isset($lifeStageMap[$ptKey]))
-                        <button type="button" class="btn-toggle-sub {{ $hasSubFiltersChecked ? 'expanded' : '' }}" onclick="toggleSubgroup('sub_{{ $ptKey }}', this)" aria-label="Toggle subfilters">
+                        <button type="button" class="btn-toggle-sub {{ $hasSubFiltersChecked ? 'expanded' : '' }}" onclick="toggleSubgroup('sub_{{ $ptKey }}', this)" aria-label="Toggle subfilters" style="margin: 0; margin-left: 8px;">
                             <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
                         </button>
                         @endif
                     </div>
                     @if(isset($lifeStageMap[$ptKey]))
-                    <div id="sub_{{ $ptKey }}" style="margin-left: 26px; margin-bottom: 10px; display: {{ $hasSubFiltersChecked ? 'flex' : 'none' }}; flex-direction: column; gap: 8px;">
+                    <div id="sub_{{ $ptKey }}" style="margin-left: 26px; margin-bottom: 6px; display: {{ $hasSubFiltersChecked ? 'flex' : 'none' }}; flex-direction: column; gap: 6px;">
                         @foreach($lifeStageMap[$ptKey] as $stageVal => $stageLabel)
                         <label class="filter-label" style="margin-bottom: 0;">
                             <div class="filter-label-left">
@@ -458,24 +462,24 @@
                     @php 
                         $hasFoodSubFiltersChecked = stripos($cat->category_name, 'food') !== false && !empty(request()->input('food_type', []));
                     @endphp
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: {{ stripos($cat->category_name, 'food') !== false ? '6px' : '10px' }};">
-                        <label class="filter-label" style="margin-bottom: 0; flex: 1;">
-                            <div class="filter-label-left">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; height: 28px; min-height: 28px;">
+                        <label class="filter-label" style="margin-bottom: 0; flex: 1; height: 100%; display: flex; align-items: center;">
+                            <div class="filter-label-left" style="display: flex; align-items: center; height: 100%;">
                                 <input type="checkbox" name="category[]" value="{{ $cat->id }}"
                                     {{ in_array($cat->id, request()->input('category', [])) ? 'checked' : '' }}
-                                    onchange="document.getElementById('filterForm').submit()">
-                                <span>{{ $cat->category_name }}</span>
+                                    onchange="document.getElementById('filterForm').submit()" style="margin: 0;">
+                                <span style="line-height: 1;">{{ $cat->category_name }}</span>
                             </div>
-                            <span class="filter-count">({{ $cat->products_count ?? 0 }})</span>
+                            <span class="filter-count" style="line-height: 1;">({{ $cat->products_count ?? 0 }})</span>
                         </label>
                         @if(stripos($cat->category_name, 'food') !== false)
-                        <button type="button" class="btn-toggle-sub {{ $hasFoodSubFiltersChecked ? 'expanded' : '' }}" onclick="toggleSubgroup('sub_cat_{{ $cat->id }}', this)" aria-label="Toggle subfilters">
+                        <button type="button" class="btn-toggle-sub {{ $hasFoodSubFiltersChecked ? 'expanded' : '' }}" onclick="toggleSubgroup('sub_cat_{{ $cat->id }}', this)" aria-label="Toggle subfilters" style="margin: 0; margin-left: 8px;">
                             <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
                         </button>
                         @endif
                     </div>
                     @if(stripos($cat->category_name, 'food') !== false)
-                    <div id="sub_cat_{{ $cat->id }}" style="margin-left: 26px; margin-bottom: 10px; display: {{ $hasFoodSubFiltersChecked ? 'flex' : 'none' }}; flex-direction: column; gap: 8px;">
+                    <div id="sub_cat_{{ $cat->id }}" style="margin-left: 26px; margin-bottom: 6px; display: {{ $hasFoodSubFiltersChecked ? 'flex' : 'none' }}; flex-direction: column; gap: 6px;">
                         <label class="filter-label" style="margin-bottom: 0;">
                             <div class="filter-label-left">
                                 <input type="checkbox" name="food_type[]" value="wet"

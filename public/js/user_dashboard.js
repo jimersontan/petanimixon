@@ -1,5 +1,5 @@
 /**
- * Petverse User Dashboard - Customer Homepage Interactivity
+ * PetMarkt-PH User Dashboard - Customer Homepage Interactivity
  */
 (function () {
     'use strict';

@@ -437,3 +437,40 @@ Route::middleware(['auth', 'admin'])->prefix('admin/returns')->group(function ()
     Route::post('/{id}/approve', [ReturnRefundAdminController::class, 'approve'])->name('returns.approve');
     Route::post('/{id}/reject', [ReturnRefundAdminController::class, 'reject'])->name('returns.reject');
 });
+
+// ============================================================
+// SSE (Server-Sent Events) ROUTES
+// ============================================================
+use App\Http\Controllers\SSEController;
+Route::middleware('auth')->group(function () {
+    Route::get('/api/sse/user-stream', [SSEController::class, 'userStream'])->name('sse.user-stream');
+    Route::get('/api/sse/admin-stream', [SSEController::class, 'adminStream'])->name('sse.admin-stream');
+});
+
+// ============================================================
+// SUPPORT CHAT ROUTES
+// ============================================================
+use App\Http\Controllers\SupportChatController;
+
+// User chat routes
+Route::middleware('auth')->prefix('api/support-chat')->group(function () {
+    Route::post('/send', [SupportChatController::class, 'sendMessage'])->name('support-chat.send');
+    Route::get('/messages', [SupportChatController::class, 'getMessages'])->name('support-chat.messages');
+    Route::get('/unread-count', [SupportChatController::class, 'getUnreadCount'])->name('support-chat.unread');
+    Route::post('/typing', [SupportChatController::class, 'sendTyping'])->name('support-chat.typing');
+});
+
+// Admin chat routes
+Route::middleware(['auth', 'admin'])->prefix('admin/api/support-chat')->group(function () {
+    Route::get('/conversations', [SupportChatController::class, 'adminGetConversations'])->name('admin.support-chat.conversations');
+    Route::get('/messages/{userId}', [SupportChatController::class, 'adminGetMessages'])->name('admin.support-chat.messages');
+    Route::post('/reply/{userId}', [SupportChatController::class, 'adminSendReply'])->name('admin.support-chat.reply');
+    Route::post('/typing/{userId}', [SupportChatController::class, 'adminSendTyping'])->name('admin.support-chat.typing');
+    Route::get('/unread-count', [SupportChatController::class, 'adminUnreadCount'])->name('admin.support-chat.unread');
+});
+
+// Admin chat page
+Route::middleware(['auth', 'admin'])->get('/admin/support-chat', function () {
+    return view('admin_support_chat');
+})->name('admin.support-chat');
+

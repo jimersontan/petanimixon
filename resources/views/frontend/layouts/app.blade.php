@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Petverse')</title>
+    <title>@yield('title', 'PetMarkt-PH')</title>
 
     <link rel="stylesheet" href="{{ asset('css/user_dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/themes.css') }}">
@@ -192,6 +192,9 @@
         </a>
         @endauth
     </nav>
+
+    {{-- Support Chat Widget --}}
+    @include('components.support_chat')
 
     {{-- Global Product Modal --}}
     <div id="globalProductModal" class="ud-modal-overlay" style="display:none;" onclick="if(event.target===this) window.closeProductModal()">

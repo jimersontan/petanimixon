@@ -6,8 +6,11 @@
 <style>
     /* ── Hero Banner ───────────────────────────── */
     .shop-hero {
-        background-color: #fdf0e6;
-        padding: 48px 20px 60px;
+        background-color: #FF8C42;
+        background-image: url("<?php echo e(asset('images/premium_pet_banner.png')); ?>");
+        background-size: cover;
+        background-position: center 30%;
+        padding: 90px 20px 105px;
         text-align: center;
         position: relative;
         overflow: hidden;
@@ -16,14 +19,11 @@
         content: '';
         position: absolute;
         inset: 0;
-        background-image:
-            radial-gradient(circle, rgba(255,140,66,.18) 1px, transparent 1px),
-            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Ctext y='28' font-size='18' fill='rgba(255,140,66,0.12)'%3E%F0%9F%90%BE%3C/text%3E%3C/svg%3E");
-        background-size: 30px 30px, 120px 120px;
-        opacity: .7;
+        background: linear-gradient(135deg, rgba(80, 30, 0, 0.45) 0%, rgba(200, 70, 0, 0.3) 100%);
+        opacity: 1;
     }
-    .shop-hero-title { font-size: 38px; font-weight: 800; color: #222; margin: 0 0 10px; position: relative; }
-    .shop-hero-sub   { font-size: 15px; color: #777; margin: 0; position: relative; }
+    .shop-hero-title { font-size: 52px; font-weight: 900; color: #fff; margin: 0 0 10px; position: relative; text-shadow: 0 4px 15px rgba(0,0,0,0.3); letter-spacing: -1px; }
+    .shop-hero-sub   { font-size: 18px; color: rgba(255,255,255,0.95); margin: 0; position: relative; font-weight: 500; text-shadow: 0 2px 8px rgba(0,0,0,0.2); }
     /* curved bottom wave */
     .shop-hero-wave {
         position: absolute; bottom: -2px; left: 0; right: 0;
@@ -116,10 +116,14 @@
     /* Dropdown Toggle Button */
     .btn-toggle-sub {
         background: none; border: none; cursor: pointer; color: #888;
-        padding: 4px; display: flex; align-items: center; justify-content: center;
+        padding: 0; display: flex; align-items: center; justify-content: center;
         transition: transform 0.2s, color 0.2s;
         border-radius: 4px;
         margin-left: 8px;
+        height: 20px;
+        max-height: 20px;
+        line-height: 1;
+        outline: none;
     }
     .btn-toggle-sub:hover { color: #3b7c42; background: #f0fdf4; }
     .btn-toggle-sub.expanded { transform: rotate(180deg); color: #3b7c42; }
@@ -415,25 +419,25 @@
                             }
                         }
                     ?>
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: <?php echo e(isset($lifeStageMap[$ptKey]) ? '6px' : '10px'); ?>;">
-                        <label class="filter-label" style="margin-bottom: 0; flex: 1;">
-                            <div class="filter-label-left">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; height: 28px; min-height: 28px;">
+                        <label class="filter-label" style="margin-bottom: 0; flex: 1; height: 100%; display: flex; align-items: center;">
+                            <div class="filter-label-left" style="display: flex; align-items: center; height: 100%;">
                                 <input type="checkbox" name="pet_type[]" value="<?php echo e($pt->animal_type); ?>"
                                     <?php echo e(in_array($pt->animal_type, request()->input('pet_type', [])) ? 'checked' : ''); ?>
 
-                                    onchange="document.getElementById('filterForm').submit()">
-                                <span><?php echo e(ucfirst($pt->animal_type)); ?></span>
+                                    onchange="document.getElementById('filterForm').submit()" style="margin: 0;">
+                                <span style="line-height: 1;"><?php echo e(ucfirst($pt->animal_type)); ?></span>
                             </div>
-                            <span class="filter-count">(<?php echo e($pt->count); ?>)</span>
+                            <span class="filter-count" style="line-height: 1;">(<?php echo e($pt->count); ?>)</span>
                         </label>
                         <?php if(isset($lifeStageMap[$ptKey])): ?>
-                        <button type="button" class="btn-toggle-sub <?php echo e($hasSubFiltersChecked ? 'expanded' : ''); ?>" onclick="toggleSubgroup('sub_<?php echo e($ptKey); ?>', this)" aria-label="Toggle subfilters">
+                        <button type="button" class="btn-toggle-sub <?php echo e($hasSubFiltersChecked ? 'expanded' : ''); ?>" onclick="toggleSubgroup('sub_<?php echo e($ptKey); ?>', this)" aria-label="Toggle subfilters" style="margin: 0; margin-left: 8px;">
                             <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
                         </button>
                         <?php endif; ?>
                     </div>
                     <?php if(isset($lifeStageMap[$ptKey])): ?>
-                    <div id="sub_<?php echo e($ptKey); ?>" style="margin-left: 26px; margin-bottom: 10px; display: <?php echo e($hasSubFiltersChecked ? 'flex' : 'none'); ?>; flex-direction: column; gap: 8px;">
+                    <div id="sub_<?php echo e($ptKey); ?>" style="margin-left: 26px; margin-bottom: 6px; display: <?php echo e($hasSubFiltersChecked ? 'flex' : 'none'); ?>; flex-direction: column; gap: 6px;">
                         <?php $__currentLoopData = $lifeStageMap[$ptKey]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $stageVal => $stageLabel): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <label class="filter-label" style="margin-bottom: 0;">
                             <div class="filter-label-left">
@@ -460,25 +464,25 @@
                     <?php 
                         $hasFoodSubFiltersChecked = stripos($cat->category_name, 'food') !== false && !empty(request()->input('food_type', []));
                     ?>
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: <?php echo e(stripos($cat->category_name, 'food') !== false ? '6px' : '10px'); ?>;">
-                        <label class="filter-label" style="margin-bottom: 0; flex: 1;">
-                            <div class="filter-label-left">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; height: 28px; min-height: 28px;">
+                        <label class="filter-label" style="margin-bottom: 0; flex: 1; height: 100%; display: flex; align-items: center;">
+                            <div class="filter-label-left" style="display: flex; align-items: center; height: 100%;">
                                 <input type="checkbox" name="category[]" value="<?php echo e($cat->id); ?>"
                                     <?php echo e(in_array($cat->id, request()->input('category', [])) ? 'checked' : ''); ?>
 
-                                    onchange="document.getElementById('filterForm').submit()">
-                                <span><?php echo e($cat->category_name); ?></span>
+                                    onchange="document.getElementById('filterForm').submit()" style="margin: 0;">
+                                <span style="line-height: 1;"><?php echo e($cat->category_name); ?></span>
                             </div>
-                            <span class="filter-count">(<?php echo e($cat->products_count ?? 0); ?>)</span>
+                            <span class="filter-count" style="line-height: 1;">(<?php echo e($cat->products_count ?? 0); ?>)</span>
                         </label>
                         <?php if(stripos($cat->category_name, 'food') !== false): ?>
-                        <button type="button" class="btn-toggle-sub <?php echo e($hasFoodSubFiltersChecked ? 'expanded' : ''); ?>" onclick="toggleSubgroup('sub_cat_<?php echo e($cat->id); ?>', this)" aria-label="Toggle subfilters">
+                        <button type="button" class="btn-toggle-sub <?php echo e($hasFoodSubFiltersChecked ? 'expanded' : ''); ?>" onclick="toggleSubgroup('sub_cat_<?php echo e($cat->id); ?>', this)" aria-label="Toggle subfilters" style="margin: 0; margin-left: 8px;">
                             <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
                         </button>
                         <?php endif; ?>
                     </div>
                     <?php if(stripos($cat->category_name, 'food') !== false): ?>
-                    <div id="sub_cat_<?php echo e($cat->id); ?>" style="margin-left: 26px; margin-bottom: 10px; display: <?php echo e($hasFoodSubFiltersChecked ? 'flex' : 'none'); ?>; flex-direction: column; gap: 8px;">
+                    <div id="sub_cat_<?php echo e($cat->id); ?>" style="margin-left: 26px; margin-bottom: 6px; display: <?php echo e($hasFoodSubFiltersChecked ? 'flex' : 'none'); ?>; flex-direction: column; gap: 6px;">
                         <label class="filter-label" style="margin-bottom: 0;">
                             <div class="filter-label-left">
                                 <input type="checkbox" name="food_type[]" value="wet"
@@ -643,17 +647,21 @@
                             <?php endif; ?>
                         </div>
 
-                        <form action="<?php echo e(route('cart.add')); ?>" method="POST">
-                            <?php echo csrf_field(); ?>
-                            <input type="hidden" name="product_id" value="<?php echo e($product->id); ?>">
-                            <input type="hidden" name="quantity" value="1">
-                            <button
-                                type="submit"
-                                class="btn-add-to-cart"
-                                <?php echo e($product->stock > 0 ? '' : 'disabled'); ?>>
-                                Add to Cart
-                            </button>
-                        </form>
+                        <?php if(auth()->guard()->check()): ?>
+                            <form action="<?php echo e(route('cart.add')); ?>" method="POST">
+                                <?php echo csrf_field(); ?>
+                                <input type="hidden" name="product_id" value="<?php echo e($product->id); ?>">
+                                <input type="hidden" name="quantity" value="1">
+                                <button
+                                    type="submit"
+                                    class="btn-add-to-cart"
+                                    <?php echo e($product->stock > 0 ? '' : 'disabled'); ?>>
+                                    Add to Cart
+                                </button>
+                            </form>
+                        <?php else: ?>
+                            <a href="<?php echo e(route('login')); ?>" class="btn-add-to-cart" style="display: block; text-align: center; text-decoration: none; box-sizing: border-box;">Add to Cart</a>
+                        <?php endif; ?>
                     </div>
                 </div>
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>

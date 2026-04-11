@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
-    <title><?php echo $__env->yieldContent('title', 'Petverse'); ?></title>
+    <title><?php echo $__env->yieldContent('title', 'PetMarkt-PH'); ?></title>
 
     <link rel="stylesheet" href="<?php echo e(asset('css/user_dashboard.css')); ?>">
     <link rel="stylesheet" href="<?php echo e(asset('css/themes.css')); ?>">
@@ -192,6 +192,9 @@
         </a>
         <?php endif; ?>
     </nav>
+
+    
+    <?php echo $__env->make('components.support_chat', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
     
     <div id="globalProductModal" class="ud-modal-overlay" style="display:none;" onclick="if(event.target===this) window.closeProductModal()">

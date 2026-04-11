@@ -79,6 +79,12 @@
                     <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></span>
                     <span class="nav-label">Returns</span>
                 </a>
+                <!-- Support Chat Link -->
+                <a href="<?php echo e(route('admin.support-chat')); ?>" class="nav-item <?php echo e(request()->routeIs('admin.support-chat') ? 'active' : ''); ?>" data-page="support-chat" style="position: relative;">
+                    <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/><path d="M7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/></svg></span>
+                    <span class="nav-label">Support Chat</span>
+                    <span id="adminChatBadge" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:#ef4444; color:#fff; border-radius:50%; width:20px; height:20px; font-size:10px; font-weight:700; display:none; align-items:center; justify-content:center;"></span>
+                </a>
                 <!-- Admin Users Link -->
                 <a href="<?php echo e(route('admin.users')); ?>" class="nav-item <?php echo e(request()->routeIs('admin.users*') ? 'active' : ''); ?>" data-page="admin-users">
                     <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></span>

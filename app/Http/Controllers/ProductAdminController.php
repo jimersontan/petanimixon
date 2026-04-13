@@ -94,7 +94,9 @@ class ProductAdminController extends Controller
     {
         $data = $request->validate([
             'product_name' => 'required|string|max:255',
-            'animal_type_id' => 'required|integer|exists:animal_types,id',
+            'animal_type_ids' => 'required|array',
+            'animal_type_ids.*' => 'integer|exists:animal_types,id',
+            'life_stages' => 'nullable|array',
             'animal_category_id' => 'required|exists:categories,id',
             'price' => 'required|numeric|min:0',
             'sku' => 'required|string|unique:products,sku',
@@ -104,8 +106,6 @@ class ProductAdminController extends Controller
             'full_description' => 'nullable|string',
             'brand_name' => 'nullable|string',
             'wet_or_dry' => 'nullable|in:wet,dry',
-            'life_stage' => 'nullable|string|max:50',
-            'product_status' => 'required|in:active,draft,out_of_stock',
         ]);
         if (($data['brand_name'] ?? '') === '' || ($data['brand_name'] ?? null) === null) {
             $data['brand_name'] = ''; // empty string, not null (column doesn't allow null)
@@ -118,16 +118,35 @@ class ProductAdminController extends Controller
             $data['animal_image_url'] = $request->file('image')->store('products', 'public');
         }
 
-        // Look up the name of the animal type to save it in animal_type column
-        if (!empty($data['animal_type_id'])) {
-            $animalType = \Illuminate\Support\Facades\DB::table('animal_types')->find($data['animal_type_id']);
-            if ($animalType) {
-                $data['animal_type'] = $animalType->animal_type;
+        // Calculate comma separated strings for backwards compatibility
+        $animalTypeNames = [];
+        $lifeStageNames = [];
+        $syncData = [];
+        foreach ($data['animal_type_ids'] as $id) {
+            $at = \Illuminate\Support\Facades\DB::table('animal_types')->find($id);
+            if ($at) {
+                $animalTypeNames[] = $at->animal_type;
+                $stage = $data['life_stages'][$id] ?? null;
+                if ($stage) {
+                    $lifeStageNames[] = ucfirst($stage);
+                }
+                $syncData[$id] = ['life_stage' => $stage];
             }
         }
-        unset($data['animal_type_id']);
+        $data['animal_type'] = implode(', ', $animalTypeNames);
+        $data['life_stage'] = implode(', ', array_unique(array_filter($lifeStageNames)));
+        
+        unset($data['animal_type_ids']);
+        // Auto-assign status based on stock
+        if (isset($data['stock'])) {
+            $data['product_status'] = ((int) $data['stock'] > 0) ? 'active' : 'out_of_stock';
+        } else {
+            $data['product_status'] = 'out_of_stock';
+        }
 
         $product = Product::create($data + ['seller_id' => 0]);
+        // sync many-to-many relationship
+        try { $product->animalTypes()->sync($syncData); } catch (\Exception $e) {}
 
         // create a simple default variant using stock & price if stock provided
         if (!empty($data['stock'])) {
@@ -156,7 +175,9 @@ class ProductAdminController extends Controller
         $product = Product::findOrFail($id);
         $data = $request->validate([
             'product_name' => 'required|string|max:255',
-            'animal_type_id' => 'required|integer|exists:animal_types,id',
+            'animal_type_ids' => 'required|array',
+            'animal_type_ids.*' => 'integer|exists:animal_types,id',
+            'life_stages' => 'nullable|array',
             'animal_category_id' => 'required|exists:categories,id',
             'price' => 'required|numeric|min:0',
             'sku' => 'required|string|unique:products,sku,' . $product->id,
@@ -166,8 +187,6 @@ class ProductAdminController extends Controller
             'full_description' => 'nullable|string',
             'brand_name' => 'nullable|string',
             'wet_or_dry' => 'nullable|in:wet,dry',
-            'life_stage' => 'nullable|string|max:50',
-            'product_status' => 'required|in:active,draft,out_of_stock',
         ]);
         if (($data['brand_name'] ?? '') === '' || $data['brand_name'] === null) {
             $data['brand_name'] = ''; // use empty string, not null (column doesn't allow null)
@@ -182,16 +201,38 @@ class ProductAdminController extends Controller
             $data['animal_image_url'] = $request->file('image')->store('products', 'public');
         }
 
-        // Look up the name of the animal type to save it in animal_type column
-        if (!empty($data['animal_type_id'])) {
-            $animalType = \Illuminate\Support\Facades\DB::table('animal_types')->find($data['animal_type_id']);
-            if ($animalType) {
-                $data['animal_type'] = $animalType->animal_type;
+        // Calculate comma separated strings for backwards compatibility
+        $animalTypeNames = [];
+        $lifeStageNames = [];
+        $syncData = [];
+        foreach ($data['animal_type_ids'] as $typeId) {
+            $at = \Illuminate\Support\Facades\DB::table('animal_types')->find($typeId);
+            if ($at) {
+                $animalTypeNames[] = $at->animal_type;
+                $stage = $data['life_stages'][$typeId] ?? null;
+                if ($stage) {
+                    $lifeStageNames[] = ucfirst($stage);
+                }
+                $syncData[$typeId] = ['life_stage' => $stage];
             }
         }
-        unset($data['animal_type_id']);
+        $data['animal_type'] = implode(', ', $animalTypeNames);
+        $data['life_stage'] = implode(', ', array_unique(array_filter($lifeStageNames)));
+        
+        unset($data['animal_type_ids']);
+        unset($data['life_stages']);
+
+        // Auto-assign status based on stock if the product wasn't manually drafted
+        if ($product->product_status !== 'draft') {
+            if (isset($data['stock'])) {
+                $data['product_status'] = ((int) $data['stock'] > 0) ? 'active' : 'out_of_stock';
+            } else {
+                $data['product_status'] = 'out_of_stock';
+            }
+        }
 
         $product->update($data);
+        try { $product->animalTypes()->sync($syncData); } catch (\Exception $e) {}
 
         // optionally sync stock to the first variant if exists or create one
         if ($data['stock'] !== null) {

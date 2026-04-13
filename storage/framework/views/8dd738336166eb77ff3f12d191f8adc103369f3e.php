@@ -1,10 +1,10 @@
 <!-- ===== PRODUCTS ADMIN PAGE ===== -->
 <!-- Extends the main admin layout -->
-@extends('layouts.admin')
 
-@section('title','Products')
 
-@section('content')
+<?php $__env->startSection('title','Products'); ?>
+
+<?php $__env->startSection('content'); ?>
 
 <!-- ===== PAGE HEADER SECTION ===== -->
 <!-- Title, subtitle, date filter, and add product button -->
@@ -19,22 +19,23 @@
     <!-- Date Range Filter and Add New Product Button -->
     <div class="date-filter">
         <!-- Date Range Filter Form: Filters products by time period -->
-        <form method="get" action="{{ route('inventory.admin') }}" class="date-filter-form" id="productsDateForm">
+        <form method="get" action="<?php echo e(route('inventory.admin')); ?>" class="date-filter-form" id="productsDateForm">
             <!-- Brand Filter -->
             <select name="brand" class="filter-select" aria-label="Brand" onchange="this.form.submit()">
                 <option value="">All Brands</option>
-                <option value="unbranded" {{ ($selectedBrand ?? '') == 'unbranded' ? 'selected' : '' }}>Unbranded/No Brand</option>
-                @foreach($brands as $b)
-                    <option value="{{ $b->name }}" {{ ($selectedBrand ?? '') == $b->name ? 'selected' : '' }}>
-                        {{ $b->name }}
+                <option value="unbranded" <?php echo e(($selectedBrand ?? '') == 'unbranded' ? 'selected' : ''); ?>>Unbranded/No Brand</option>
+                <?php $__currentLoopData = $brands; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $b): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($b->name); ?>" <?php echo e(($selectedBrand ?? '') == $b->name ? 'selected' : ''); ?>>
+                        <?php echo e($b->name); ?>
+
                     </option>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </select>
             <!-- Date Range Filter -->
             <select name="days" id="productsDateRange" class="filter-select" aria-label="Date range" onchange="this.form.submit()">
-                <option value="7" {{ ($days ?? 30) == 7 ? 'selected' : '' }}>Last 7 days</option>
-                <option value="30" {{ ($days ?? 30) == 30 ? 'selected' : '' }}>Last 30 days</option>
-                <option value="90" {{ ($days ?? 30) == 90 ? 'selected' : '' }}>Last 90 days</option>
+                <option value="7" <?php echo e(($days ?? 30) == 7 ? 'selected' : ''); ?>>Last 7 days</option>
+                <option value="30" <?php echo e(($days ?? 30) == 30 ? 'selected' : ''); ?>>Last 30 days</option>
+                <option value="90" <?php echo e(($days ?? 30) == 90 ? 'selected' : ''); ?>>Last 90 days</option>
             </select>
         </form>
         <!-- End: Date Range Filter -->
@@ -59,7 +60,7 @@
             <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M3 3v8h8V3H3zm10 0v8h8V3h-8zM3 13v8h8v-8H3zm10 0v8h8v-8h-8z"/></svg>
         </div>
         <div class="metric-content">
-            <div class="metric-value" id="productsTotal">{{ number_format($stats['total_products'] ?? 0) }}</div>
+            <div class="metric-value" id="productsTotal"><?php echo e(number_format($stats['total_products'] ?? 0)); ?></div>
             <div class="metric-label">Total Products</div>
         </div>
     </div>
@@ -71,7 +72,7 @@
             <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
         </div>
         <div class="metric-content">
-            <div class="metric-value" id="productsActive">{{ number_format($stats['active_products'] ?? 0) }}</div>
+            <div class="metric-value" id="productsActive"><?php echo e(number_format($stats['active_products'] ?? 0)); ?></div>
             <div class="metric-label">Active</div>
         </div>
     </div>
@@ -83,7 +84,7 @@
             <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
         </div>
         <div class="metric-content">
-            <div class="metric-value" id="productsLowStock">{{ number_format($stats['low_stock'] ?? 0) }}</div>
+            <div class="metric-value" id="productsLowStock"><?php echo e(number_format($stats['low_stock'] ?? 0)); ?></div>
             <div class="metric-label">Low Stock Items</div>
         </div>
     </div>
@@ -95,7 +96,7 @@
             <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
         </div>
         <div class="metric-content">
-            <div class="metric-value" id="productsOutOfStock">{{ number_format($stats['out_of_stock'] ?? 0) }}</div>
+            <div class="metric-value" id="productsOutOfStock"><?php echo e(number_format($stats['out_of_stock'] ?? 0)); ?></div>
             <div class="metric-label">Out of Stock</div>
         </div>
     </div>
@@ -122,23 +123,23 @@
 
     <!-- Status Filter Tabs: All, Active, Draft, Out of Stock -->
     <div class="order-status-tabs" role="tablist">
-        @php $currentStatus = $status ?? 'all'; @endphp
-        <a href="{{ route('inventory.admin', array_merge(request()->all(), ['status' => 'all'])) }}"
-           class="order-tab {{ $currentStatus === 'all' ? 'active' : '' }}"
+        <?php $currentStatus = $status ?? 'all'; ?>
+        <a href="<?php echo e(route('inventory.admin', array_merge(request()->all(), ['status' => 'all']))); ?>"
+           class="order-tab <?php echo e($currentStatus === 'all' ? 'active' : ''); ?>"
            role="tab"
-           aria-selected="{{ $currentStatus === 'all' ? 'true' : 'false' }}">All</a>
-        <a href="{{ route('inventory.admin', array_merge(request()->all(), ['status' => 'active'])) }}"
-           class="order-tab {{ $currentStatus === 'active' ? 'active' : '' }}"
+           aria-selected="<?php echo e($currentStatus === 'all' ? 'true' : 'false'); ?>">All</a>
+        <a href="<?php echo e(route('inventory.admin', array_merge(request()->all(), ['status' => 'active']))); ?>"
+           class="order-tab <?php echo e($currentStatus === 'active' ? 'active' : ''); ?>"
            role="tab"
-           aria-selected="{{ $currentStatus === 'active' ? 'true' : 'false' }}">Active</a>
-        <a href="{{ route('inventory.admin', array_merge(request()->all(), ['status' => 'draft'])) }}"
-           class="order-tab {{ $currentStatus === 'draft' ? 'active' : '' }}"
+           aria-selected="<?php echo e($currentStatus === 'active' ? 'true' : 'false'); ?>">Active</a>
+        <a href="<?php echo e(route('inventory.admin', array_merge(request()->all(), ['status' => 'draft']))); ?>"
+           class="order-tab <?php echo e($currentStatus === 'draft' ? 'active' : ''); ?>"
            role="tab"
-           aria-selected="{{ $currentStatus === 'draft' ? 'true' : 'false' }}">Draft</a>
-        <a href="{{ route('inventory.admin', array_merge(request()->all(), ['status' => 'out_of_stock'])) }}"
-           class="order-tab {{ $currentStatus === 'out_of_stock' ? 'active' : '' }}"
+           aria-selected="<?php echo e($currentStatus === 'draft' ? 'true' : 'false'); ?>">Draft</a>
+        <a href="<?php echo e(route('inventory.admin', array_merge(request()->all(), ['status' => 'out_of_stock']))); ?>"
+           class="order-tab <?php echo e($currentStatus === 'out_of_stock' ? 'active' : ''); ?>"
            role="tab"
-           aria-selected="{{ $currentStatus === 'out_of_stock' ? 'true' : 'false' }}">Out of Stock</a>
+           aria-selected="<?php echo e($currentStatus === 'out_of_stock' ? 'true' : 'false'); ?>">Out of Stock</a>
     </div>
     <!-- End: Status Filter Tabs -->
 
@@ -164,46 +165,46 @@
             <!-- Table Body: Product Rows -->
             <tbody>
                 <!-- Status badge CSS class mapping -->
-                @php
+                <?php
                     $statusBadge = [
                         'active' => 'badge-paid',
                         'draft' => 'badge-pending',
                         'out_of_stock' => 'badge-failed',
                     ];
-                @endphp
+                ?>
 
                 <!-- Loop: Render each product row -->
-                @forelse(($products ?? []) as $product)
-                <tr data-status="{{ $product->product_status ?? 'active' }}">
+                <?php $__empty_1 = true; $__currentLoopData = ($products ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                <tr data-status="<?php echo e($product->product_status ?? 'active'); ?>">
                     <!-- Checkbox Column -->
                     <td class="col-checkbox">
-                        <input type="checkbox" class="order-checkbox" value="{{ $product->id }}">
+                        <input type="checkbox" class="order-checkbox" value="<?php echo e($product->id); ?>">
                     </td>
                     <!-- Product Name and SKU -->
                     <td>
                         <div class="product-cell">
-                            <img src="{{ $product->image_url }}" alt="Product Thumb" class="product-thumb-sm" style="object-fit: cover;">
+                            <img src="<?php echo e($product->image_url); ?>" alt="Product Thumb" class="product-thumb-sm" style="object-fit: cover;">
                             <span class="product-meta">
-                                <span class="product-name">{{ $product->product_name ?? '' }}</span>
-                                <span class="product-sku">SKU: {{ $product->sku ?? '' }}</span>
+                                <span class="product-name"><?php echo e($product->product_name ?? ''); ?></span>
+                                <span class="product-sku">SKU: <?php echo e($product->sku ?? ''); ?></span>
                             </span>
                         </div>
                     </td>
                     <!-- Category Name -->
-                    <td>{{ optional($product->category)->category_name ?? '' }}</td>
+                    <td><?php echo e(optional($product->category)->category_name ?? ''); ?></td>
                     <!-- Price -->
-                    <td>{{ isset($product->price) ? '' . number_format((float)$product->price, 2) : '' }}</td>
+                    <td><?php echo e(isset($product->price) ? '' . number_format((float)$product->price, 2) : ''); ?></td>
                     <!-- Stock Count -->
-                    <td>{{ $product->stock ?? 0 }}</td>
+                    <td><?php echo e($product->stock ?? 0); ?></td>
                     <!-- Status Badge -->
                     <td>
-                        @php $status = $product->product_status ?? 'active'; @endphp
-                        <span class="badge {{ $statusBadge[$status] ?? 'badge-pending' }}">{{ ucfirst(str_replace('_', ' ', $status)) }}</span>
+                        <?php $status = $product->product_status ?? 'active'; ?>
+                        <span class="badge <?php echo e($statusBadge[$status] ?? 'badge-pending'); ?>"><?php echo e(ucfirst(str_replace('_', ' ', $status))); ?></span>
                     </td>
                     <!-- Action Buttons: Edit and Delete -->
                     <td class="col-actions">
                         <!-- Edit Button -->
-                        @php
+                        <?php
                             // Build animal type IDs and life stages from pivot
                             $pivotAnimalTypeIds = [];
                             $pivotLifeStages = [];
@@ -241,41 +242,41 @@
                                 "animal_image_url" => $product->animal_image_url,
                                 "wet_or_dry" => $product->wet_or_dry,
                             ];
-                        @endphp
+                        ?>
                         <button type="button" class="action-btn" title="Edit" aria-label="Edit product"
-                            onclick='openProductModal("edit", @json($prodData))'>
+                            onclick='openProductModal("edit", <?php echo json_encode($prodData, 15, 512) ?>)'>
                             <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                         </button>
                         <!-- Draft Button: Only for non-draft products -->
-                        @if(($product->product_status ?? 'active') !== 'draft')
+                        <?php if(($product->product_status ?? 'active') !== 'draft'): ?>
                         <!-- Draft Button (Soft Delete) -->
-                        <form method="POST" action="{{ route('inventory.draft', $product->id) }}" style="display:inline">
-                            @csrf
-                            @method('PATCH')
+                        <form method="POST" action="<?php echo e(route('inventory.draft', $product->id)); ?>" style="display:inline">
+                            <?php echo csrf_field(); ?>
+                            <?php echo method_field('PATCH'); ?>
                             <button type="submit" class="action-btn" title="Hide this product (Move to Draft)" onclick="return confirm('Hide this product from the storefront and move it to Draft?')">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg>
                             </button>
                         </form>
-                        @else
+                        <?php else: ?>
                         <!-- Permanent Delete Button -->
-                        <form method="POST" action="{{ route('inventory.destroy', $product->id) }}" style="display:inline">
-                            @csrf
-                            @method('DELETE')
+                        <form method="POST" action="<?php echo e(route('inventory.destroy', $product->id)); ?>" style="display:inline">
+                            <?php echo csrf_field(); ?>
+                            <?php echo method_field('DELETE'); ?>
                             <button type="submit" class="action-btn" title="Permanently Delete Product" onclick="return confirm('⚠️ PERMANENT DELETE\n\nAre you sure you want to permanently delete this product? This cannot be undone!')" style="color: #ef4444; transition: opacity 0.2s; opacity: 0.85;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
                                 <!-- Trashcan SVG for Permanent Deletion -->
                                 <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-4.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
                             </button>
                         </form>
-                        @endif
+                        <?php endif; ?>
                     </td>
                     <!-- End: Action Buttons -->
                 </tr>
-                @empty
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                 <!-- Empty State: Shown when no products exist -->
                 <tr>
                     <td colspan="7" class="text-center empty-orders">No products found yet.</td>
                 </tr>
-                @endforelse
+                <?php endif; ?>
                 <!-- End: Product Rows Loop -->
             </tbody>
             <!-- End: Table Body -->
@@ -284,26 +285,27 @@
     <!-- End: Products Data Table -->
 
     <!-- Pagination: Only shown if products span multiple pages -->
-    @if(isset($products) && $products instanceof \Illuminate\Contracts\Pagination\Paginator && $products->hasPages())
+    <?php if(isset($products) && $products instanceof \Illuminate\Contracts\Pagination\Paginator && $products->hasPages()): ?>
     <div class="orders-pagination">
-        {{ $products->links() }}
+        <?php echo e($products->links()); ?>
+
     </div>
-    @endif
+    <?php endif; ?>
     <!-- End: Pagination -->
 
 </div>
 <!-- ===== END PRODUCTS TABLE SECTION ===== -->
 
-@endsection
+<?php $__env->stopSection(); ?>
 
 <!-- ===== PRODUCT MODAL (ADD/EDIT) ===== -->
 <!-- Modal popup for creating or editing a product -->
-@push('modals')
+<?php $__env->startPush('modals'); ?>
 <!-- Modal Backdrop: Dark overlay behind the modal -->
-<div class="modal-backdrop {{ $errors->any() ? 'open' : '' }}" data-modal-id="product-modal"></div>
+<div class="modal-backdrop <?php echo e($errors->any() ? 'open' : ''); ?>" data-modal-id="product-modal"></div>
 
 <!-- Modal Container -->
-<div id="product-modal" class="modal {{ $errors->any() ? 'open' : '' }}" style="max-width: 800px; width: 95%;" role="dialog" aria-modal="true" aria-labelledby="productModalTitle" tabindex="-1">
+<div id="product-modal" class="modal <?php echo e($errors->any() ? 'open' : ''); ?>" style="max-width: 800px; width: 95%;" role="dialog" aria-modal="true" aria-labelledby="productModalTitle" tabindex="-1">
 
     <!-- Modal Header: Title and Close Button -->
     <div class="modal-header">
@@ -314,11 +316,11 @@
 
     <!-- Modal Body: Contains the product form -->
     <div class="modal-body">
-        <form id="productModalForm" action="{{ route('inventory.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
+        <form id="productModalForm" action="<?php echo e(route('inventory.store')); ?>" method="POST" enctype="multipart/form-data">
+            <?php echo csrf_field(); ?>
             <div id="productMethodContainer"></div>
             <!-- Include the reusable product form partial -->
-            @include('products._form', ['product' => new \App\Models\Product()])
+            <?php echo $__env->make('products._form', ['product' => new \App\Models\Product()], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
             <!-- Modal Footer: Cancel and Save Buttons -->
             <div class="modal-footer" style="padding-top: 20px; border-top: 1px solid #f3f4f6; margin-top: 20px;">
@@ -332,14 +334,14 @@
 
 </div>
 <!-- ===== END PRODUCT MODAL ===== -->
-@endpush
+<?php $__env->stopPush(); ?>
 
 <!-- Page-Specific Scripts -->
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <!-- Orders JS: Additional table interaction scripts for this page -->
-<script src="{{ asset('js/orders.js') }}"></script>
+<script src="<?php echo e(asset('js/orders.js')); ?>"></script>
 <!-- Image Upload Logic -->
-<script src="{{ asset('js/paste-upload.js') }}"></script>
+<script src="<?php echo e(asset('js/paste-upload.js')); ?>"></script>
 <script>
     // ===== WET OR DRY FIELD LOGIC =====
     // Show/hide the wet_or_dry field based on category selection
@@ -402,7 +404,7 @@
         if (mode === 'add') {
             title.textContent = 'Add New Product';
             submitBtn.textContent = 'Save Product';
-            form.action = "{{ route('inventory.store') }}";
+            form.action = "<?php echo e(route('inventory.store')); ?>";
             methodContainer.innerHTML = '';
             
             // Set simple defaults
@@ -469,6 +471,8 @@
         if (backdrop) backdrop.classList.add('open');
     }
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
 
 
+
+<?php echo $__env->make('layouts.admin', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views/inventory_admin.blade.php ENDPATH**/ ?>

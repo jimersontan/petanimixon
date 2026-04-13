@@ -1,15 +1,13 @@
-@extends('frontend.layouts.app')
+<?php $__env->startSection('title', 'Track Order - PetMarkt-PH'); ?>
 
-@section('title', 'Track Order - PetMarkt-PH')
-
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
 /* ═══════════════════════════════════════════════════════
    PREMIUM ORDER TRACKING PAGE — PetMarkt-PH
    ═══════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import  url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 .track-page {
     max-width: 960px;
@@ -65,8 +63,8 @@
 .track-notif.info { background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 1px solid #90caf9; color: #1565c0; }
 .track-notif.success { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border: 1px solid #a5d6a7; color: #2e7d32; }
 .track-notif.urgent { background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #ffcc80; color: #e65100; animation: trackPulseGlow 1.5s infinite; }
-@keyframes trackSlideDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes trackPulseGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(255,152,0,.25); } 50% { box-shadow: 0 0 16px 4px rgba(255,152,0,.25); } }
+@keyframes  trackSlideDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes  trackPulseGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(255,152,0,.25); } 50% { box-shadow: 0 0 16px 4px rgba(255,152,0,.25); } }
 
 /* ── CARDS ── */
 .track-card {
@@ -149,7 +147,7 @@
 .eta-cell .value.live {
     animation: etaPulse 1.5s infinite;
 }
-@keyframes etaPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+@keyframes  etaPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
 .eta-cell .sub {
     font-size: 11px;
     color: #888;
@@ -182,7 +180,7 @@
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6));
     animation: progressShimmer 2s infinite;
 }
-@keyframes progressShimmer { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes  progressShimmer { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
 
 /* ── RIDER INFO BAR ── */
 .rider-info-bar {
@@ -247,7 +245,7 @@
     box-shadow: 0 0 0 6px rgba(46,125,50,.18);
     animation: dotPulse 2s infinite;
 }
-@keyframes dotPulse {
+@keyframes  dotPulse {
     0%, 100% { box-shadow: 0 0 0 6px rgba(46,125,50,.18); }
     50% { box-shadow: 0 0 0 10px rgba(46,125,50,.10); }
 }
@@ -407,37 +405,38 @@
     font-size: 13px !important;
 }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="track-page">
 
-    {{-- ═══ HERO HEADER ═══ --}}
+    
     <div class="track-hero">
         <h1>📦 Order Tracking</h1>
         <p>Live delivery tracking & ETA prediction</p>
         <div class="track-order-badge">
             <span>🧾</span>
-            <span>{{ $order->order_id }}</span>
+            <span><?php echo e($order->order_id); ?></span>
             <span style="margin-left: 8px; padding-left: 8px; border-left: 1px solid rgba(46,125,50,.3);">
-                {{ ucfirst(str_replace('_', ' ', $order->order_status)) }}
+                <?php echo e(ucfirst(str_replace('_', ' ', $order->order_status))); ?>
+
             </span>
         </div>
     </div>
 
-    {{-- ═══ NOTIFICATION BANNERS ═══ --}}
+    
     <div class="track-notif info" id="notifInfo"></div>
     <div class="track-notif success" id="notifSuccess"></div>
     <div class="track-notif urgent" id="notifUrgent"></div>
 
-    {{-- ═══ LIVE MAP CARD ═══ --}}
+    
     <div class="track-card">
         <h3><span class="card-icon map">🗺️</span> Live Delivery Map</h3>
         <div class="map-wrapper">
             <div id="trackingMap"></div>
         </div>
 
-        {{-- ETA Panel --}}
+        
         <div class="eta-panel">
             <div class="eta-cell">
                 <div class="label">Distance</div>
@@ -453,44 +452,44 @@
                 <div class="label">Progress</div>
                 <div class="value" id="etaProgress">0%</div>
                 <div class="sub" id="etaStatus">
-                    @if($order->order_status === 'out_for_delivery') In Transit
-                    @elseif($order->order_status === 'delivered') Delivered
-                    @else Waiting
-                    @endif
+                    <?php if($order->order_status === 'out_for_delivery'): ?> In Transit
+                    <?php elseif($order->order_status === 'delivered'): ?> Delivered
+                    <?php else: ?> Waiting
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="eta-cell">
                 <div class="label">Arrives At</div>
                 <div class="value" id="etaArriveAt" style="font-size:16px;">—</div>
-                <div class="sub" id="etaMethod">{{ ucfirst($order->shipping_method ?? 'Standard') }}</div>
+                <div class="sub" id="etaMethod"><?php echo e(ucfirst($order->shipping_method ?? 'Standard')); ?></div>
             </div>
         </div>
 
-        {{-- Progress Bar --}}
+        
         <div class="delivery-progress">
             <div class="delivery-progress-fill" id="progressBar" style="width: 0%;"></div>
         </div>
 
-        {{-- Rider Info --}}
-        <div class="rider-info-bar" id="riderBar" style="{{ $order->rider_id ? '' : 'display:none;' }}">
+        
+        <div class="rider-info-bar" id="riderBar" style="<?php echo e($order->rider_id ? '' : 'display:none;'); ?>">
             <div>
                 <span>🛵</span>
-                <span class="rider-name" id="riderName">{{ optional($order->rider)->full_name ?? 'Rider' }}</span>
+                <span class="rider-name" id="riderName"><?php echo e(optional($order->rider)->full_name ?? 'Rider'); ?></span>
             </div>
             <div class="rider-status" id="riderStatusText">
-                @if($order->rider_picked_up_at)
+                <?php if($order->rider_picked_up_at): ?>
                     On the way to you
-                @elseif($order->rider_id)
+                <?php elseif($order->rider_id): ?>
                     Heading to store for pickup
-                @endif
+                <?php endif; ?>
             </div>
         </div>
     </div>
 
-    {{-- ═══ DELIVERY TIMELINE ═══ --}}
+    
     <div class="track-card">
         <h3><span class="card-icon timeline">📋</span> Delivery Status</h3>
-        @php
+        <?php
             $steps = [
                 'pending' => ['label' => 'Order Placed', 'desc' => 'Your order has been placed and is awaiting confirmation.', 'icon' => '📝'],
                 'processing' => ['label' => 'Processing', 'desc' => 'Your order is being prepared for shipment.', 'icon' => '⚙️'],
@@ -524,130 +523,132 @@
 
             $stepKeys = array_keys($steps);
             $activeIdx = array_search($activeStep, $stepKeys);
-        @endphp
+        ?>
 
         <div class="delivery-timeline" id="deliveryTimeline">
-            @foreach($steps as $key => $step)
-                @php
+            <?php $__currentLoopData = $steps; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $step): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php
                     $idx = array_search($key, $stepKeys);
                     $isDone = $idx < $activeIdx;
                     $isCurrent = $idx === $activeIdx;
-                @endphp
-                <div class="timeline-step {{ $isDone ? 'done' : '' }} {{ $isCurrent ? 'current' : '' }}" data-step="{{ $key }}">
-                    <div class="timeline-dot">{{ $isDone ? '✓' : ($isCurrent ? $step['icon'] : '') }}</div>
-                    <div class="timeline-title">{{ $step['label'] }}</div>
-                    <div class="timeline-desc">{{ $step['desc'] }}</div>
-                    @if($isDone || $isCurrent)
-                        <div class="timeline-time" data-step-time="{{ $key }}">
-                            @if($key === 'pending')
-                                {{ $order->created_at->format('M j, g:i A') }}
-                            @elseif($key === 'out_for_delivery_pickup' && $hasRider && !$pickedUp)
+                ?>
+                <div class="timeline-step <?php echo e($isDone ? 'done' : ''); ?> <?php echo e($isCurrent ? 'current' : ''); ?>" data-step="<?php echo e($key); ?>">
+                    <div class="timeline-dot"><?php echo e($isDone ? '✓' : ($isCurrent ? $step['icon'] : '')); ?></div>
+                    <div class="timeline-title"><?php echo e($step['label']); ?></div>
+                    <div class="timeline-desc"><?php echo e($step['desc']); ?></div>
+                    <?php if($isDone || $isCurrent): ?>
+                        <div class="timeline-time" data-step-time="<?php echo e($key); ?>">
+                            <?php if($key === 'pending'): ?>
+                                <?php echo e($order->created_at->format('M j, g:i A')); ?>
+
+                            <?php elseif($key === 'out_for_delivery_pickup' && $hasRider && !$pickedUp): ?>
                                 Rider en route to store
-                            @elseif($key === 'out_for_delivery_transit' && $pickedUp)
-                                {{ $order->rider_picked_up_at->format('g:i A') }} — Picked up
-                            @elseif($key === 'delivered' && $delivered)
-                                {{ optional($order->rider_delivered_at)->format('M j, g:i A') }}
-                            @endif
+                            <?php elseif($key === 'out_for_delivery_transit' && $pickedUp): ?>
+                                <?php echo e($order->rider_picked_up_at->format('g:i A')); ?> — Picked up
+                            <?php elseif($key === 'delivered' && $delivered): ?>
+                                <?php echo e(optional($order->rider_delivered_at)->format('M j, g:i A')); ?>
+
+                            <?php endif; ?>
                         </div>
-                    @endif
+                    <?php endif; ?>
                 </div>
-            @endforeach
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </div>
 
-        @if($cancelled)
+        <?php if($cancelled): ?>
         <div style="padding: 14px 16px; background: #ffebee; border-radius: 10px; margin-top: 16px; color: #c62828; font-weight: 600; text-align: center;">
             ❌ This order has been cancelled.
-            @if($order->cancellation_reason)
-                <div style="font-weight: 400; margin-top: 4px; font-size: 13px;">Reason: {{ $order->cancellation_reason }}</div>
-            @endif
+            <?php if($order->cancellation_reason): ?>
+                <div style="font-weight: 400; margin-top: 4px; font-size: 13px;">Reason: <?php echo e($order->cancellation_reason); ?></div>
+            <?php endif; ?>
         </div>
-        @endif
+        <?php endif; ?>
     </div>
 
-    {{-- ═══ ORDER DETAILS ═══ --}}
+    
     <div class="track-card">
         <h3><span class="card-icon details">📄</span> Order Details</h3>
         <div class="detail-row">
             <span class="detail-label">Order Date</span>
-            <span class="detail-value">{{ $order->created_at->format('M j, Y g:i A') }}</span>
+            <span class="detail-value"><?php echo e($order->created_at->format('M j, Y g:i A')); ?></span>
         </div>
         <div class="detail-row">
             <span class="detail-label">Status</span>
-            <span class="detail-value status-badge badge-{{ $order->order_status }}">{{ ucfirst(str_replace('_', ' ', $order->order_status)) }}</span>
+            <span class="detail-value status-badge badge-<?php echo e($order->order_status); ?>"><?php echo e(ucfirst(str_replace('_', ' ', $order->order_status))); ?></span>
         </div>
         <div class="detail-row">
             <span class="detail-label">Payment</span>
-            <span class="detail-value">{{ $order->payment_method === 'cod' ? 'Cash on Delivery' : 'GCash' }}</span>
+            <span class="detail-value"><?php echo e($order->payment_method === 'cod' ? 'Cash on Delivery' : 'GCash'); ?></span>
         </div>
         <div class="detail-row">
             <span class="detail-label">Shipping</span>
-            <span class="detail-value">{{ ucfirst($order->shipping_method ?? 'Standard') }} Delivery</span>
+            <span class="detail-value"><?php echo e(ucfirst($order->shipping_method ?? 'Standard')); ?> Delivery</span>
         </div>
-        @if($order->tracking_number)
+        <?php if($order->tracking_number): ?>
         <div class="detail-row">
             <span class="detail-label">Tracking #</span>
-            <span class="detail-value" style="font-family: monospace; letter-spacing: 1px;">{{ $order->tracking_number }}</span>
+            <span class="detail-value" style="font-family: monospace; letter-spacing: 1px;"><?php echo e($order->tracking_number); ?></span>
         </div>
-        @endif
-        @if($order->shippingAddress)
+        <?php endif; ?>
+        <?php if($order->shippingAddress): ?>
         <div class="detail-row">
             <span class="detail-label">Deliver to</span>
-            <span class="detail-value">{{ $order->shippingAddress->recipient_name }}, {{ $order->shippingAddress->street_address }}, {{ $order->shippingAddress->barangay ? $order->shippingAddress->barangay . ', ' : '' }}{{ $order->shippingAddress->city_municipality }}</span>
+            <span class="detail-value"><?php echo e($order->shippingAddress->recipient_name); ?>, <?php echo e($order->shippingAddress->street_address); ?>, <?php echo e($order->shippingAddress->barangay ? $order->shippingAddress->barangay . ', ' : ''); ?><?php echo e($order->shippingAddress->city_municipality); ?></span>
         </div>
-        @endif
+        <?php endif; ?>
     </div>
 
-    {{-- ═══ ORDER ITEMS ═══ --}}
+    
     <div class="track-card">
         <h3><span class="card-icon items">🛒</span> Items Ordered</h3>
-        @foreach($order->orderItems as $oi)
+        <?php $__currentLoopData = $order->orderItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $oi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <div class="track-item">
-            @if($oi->product)
-                <img class="track-item-img" src="{{ $oi->product->image_url }}" alt="" onerror="this.style.display='none'">
-            @endif
+            <?php if($oi->product): ?>
+                <img class="track-item-img" src="<?php echo e($oi->product->image_url); ?>" alt="" onerror="this.style.display='none'">
+            <?php endif; ?>
             <div>
-                <div class="track-item-name">{{ $oi->product->product_name ?? 'Product #'.$oi->product_id }}</div>
-                <div class="track-item-meta">Qty: {{ $oi->quantity }} · ₱{{ number_format($oi->unit_price, 2) }}</div>
+                <div class="track-item-name"><?php echo e($oi->product->product_name ?? 'Product #'.$oi->product_id); ?></div>
+                <div class="track-item-meta">Qty: <?php echo e($oi->quantity); ?> · ₱<?php echo e(number_format($oi->unit_price, 2)); ?></div>
             </div>
-            <div class="track-item-price">₱{{ number_format($oi->total_amount, 2) }}</div>
+            <div class="track-item-price">₱<?php echo e(number_format($oi->total_amount, 2)); ?></div>
         </div>
-        @endforeach
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
         <hr style="border:0; border-top:1px solid #f0f0f0; margin:14px 0;">
-        <div class="total-row"><span class="detail-label">Subtotal</span><span>₱{{ number_format($order->order_amount, 2) }}</span></div>
-        <div class="total-row"><span class="detail-label">Shipping</span><span>{{ $order->shipping_fee > 0 ? '₱'.number_format($order->shipping_fee, 2) : 'FREE' }}</span></div>
-        @if($order->discount_amount > 0)
-        <div class="total-row"><span class="detail-label" style="color:#43a047;">Discount</span><span style="color:#43a047;">-₱{{ number_format($order->discount_amount, 2) }}</span></div>
-        @endif
+        <div class="total-row"><span class="detail-label">Subtotal</span><span>₱<?php echo e(number_format($order->order_amount, 2)); ?></span></div>
+        <div class="total-row"><span class="detail-label">Shipping</span><span><?php echo e($order->shipping_fee > 0 ? '₱'.number_format($order->shipping_fee, 2) : 'FREE'); ?></span></div>
+        <?php if($order->discount_amount > 0): ?>
+        <div class="total-row"><span class="detail-label" style="color:#43a047;">Discount</span><span style="color:#43a047;">-₱<?php echo e(number_format($order->discount_amount, 2)); ?></span></div>
+        <?php endif; ?>
         <div class="total-row grand">
             <span>Total</span>
-            <span class="total-amount">₱{{ number_format($order->total_amount, 2) }}</span>
+            <span class="total-amount">₱<?php echo e(number_format($order->total_amount, 2)); ?></span>
         </div>
     </div>
 
-    {{-- ═══ ACTIONS ═══ --}}
+    
     <div class="track-actions">
-        <a href="{{ route('orders') }}" class="track-btn track-btn-secondary">← My Orders</a>
-        <a href="{{ route('shop.all') }}" class="track-btn track-btn-primary">Continue Shopping</a>
+        <a href="<?php echo e(route('orders')); ?>" class="track-btn track-btn-secondary">← My Orders</a>
+        <a href="<?php echo e(route('shop.all')); ?>" class="track-btn track-btn-primary">Continue Shopping</a>
     </div>
 </div>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 (function() {
     'use strict';
 
     // ═══ CONFIG ═══
-    const ORDER_STATUS = '{{ $order->order_status }}';
-    const ORDER_ID = '{{ $order->order_id }}';
-    const TRACKING_URL = '{{ route("order.tracking-data", $order->order_id) }}';
+    const ORDER_STATUS = '<?php echo e($order->order_status); ?>';
+    const ORDER_ID = '<?php echo e($order->order_id); ?>';
+    const TRACKING_URL = '<?php echo e(route("order.tracking-data", $order->order_id)); ?>';
 
     // Origin: PetMarkt-PH store — Libertad, Butuan City
     const STORE = { lat: 8.9475, lng: 125.5406 };
 
     // Destination from server
-    @php
+    <?php
         $destCity = $order->shippingAddress->city_municipality ?? 'Butuan';
         $cityCoords = [
             'manila' => [14.5995, 120.9842], 'quezon city' => [14.6760, 121.0437],
@@ -669,12 +670,12 @@
         $recipientName = $order->shippingAddress->recipient_name ?? 'Buyer';
         $riderLat = $order->rider_lat ?? $dLat;
         $riderLng = $order->rider_lng ?? $dLng;
-    @endphp
+    ?>
 
-    let DEST = { lat: {{ $dLat }}, lng: {{ $dLng }} };
-    const RECIPIENT = '{{ addslashes($recipientName) }}';
+    let DEST = { lat: <?php echo e($dLat); ?>, lng: <?php echo e($dLng); ?> };
+    const RECIPIENT = '<?php echo e(addslashes($recipientName)); ?>';
     
-    @php
+    <?php
         $fullAddress = trim(implode(', ', array_filter([
             $order->shippingAddress->street_address ?? '',
             $order->shippingAddress->barangay ?? '',
@@ -682,13 +683,13 @@
             $order->shippingAddress->province ?? '',
             'Philippines'
         ])));
-    @endphp
+    ?>
     
-    const FULL_ADDR = '{{ addslashes($fullAddress) }}';
+    const FULL_ADDR = '<?php echo e(addslashes($fullAddress)); ?>';
     
-    let riderPos = { lat: {{ $riderLat }}, lng: {{ $riderLng }} };
-    const hasRider = {{ $order->rider_id ? 'true' : 'false' }};
-    const pickedUp = {{ $order->rider_picked_up_at ? 'true' : 'false' }};
+    let riderPos = { lat: <?php echo e($riderLat); ?>, lng: <?php echo e($riderLng); ?> };
+    const hasRider = <?php echo e($order->rider_id ? 'true' : 'false'); ?>;
+    const pickedUp = <?php echo e($order->rider_picked_up_at ? 'true' : 'false'); ?>;
 
     // ═══ MAP SETUP ═══
     const map = L.map('trackingMap', { zoomControl: true, attributionControl: false })
@@ -861,21 +862,21 @@
     }
 
     // Initial state
-    let initialProgress = {{ $order->getDeliveryProgressPercent() }};
+    let initialProgress = <?php echo e($order->getDeliveryProgressPercent()); ?>;
 
     // Set initial ETA values from server
-    @php
+    <?php
         $initRemaining = 0;
         if ($order->delivery_started_at && $order->estimated_delivery_minutes) {
             $progressPct = $order->getDeliveryProgressPercent();
             $initRemaining = round(10 * (1 - $progressPct / 100), 1);
         }
-    @endphp
+    ?>
 
     if (initialProgress > 0) {
         const remaining = totalDistance * (1 - initialProgress / 100);
-        updateEtaDisplay(remaining, initialProgress, '{{ $order->formatted_eta }}', '{{ optional($order->estimated_arrival)->format("g:i A") ?? "—" }}');
-        document.getElementById('etaArriveAt').textContent = '{{ optional($order->estimated_arrival)->format("g:i A") ?? "—" }}';
+        updateEtaDisplay(remaining, initialProgress, '<?php echo e($order->formatted_eta); ?>', '<?php echo e(optional($order->estimated_arrival)->format("g:i A") ?? "—"); ?>');
+        document.getElementById('etaArriveAt').textContent = '<?php echo e(optional($order->estimated_arrival)->format("g:i A") ?? "—"); ?>';
     } else if (ORDER_STATUS === 'delivered') {
         updateEtaDisplay(0, 100, 'Delivered!', 'Arrived');
     } else {
@@ -968,10 +969,12 @@
 })();
 </script>
 <style>
-@keyframes riderBob {
+@keyframes  riderBob {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-3px); }
 }
 </style>
-@endpush
-@endsection
+<?php $__env->stopPush(); ?>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('frontend.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views/frontend/order_tracking.blade.php ENDPATH**/ ?>

@@ -1,24 +1,24 @@
 <!-- ===== PRODUCT FORM PARTIAL ===== -->
 <!-- Reusable form included in both Add and Edit product modals -->
 <!-- Available variables: $product, $categories, $brands, $animal_types -->
-@php
+<?php
     // Set default empty product if not provided (for new product forms)
     $product = $product ?? new \App\Models\Product();
-@endphp
+?>
 
 <!-- ===== VALIDATION ERRORS SECTION ===== -->
 <!-- Displays a list of all form validation errors from the backend -->
-@if ($errors->any())
+<?php if($errors->any()): ?>
     <div class="alert alert-danger">
         <ul>
             <!-- Loop: Show each validation error message -->
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
+            <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <li><?php echo e($error); ?></li>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             <!-- End: Error Messages Loop -->
         </ul>
     </div>
-@endif
+<?php endif; ?>
 <!-- ===== END VALIDATION ERRORS SECTION ===== -->
 
 <!-- ===== TWO-PANEL FORM LAYOUT ===== -->
@@ -31,7 +31,7 @@
         <!-- Field: Product Name (required) -->
         <div class="form-group">
             <label for="product_name">Product Name</label>
-            <input type="text" name="product_name" id="product_name" class="form-control" value="{{ old('product_name', $product->product_name) }}" required>
+            <input type="text" name="product_name" id="product_name" class="form-control" value="<?php echo e(old('product_name', $product->product_name)); ?>" required>
         </div>
         <!-- End: Product Name -->
 
@@ -46,9 +46,9 @@
             </div>
             <!-- Hidden multi-select for form submission -->
             <select name="animal_type_ids[]" id="animal_type_ids" multiple style="display: none;">
-                @foreach($animal_types as $at)
-                    <option value="{{ $at->id }}">{{ $at->animal_type }}</option>
-                @endforeach
+                <?php $__currentLoopData = $animal_types; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $at): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($at->id); ?>"><?php echo e($at->animal_type); ?></option>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </select>
             
             <!-- Available Animals Buttons Row -->
@@ -76,9 +76,9 @@
             <select name="animal_category_id" id="animal_category_id" class="form-control" required>
                 <option value="">Select category</option>
                 <!-- Loop: Render each active category -->
-                @foreach($categories as $cat)
-                    <option value="{{ $cat->id }}" {{ (old('animal_category_id', $product->animal_category_id) == $cat->id) ? 'selected' : '' }}>{{ $cat->category_name }}</option>
-                @endforeach
+                <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $cat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($cat->id); ?>" <?php echo e((old('animal_category_id', $product->animal_category_id) == $cat->id) ? 'selected' : ''); ?>><?php echo e($cat->category_name); ?></option>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 <!-- End: Categories Loop -->
             </select>
         </div>
@@ -89,8 +89,8 @@
             <label for="wet_or_dry">Wet or Dry</label>
             <select name="wet_or_dry" id="wet_or_dry" class="form-control">
                 <option value="">Select type</option>
-                <option value="wet" {{ (old('wet_or_dry', $product->wet_or_dry) == 'wet') ? 'selected' : '' }}>Wet</option>
-                <option value="dry" {{ (old('wet_or_dry', $product->wet_or_dry) == 'dry') ? 'selected' : '' }}>Dry</option>
+                <option value="wet" <?php echo e((old('wet_or_dry', $product->wet_or_dry) == 'wet') ? 'selected' : ''); ?>>Wet</option>
+                <option value="dry" <?php echo e((old('wet_or_dry', $product->wet_or_dry) == 'dry') ? 'selected' : ''); ?>>Dry</option>
             </select>
         </div>
         <!-- End: Wet or Dry -->
@@ -101,9 +101,9 @@
             <select name="brand_name" id="brand_name" class="form-control">
                 <option value="">No Brand / Unbranded</option>
                 <!-- Loop: Render each active brand -->
-                @foreach($brands as $brand)
-                    <option value="{{ $brand->name }}" {{ (old('brand_name', $product->brand_name) == $brand->name) ? 'selected' : '' }}>{{ $brand->name }}</option>
-                @endforeach
+                <?php $__currentLoopData = $brands; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $brand): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($brand->name); ?>" <?php echo e((old('brand_name', $product->brand_name) == $brand->name) ? 'selected' : ''); ?>><?php echo e($brand->name); ?></option>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 <!-- End: Brands Loop -->
             </select>
         </div>
@@ -114,13 +114,13 @@
             <!-- Field: Price (required, currency format) -->
             <div class="form-group" style="flex: 1; min-width: 0;">
                 <label for="price">Price (₱)</label>
-                <input type="number" step="0.01" name="price" id="price" class="form-control" style="width: 100%;" value="{{ old('price', $product->price) }}" required>
+                <input type="number" step="0.01" name="price" id="price" class="form-control" style="width: 100%;" value="<?php echo e(old('price', $product->price)); ?>" required>
             </div>
             <!-- End: Price -->
             <!-- Field: Stock (optional, whole number) -->
             <div class="form-group" style="flex: 1; min-width: 0;">
                 <label for="stock">Stock</label>
-                <input type="number" min="0" name="stock" id="stock" class="form-control" style="width: 100%;" value="{{ old('stock', $product->stock ?? '') }}">
+                <input type="number" min="0" name="stock" id="stock" class="form-control" style="width: 100%;" value="<?php echo e(old('stock', $product->stock ?? '')); ?>">
             </div>
             <!-- End: Stock -->
         </div>
@@ -145,9 +145,9 @@
                 <div class="upload-hint">Drag & drop, browse, or press <kbd>Ctrl</kbd>+<kbd>V</kbd> to paste</div>
                 <input type="file" name="image" id="image" accept="image/*" style="display:none;">
                 <div class="upload-preview">
-                    @if(!empty($product->animal_image_url))
-                        <img src="{{ $product->image_url }}" alt="{{ $product->product_name }} image">
-                    @endif
+                    <?php if(!empty($product->animal_image_url)): ?>
+                        <img src="<?php echo e($product->image_url); ?>" alt="<?php echo e($product->product_name); ?> image">
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -156,7 +156,7 @@
         <!-- Field: SKU (required, unique product identifier) -->
         <div class="form-group">
             <label for="sku">SKU</label>
-            <input type="text" name="sku" id="sku" class="form-control" value="{{ old('sku', $product->sku) }}" required>
+            <input type="text" name="sku" id="sku" class="form-control" value="<?php echo e(old('sku', $product->sku)); ?>" required>
         </div>
         <!-- End: SKU -->
 
@@ -165,14 +165,14 @@
         <!-- Field: Short Description (optional, brief summary) -->
         <div class="form-group">
             <label for="short_description">Short Description</label>
-            <textarea name="short_description" id="short_description" class="form-control" rows="2">{{ old('short_description', $product->short_description) }}</textarea>
+            <textarea name="short_description" id="short_description" class="form-control" rows="2"><?php echo e(old('short_description', $product->short_description)); ?></textarea>
         </div>
         <!-- End: Short Description -->
 
         <!-- Field: Full Description (optional, detailed product info) -->
         <div class="form-group">
             <label for="full_description">Full Description</label>
-            <textarea name="full_description" id="full_description" class="form-control" rows="4">{{ old('full_description', $product->full_description) }}</textarea>
+            <textarea name="full_description" id="full_description" class="form-control" rows="4"><?php echo e(old('full_description', $product->full_description)); ?></textarea>
         </div>
         <!-- End: Full Description -->
 
@@ -262,7 +262,7 @@
 
 
 <!-- ===== CSS STYLES (pushed to layout head) ===== -->
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <style>
     /* ===== SELECT2 THEME OVERRIDE: Orange Color Scheme ===== */
 
@@ -347,12 +347,12 @@
     /* Manage Button Hover: Darker orange on hover */
     .btn-manage-animals:hover { background: #c2410c !important; }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 <!-- ===== END CSS STYLES ===== -->
 
 
 <!-- ===== JAVASCRIPT (pushed to layout scripts) ===== -->
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 /**
  * ===== PRODUCT FORM JAVASCRIPT =====
@@ -795,7 +795,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
 <!-- ===== END JAVASCRIPT ===== -->
 
 
+<?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views/products/_form.blade.php ENDPATH**/ ?>

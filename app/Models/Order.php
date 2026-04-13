@@ -33,6 +33,10 @@ class Order extends Model
         'rider_picked_up_at',
         'rider_delivered_at',
         'rider_notes',
+        'rider_lat',
+        'rider_lng',
+        'estimated_delivery_minutes',
+        'delivery_started_at',
     ];
 
     protected $casts = [
@@ -41,6 +45,11 @@ class Order extends Model
         'total_amount' => 'decimal:2',
         'discount_amount' => 'decimal:2',
         'shipping_fee' => 'decimal:2',
+        'rider_lat' => 'decimal:7',
+        'rider_lng' => 'decimal:7',
+        'rider_picked_up_at' => 'datetime',
+        'rider_delivered_at' => 'datetime',
+        'delivery_started_at' => 'datetime',
     ];
 
     /**
@@ -56,6 +65,56 @@ class Order extends Model
     public const PAYMENT_PAID = 'paid';
     public const PAYMENT_PENDING = 'pending';
     public const PAYMENT_FAILED = 'failed';
+
+    /**
+     * Get estimated arrival time as a Carbon instance.
+     */
+    public function getEstimatedArrivalAttribute()
+    {
+        if (!$this->delivery_started_at || !$this->estimated_delivery_minutes) {
+            return null;
+        }
+        return $this->delivery_started_at->addMinutes($this->estimated_delivery_minutes);
+    }
+
+    /**
+     * Get delivery progress as a percentage (0–100).
+     */
+    public function getDeliveryProgressPercent(): int
+    {
+        if ($this->order_status === self::STATUS_DELIVERED) return 100;
+        if (!$this->delivery_started_at || !$this->estimated_delivery_minutes) return 0;
+
+        $elapsed = now()->diffInSeconds($this->delivery_started_at);
+        $total = $this->estimated_delivery_minutes * 60;
+        if ($total <= 0) return 0;
+
+        return min(95, max(0, (int) round(($elapsed / $total) * 100)));
+    }
+
+    /**
+     * Human-readable ETA string.
+     */
+    public function getFormattedEtaAttribute(): string
+    {
+        if ($this->order_status === self::STATUS_DELIVERED) return 'Delivered!';
+        if (!$this->delivery_started_at || !$this->estimated_delivery_minutes) return 'Calculating...';
+
+        $arrival = $this->estimated_arrival;
+        if (!$arrival) return 'Calculating...';
+
+        $minutesLeft = (int) now()->diffInMinutes($arrival, false);
+
+        if ($minutesLeft <= 0) return 'Arriving now!';
+        if ($minutesLeft <= 2) return 'Almost there!';
+        if ($minutesLeft <= 5) return 'Arriving soon!';
+        if ($minutesLeft > 60) {
+            $h = intdiv($minutesLeft, 60);
+            $m = $minutesLeft % 60;
+            return "~{$h}h {$m}m";
+        }
+        return "~{$minutesLeft} min";
+    }
 
     public function user()
     {

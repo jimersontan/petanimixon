@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
     <title>Active Delivery - PetMarkt-PH Rider</title>
-    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/rider.css') }}">
+    <link rel="stylesheet" href="<?php echo e(asset('css/dashboard.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('css/rider.css')); ?>">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
     /* ══════ DELIVERY MAP ══════ */
@@ -108,7 +108,7 @@
     .gps-dot.on { background: #43a047; animation: gpsPulse 1.5s infinite; }
     .gps-dot.off { background: #ff9800; }
     .gps-dot.err { background: #ef5350; }
-    @keyframes gpsPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(67,160,71,.4); } 50% { box-shadow: 0 0 0 6px rgba(67,160,71,.1); } }
+    @keyframes  gpsPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(67,160,71,.4); } 50% { box-shadow: 0 0 0 6px rgba(67,160,71,.1); } }
 
     /* ── Navigation Button ── */
     .nav-external-btn {
@@ -144,20 +144,20 @@
 </head>
 <body class="rider-body">
 
-    @if(session('success'))
-        <div class="rider-toast">{{ session('success') }}</div>
-    @endif
+    <?php if(session('success')): ?>
+        <div class="rider-toast"><?php echo e(session('success')); ?></div>
+    <?php endif; ?>
 
     <header class="rider-header">
         <div class="logo">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo">
+            <img src="<?php echo e(asset('images/logo.png')); ?>" alt="Logo">
             <span>Pet <span style="color: #059669;">Markt-PH</span></span>
             <span class="rider-badge">🛵 Rider</span>
         </div>
         <div class="header-right">
-            <span class="rider-name">{{ Auth::user()->full_name }}</span>
-            <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-                @csrf
+            <span class="rider-name"><?php echo e(Auth::user()->full_name); ?></span>
+            <form action="<?php echo e(route('logout')); ?>" method="POST" style="display:inline;">
+                <?php echo csrf_field(); ?>
                 <button type="submit" class="icon-btn" aria-label="Logout" title="Logout">
                     <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
                 </button>
@@ -169,30 +169,30 @@
         <aside class="rider-sidebar">
             <div class="nav-section-title">Navigation</div>
             <nav>
-                <a href="{{ route('rider.dashboard') }}" class="nav-item" data-page="dashboard">
+                <a href="<?php echo e(route('rider.dashboard')); ?>" class="nav-item" data-page="dashboard">
                     <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg></span>
                     <span>Dashboard</span>
                 </a>
-                <a href="{{ route('rider.available') }}" class="nav-item" data-page="available">
+                <a href="<?php echo e(route('rider.available')); ?>" class="nav-item" data-page="available">
                     <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-3 10h-3v3h-2v-3H8v-2h3V8h2v3h3v2z"/></svg></span>
                     <span>Available Orders</span>
                 </a>
-                <a href="{{ route('rider.active') }}" class="nav-item active" data-page="active">
+                <a href="<?php echo e(route('rider.active')); ?>" class="nav-item active" data-page="active">
                     <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></span>
                     <span>Active Delivery</span>
                 </a>
-                <a href="{{ route('rider.history') }}" class="nav-item" data-page="history">
+                <a href="<?php echo e(route('rider.history')); ?>" class="nav-item" data-page="history">
                     <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg></span>
                     <span>History</span>
                 </a>
-                <a href="{{ route('rider.products') }}" class="nav-item" data-page="products">
+                <a href="<?php echo e(route('rider.products')); ?>" class="nav-item" data-page="products">
                     <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M5 8h2V6h10v2h2V6c0-1.1-.9-2-2-2H7V2H5v4c-1.1 0-2 .9-2 2v2zm-2 4v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-8H3z"/></svg></span>
                     <span>Products</span>
                 </a>
             </nav>
             <div class="logout-link">
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
+                <form action="<?php echo e(route('logout')); ?>" method="POST">
+                    <?php echo csrf_field(); ?>
                     <button type="submit" class="nav-item" style="width:100%; border:none; background:none; cursor:pointer; text-align:left;">
                         <span class="nav-icon"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg></span>
                         <span>Logout</span>
@@ -209,9 +209,9 @@
                 </div>
             </div>
 
-            @if($activeOrders->count() > 0)
-                @foreach($activeOrders as $order)
-                @php
+            <?php if($activeOrders->count() > 0): ?>
+                <?php $__currentLoopData = $activeOrders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $order): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php
                     $destCity = optional($order->shippingAddress)->city_municipality ?? 'Butuan';
                     $cityCoords = [
                         'manila' => [14.5995, 120.9842], 'quezon city' => [14.6760, 121.0437],
@@ -235,52 +235,52 @@
                         $order->shippingAddress->province ?? '',
                         'Philippines'
                     ])));
-                @endphp
+                ?>
 
-                {{-- ═══ DELIVERY MAP ═══ --}}
-                @if($hasPickedUp)
+                
+                <?php if($hasPickedUp): ?>
                 <div class="delivery-map-card">
-                    <h3>🗺️ Route to Customer — {{ $order->display_id }}</h3>
+                    <h3>🗺️ Route to Customer — <?php echo e($order->display_id); ?></h3>
                     <div class="delivery-map-wrapper">
-                        <div id="riderMap{{ $order->id }}" style="width:100%; height:340px;"></div>
+                        <div id="riderMap<?php echo e($order->id); ?>" style="width:100%; height:340px;"></div>
                     </div>
 
-                    {{-- ETA Summary --}}
+                    
                     <div class="eta-summary-bar">
                         <div class="eta-summary-item">
                             <div class="label">Distance</div>
-                            <div class="value" id="riderDist{{ $order->id }}">—</div>
+                            <div class="value" id="riderDist<?php echo e($order->id); ?>">—</div>
                             <div class="sub">km remaining</div>
                         </div>
                         <div class="eta-summary-item">
                             <div class="label">ETA</div>
-                            <div class="value" id="riderEta{{ $order->id }}">{{ $order->formatted_eta }}</div>
+                            <div class="value" id="riderEta<?php echo e($order->id); ?>"><?php echo e($order->formatted_eta); ?></div>
                             <div class="sub">to customer</div>
                         </div>
                         <div class="eta-summary-item">
                             <div class="label">Progress</div>
-                            <div class="value" id="riderProgress{{ $order->id }}">{{ $order->getDeliveryProgressPercent() }}%</div>
+                            <div class="value" id="riderProgress<?php echo e($order->id); ?>"><?php echo e($order->getDeliveryProgressPercent()); ?>%</div>
                             <div class="sub">complete</div>
                         </div>
                     </div>
 
-                    {{-- GPS Location Tracker --}}
-                    <div class="location-tracker inactive" id="gpsStatus{{ $order->id }}">
-                        <div class="gps-dot off" id="gpsDot{{ $order->id }}"></div>
-                        <span id="gpsText{{ $order->id }}">📡 Enabling location tracking...</span>
+                    
+                    <div class="location-tracker inactive" id="gpsStatus<?php echo e($order->id); ?>">
+                        <div class="gps-dot off" id="gpsDot<?php echo e($order->id); ?>"></div>
+                        <span id="gpsText<?php echo e($order->id); ?>">📡 Enabling location tracking...</span>
                     </div>
 
-                    {{-- Open in Google Maps --}}
-                    <a href="https://www.google.com/maps/dir/?api=1&destination={{ urlencode($fullAddress) }}" target="_blank" rel="noopener" class="nav-external-btn">
+                    
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=<?php echo e(urlencode($fullAddress)); ?>" target="_blank" rel="noopener" class="nav-external-btn">
                         🗺️ Open accurate location in Google Maps
                     </a>
                 </div>
-                @endif
+                <?php endif; ?>
 
-                {{-- ═══ ORDER CARD ═══ --}}
+                
                 <div class="active-order-detail">
                     <div class="order-header">
-                        <h3>🚀 {{ $order->display_id }} — {{ $hasPickedUp ? 'In Transit' : 'Awaiting Pickup' }}</h3>
+                        <h3>🚀 <?php echo e($order->display_id); ?> — <?php echo e($hasPickedUp ? 'In Transit' : 'Awaiting Pickup'); ?></h3>
                         <span class="rider-badge-status rider-badge-out_for_delivery">Out for Delivery</span>
                     </div>
                     <div class="order-body">
@@ -288,91 +288,96 @@
                         <div class="customer-info">
                             <div class="info-item">
                                 <div class="info-label">Customer Name</div>
-                                <div class="info-value">{{ optional($order->user)->full_name ?? 'N/A' }}</div>
+                                <div class="info-value"><?php echo e(optional($order->user)->full_name ?? 'N/A'); ?></div>
                             </div>
                             <div class="info-item">
                                 <div class="info-label">Phone</div>
-                                <div class="info-value">{{ optional($order->user)->phone_number ?? 'N/A' }}</div>
+                                <div class="info-value"><?php echo e(optional($order->user)->phone_number ?? 'N/A'); ?></div>
                             </div>
                             <div class="info-item">
                                 <div class="info-label">Delivery Address</div>
                                 <div class="info-value">
-                                    @if($order->shippingAddress)
-                                        {{ $order->shippingAddress->street_address ?? '' }},
-                                        {{ $order->shippingAddress->barangay ?? '' }}
-                                        {{ $order->shippingAddress->city_municipality ?? '' }},
-                                        {{ $order->shippingAddress->province ?? '' }}
-                                        {{ $order->shippingAddress->zip_code ?? '' }}
-                                    @else
+                                    <?php if($order->shippingAddress): ?>
+                                        <?php echo e($order->shippingAddress->street_address ?? ''); ?>,
+                                        <?php echo e($order->shippingAddress->barangay ?? ''); ?>
+
+                                        <?php echo e($order->shippingAddress->city_municipality ?? ''); ?>,
+                                        <?php echo e($order->shippingAddress->province ?? ''); ?>
+
+                                        <?php echo e($order->shippingAddress->zip_code ?? ''); ?>
+
+                                    <?php else: ?>
                                         N/A
-                                    @endif
+                                    <?php endif; ?>
                                 </div>
                             </div>
                             <div class="info-item">
                                 <div class="info-label">Payment Method</div>
-                                <div class="info-value">{{ strtoupper($order->payment_method) }}</div>
+                                <div class="info-value"><?php echo e(strtoupper($order->payment_method)); ?></div>
                             </div>
-                            @if($hasPickedUp && $order->estimated_delivery_minutes)
+                            <?php if($hasPickedUp && $order->estimated_delivery_minutes): ?>
                             <div class="info-item">
                                 <div class="info-label">Estimated Arrival</div>
                                 <div class="info-value" style="color: #2e7d32; font-weight: 700;">
-                                    {{ $order->formatted_eta }}
-                                    @if($order->estimated_arrival)
-                                        ({{ $order->estimated_arrival->format('g:i A') }})
-                                    @endif
+                                    <?php echo e($order->formatted_eta); ?>
+
+                                    <?php if($order->estimated_arrival): ?>
+                                        (<?php echo e($order->estimated_arrival->format('g:i A')); ?>)
+                                    <?php endif; ?>
                                 </div>
                             </div>
-                            @endif
+                            <?php endif; ?>
                         </div>
 
                         <!-- Order Items -->
                         <div class="info-label" style="margin-bottom: 8px;">Order Items</div>
                         <ul class="items-list">
-                            @foreach($order->orderItems as $item)
+                            <?php $__currentLoopData = $order->orderItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <li>
-                                <span>{{ optional($item->product)->product_name ?? 'Product' }} × {{ $item->quantity }}</span>
-                                <span>₱{{ number_format((float)$item->total_amount, 0) }}</span>
+                                <span><?php echo e(optional($item->product)->product_name ?? 'Product'); ?> × <?php echo e($item->quantity); ?></span>
+                                <span>₱<?php echo e(number_format((float)$item->total_amount, 0)); ?></span>
                             </li>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             <li style="font-weight: 700;">
                                 <span>Total</span>
-                                <span>{{ $order->formatted_total }}</span>
+                                <span><?php echo e($order->formatted_total); ?></span>
                             </li>
                         </ul>
 
-                        @if($order->customer_notes)
+                        <?php if($order->customer_notes): ?>
                         <div style="margin-bottom: 16px; padding: 12px 16px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; font-size: 0.85rem;">
-                            <strong>Customer Notes:</strong> {{ $order->customer_notes }}
+                            <strong>Customer Notes:</strong> <?php echo e($order->customer_notes); ?>
+
                         </div>
-                        @endif
+                        <?php endif; ?>
 
                         <!-- Actions -->
                         <div class="order-actions">
-                            @if(!$hasPickedUp)
-                                <form action="{{ route('rider.pickup', $order->id) }}" method="POST">
-                                    @csrf
+                            <?php if(!$hasPickedUp): ?>
+                                <form action="<?php echo e(route('rider.pickup', $order->id)); ?>" method="POST">
+                                    <?php echo csrf_field(); ?>
                                     <button type="submit" class="btn-rider-warning" onclick="return confirm('Confirm: Order picked up from store?')">📦 Mark as Picked Up</button>
                                 </form>
-                            @else
-                                <form action="{{ route('rider.deliver', $order->id) }}" method="POST" style="display: flex; flex-direction: column; width: 100%;">
-                                    @csrf
+                            <?php else: ?>
+                                <form action="<?php echo e(route('rider.deliver', $order->id)); ?>" method="POST" style="display: flex; flex-direction: column; width: 100%;">
+                                    <?php echo csrf_field(); ?>
                                     <textarea name="rider_notes" class="delivery-notes-input" placeholder="Delivery notes (optional): e.g., Left with guard, delivered to door..." style="width: 100%; box-sizing: border-box; margin-bottom: 15px;"></textarea>
                                     <button type="submit" class="btn-rider-success" style="width: 100%; text-align: center; justify-content: center; padding: 14px 20px; font-size: 16px;">✅ Mark as Delivered</button>
                                 </form>
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
 
-                {{-- ═══ MAP + GPS SCRIPT ═══ --}}
-                @if($hasPickedUp)
+                
+                <?php if($hasPickedUp): ?>
                 <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     const STORE = { lat: 8.9475, lng: 125.5406 };
-                    const DEST = { lat: {{ $dLat }}, lng: {{ $dLng }} };
-                    const ORDER_ID = {{ $order->id }};
+                    const DEST = { lat: <?php echo e($dLat); ?>, lng: <?php echo e($dLng); ?> };
+                    const ORDER_ID = <?php echo e($order->id); ?>;
                     const CSRF = document.querySelector('meta[name="csrf-token"]').content;
-                    const LOC_URL = '{{ route("rider.update-location", $order->id) }}';
+                    const LOC_URL = '<?php echo e(route("rider.update-location", $order->id)); ?>';
 
                     // Map setup
                     const map = L.map('riderMap' + ORDER_ID, { zoomControl: true, attributionControl: false })
@@ -389,7 +394,7 @@
 
                     L.marker([STORE.lat, STORE.lng], { icon: storePin }).addTo(map).bindPopup('<b>🏪 Store</b>');
 
-                    const addr = `{{ addslashes($fullAddress) }}`;
+                    const addr = `<?php echo e(addslashes($fullAddress)); ?>`;
                     let destMarker = null;
 
                     // Geocode customer address to find exact house instead of city center
@@ -468,8 +473,8 @@
                     }
 
                     // Rider position
-                    let riderLat = {{ $order->rider_lat ?? $dLat }};
-                    let riderLng = {{ $order->rider_lng ?? $dLng }};
+                    let riderLat = <?php echo e($order->rider_lat ?? $dLat); ?>;
+                    let riderLng = <?php echo e($order->rider_lng ?? $dLng); ?>;
                     const riderMarker = L.marker([riderLat, riderLng], { icon: mePin, zIndexOffset: 1000 }).addTo(map);
                     riderMarker.bindPopup('🛵 You are here');
 
@@ -559,23 +564,24 @@
                     }
                 });
                 </script>
-                @endif
-                @endforeach
-            @else
+                <?php endif; ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            <?php else: ?>
                 <div class="rider-card">
                     <div class="rider-card-body">
                         <div class="rider-empty-state">
                             <div class="empty-icon">🛵</div>
                             <h3>No Active Deliveries</h3>
                             <p>Accept an order from the Available Orders page to start delivering.</p>
-                            <a href="{{ route('rider.available') }}" class="btn-rider-primary" style="margin-top: 16px;">View Available Orders →</a>
+                            <a href="<?php echo e(route('rider.available')); ?>" class="btn-rider-primary" style="margin-top: 16px;">View Available Orders →</a>
                         </div>
                     </div>
                 </div>
-            @endif
+            <?php endif; ?>
         </main>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </body>
 </html>
+<?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views/rider/active_delivery.blade.php ENDPATH**/ ?>

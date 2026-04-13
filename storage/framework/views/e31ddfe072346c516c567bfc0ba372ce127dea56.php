@@ -1,8 +1,8 @@
-@extends('frontend.layouts.app')
 
-@section('title', 'Shopping Cart - PetMarkt-PH')
 
-@push('styles')
+<?php $__env->startSection('title', 'Shopping Cart - PetMarkt-PH'); ?>
+
+<?php $__env->startPush('styles'); ?>
 <style>
     body.user-dashboard { background: #fdf5ec; }
     /* ========== PAGE WRAPPER ========== */
@@ -63,15 +63,15 @@
         font-size: 14px; font-weight: 700; color: #222;
         border: none; outline: none;
     }
-    .cart-item-price-col { text-align: right; margin-left: auto; margin-right: 20px; }
+    .cart-item-price-col { text-align: right; }
     .each-label  { font-size: 11.5px; color: #aaa; }
     .item-total  { font-size: 17px; font-weight: 800; color: #3b7c42; }
     .delete-btn  {
         background: #fee2e2; border: none; cursor: pointer;
         font-size: 15px; color: #ef4444; 
-        width: 40px; height: 40px; border-radius: 12px;
+        width: 36px; height: 36px; border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
-        transition: all .2s;
+        transition: all .2s; margin-left: auto;
     }
     .delete-btn:hover { background: #fecaca; color: #dc2626; }
 
@@ -194,10 +194,10 @@
         .qty-control { border-width: 1px; }
         .qty-btn { width: 26px; height: 26px; font-size: 14px; }
         .qty-val { width: 26px; font-size: 12px; }
-        .cart-item-price-col { text-align: right; margin-left: auto; margin-right: 12px; }
+        .cart-item-price-col { text-align: right; }
         .each-label { font-size: 10px; }
         .item-total { font-size: 14px; }
-        .delete-btn { width: 34px; height: 34px; border-radius: 8px; }
+        .delete-btn { font-size: 15px; margin-left: 6px; }
 
         /* Order summary compact */
         .order-summary-card { padding: 16px; border-radius: 10px; }
@@ -231,82 +231,82 @@
         .ymal-img { height: 100px; }
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="cart-page">
-    @if(session('error'))
+    <?php if(session('error')): ?>
         <div style="background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; font-size: 14px; font-weight: 600;">
-            ⚠️ {{ session('error') }}
+            ⚠️ <?php echo e(session('error')); ?>
+
         </div>
-    @endif
-    @if(session('message'))
+    <?php endif; ?>
+    <?php if(session('message')): ?>
         <div style="background: #dcfce7; color: #16a34a; border: 1px solid #86efac; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; font-size: 14px; font-weight: 600;">
-            ✓ {{ session('message') }}
+            ✓ <?php echo e(session('message')); ?>
+
         </div>
-    @endif
+    <?php endif; ?>
     <h1 class="cart-heading">Shopping Cart</h1>
-    <p class="cart-sub">({{ $cart->items->count() }} items in your cart)</p>
+    <p class="cart-sub">(<?php echo e($cart->items->count()); ?> items in your cart)</p>
 
     <div class="cart-layout">
-        {{-- ══════════════════ ITEMS ══════════════════ --}}
+        
         <div class="cart-items-col">
-            @forelse($cart->items as $item)
+            <?php $__empty_1 = true; $__currentLoopData = $cart->items; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                 <div class="cart-item-card">
                     <img class="cart-item-img"
-                        src="{{ $item->product->image_url }}"
-                        alt="{{ $item->product->product_name }}">
+                        src="<?php echo e($item->product->image_url); ?>"
+                        alt="<?php echo e($item->product->product_name); ?>">
                     <div class="cart-item-body">
-                        <h3 class="cart-item-name">{{ $item->product->product_name }}</h3>
-                        <span class="cart-item-tag">🐕 {{ $item->product->category->category_name ?? 'Pet' }}</span>
-                        <div class="cart-item-details">{{ $item->product->short_description }}</div>
-                        @php $itemStock = $item->product->stock; @endphp
-                        @if($itemStock > 4)
-                            <div class="cart-item-status-in">✓ In Stock ({{ $itemStock }} available)</div>
-                        @elseif($itemStock > 0)
-                            <div class="cart-item-status-low" style="color: #e67e22;">🔥 Only {{ $itemStock }} left!</div>
-                        @else
+                        <h3 class="cart-item-name"><?php echo e($item->product->product_name); ?></h3>
+                        <span class="cart-item-tag">🐕 <?php echo e($item->product->category->category_name ?? 'Pet'); ?></span>
+                        <div class="cart-item-details"><?php echo e($item->product->short_description); ?></div>
+                        <?php $itemStock = $item->product->stock; ?>
+                        <?php if($itemStock > 4): ?>
+                            <div class="cart-item-status-in">✓ In Stock (<?php echo e($itemStock); ?> available)</div>
+                        <?php elseif($itemStock > 0): ?>
+                            <div class="cart-item-status-low" style="color: #e67e22;">🔥 Only <?php echo e($itemStock); ?> left!</div>
+                        <?php else: ?>
                             <div style="font-size: 12px; color: #ef4444; font-weight: 600;">✗ Out of Stock</div>
-                        @endif
+                        <?php endif; ?>
                         
                         <div class="cart-item-bottom">
                             <div>
                                 <div class="qty-label">Qty</div>
                                 <div class="qty-control">
-                                    <form action="{{ route('cart.update', $item->id) }}" method="POST" style="display: flex; align-items: center;">
-                                        @csrf
+                                    <form action="<?php echo e(route('cart.update', $item->id)); ?>" method="POST" style="display: flex; align-items: center;">
+                                        <?php echo csrf_field(); ?>
                                         <button type="button" class="qty-btn" onclick="let v=this.form.quantity;if(+v.value>1){v.value=+v.value-1;this.form.submit();}">−</button>
-                                        <input type="number" name="quantity" value="{{ $item->quantity }}" class="qty-val" readonly>
-                                        <button type="button" class="qty-btn" onclick="let v=this.form.quantity;let mx={{ $itemStock }};if(+v.value<mx){v.value=+v.value+1;this.form.submit();}else{alert('Only '+mx+' unit(s) available.')}">+</button>
+                                        <input type="number" name="quantity" value="<?php echo e($item->quantity); ?>" class="qty-val" readonly>
+                                        <button type="button" class="qty-btn" onclick="let v=this.form.quantity;let mx=<?php echo e($itemStock); ?>;if(+v.value<mx){v.value=+v.value+1;this.form.submit();}else{alert('Only '+mx+' unit(s) available.')}">+</button>
                                     </form>
                                 </div>
                             </div>
                             <div class="cart-item-price-col">
-                                <div class="each-label">₱{{ number_format($item->unit_price, 2) }} each</div>
-                                <div class="item-total">₱{{ number_format($item->subtotal, 2) }}</div>
+                                <div class="each-label">₱<?php echo e(number_format($item->unit_price, 2)); ?> each</div>
+                                <div class="item-total">₱<?php echo e(number_format($item->subtotal, 2)); ?></div>
                             </div>
-                            <a href="{{ route('cart.remove', $item->id) }}" class="delete-btn" title="Remove">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/></svg>
-                            </a>
+                            <a href="<?php echo e(route('cart.remove', $item->id)); ?>" class="delete-btn" title="Remove">🗑</a>
                         </div>
                     </div>
                 </div>
-            @empty
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                 <div class="cart-item-card" style="padding: 40px; justify-content: center; align-items: center; flex-direction: column;">
                     <p>Your cart is empty.</p>
-                    <a href="{{ route('shop.all') }}" class="btn-checkout" style="width: auto; margin-top: 20px;">Continue Shopping</a>
+                    <a href="<?php echo e(route('shop.all')); ?>" class="btn-checkout" style="width: auto; margin-top: 20px;">Continue Shopping</a>
                 </div>
-            @endforelse
+            <?php endif; ?>
         </div>
 
-        {{-- ══════════════════ SUMMARY ══════════════════ --}}
-        @if($cart->items->isNotEmpty())
+        
+        <?php if($cart->items->isNotEmpty()): ?>
         <div class="cart-summary-col">
             <div class="order-summary-card">
                 <h2 class="summary-title">Order Summary</h2>
                 <div class="summary-row">
                     <span>Subtotal</span>
-                    <span>₱{{ number_format($cart->items->sum('subtotal'), 2) }}</span>
+                    <span>₱<?php echo e(number_format($cart->items->sum('subtotal'), 2)); ?></span>
                 </div>
                 <div class="summary-row">
                     <span>Shipping</span>
@@ -314,10 +314,10 @@
                 </div>
                 <div class="summary-row total">
                     <span>Total</span>
-                    <span class="total-val">₱{{ number_format($cart->items->sum('subtotal'), 2) }}</span>
+                    <span class="total-val">₱<?php echo e(number_format($cart->items->sum('subtotal'), 2)); ?></span>
                 </div>
 
-                <a href="{{ route('checkout') }}" class="btn-checkout" style="text-decoration: none;">
+                <a href="<?php echo e(route('checkout')); ?>" class="btn-checkout" style="text-decoration: none;">
                     Proceed to Checkout
                 </a>
 
@@ -338,13 +338,15 @@
             </div>
             
             <div class="cart-footer-row">
-                <a href="{{ route('shop.all') }}" class="continue-link">← Continue Shopping</a>
-                <a href="{{ route('cart.clear') }}" class="btn-clear-cart" style="text-decoration: none;">Clear Cart</a>
+                <a href="<?php echo e(route('shop.all')); ?>" class="continue-link">← Continue Shopping</a>
+                <a href="<?php echo e(route('cart.clear')); ?>" class="btn-clear-cart" style="text-decoration: none;">Clear Cart</a>
             </div>
         </div>
-        @endif
+        <?php endif; ?>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
 
+
+<?php echo $__env->make('frontend.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\petanimixon\resources\views/frontend/cart.blade.php ENDPATH**/ ?>

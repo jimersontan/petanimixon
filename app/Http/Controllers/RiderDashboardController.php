@@ -127,15 +127,35 @@ class RiderDashboardController extends Controller
         $order = Order::where('id', $id)
             ->where('rider_id', Auth::id())
             ->where('order_status', Order::STATUS_OUT_FOR_DELIVERY)
+            ->with('shippingAddress')
             ->firstOrFail();
+
+        // Store location: PetMarkt-PH Store, Libertad, Butuan City
+        $storeLat = 8.9475;
+        $storeLng = 125.5406;
+
+        // Calculate estimated delivery time based on shipping method and distance
+        $destCoords = $this->getDestinationCoords($order);
+        $distanceKm = $this->haversineDistance($storeLat, $storeLng, $destCoords[0], $destCoords[1]);
+
+        // Base ETA by shipping method, scaled by distance
+        $baseMinutes = ($order->shipping_method === 'express') ? 25 : 40;
+        $speedKmPerMin = ($order->shipping_method === 'express') ? 0.8 : 0.5; // km per minute
+        $etaMinutes = max($baseMinutes, (int) ceil($distanceKm / $speedKmPerMin));
+        // Cap at reasonable max (for same-city deliveries)
+        $etaMinutes = min($etaMinutes, 120);
 
         $order->update([
             'rider_picked_up_at' => now(),
+            'delivery_started_at' => now(),
+            'estimated_delivery_minutes' => $etaMinutes,
+            'rider_lat' => $storeLat,
+            'rider_lng' => $storeLng,
         ]);
 
         $order->notifyRiderOutForDelivery();
 
-        return redirect()->route('rider.active')->with('success', 'Order marked as picked up! Now deliver to customer.');
+        return redirect()->route('rider.active')->with('success', 'Order picked up! ETA: ~' . $etaMinutes . ' min. Deliver to customer now.');
     }
 
     /**
@@ -148,11 +168,17 @@ class RiderDashboardController extends Controller
             ->where('order_status', Order::STATUS_OUT_FOR_DELIVERY)
             ->firstOrFail();
 
+        // Get destination coords so we can set final position
+        $destCoords = $this->getDestinationCoords($order);
+
         $order->update([
             'order_status' => Order::STATUS_DELIVERED,
             'payment_status' => Order::PAYMENT_PAID,
             'rider_delivered_at' => now(),
             'rider_notes' => $request->input('rider_notes', ''),
+            'rider_lat' => $destCoords[0],
+            'rider_lng' => $destCoords[1],
+            'estimated_delivery_minutes' => 0,
         ]);
 
         // Dispatch event to reduce stock for delivered order
@@ -220,5 +246,123 @@ class RiderDashboardController extends Controller
         return view('rider.products', [
             'products' => $products,
         ]);
+    }
+
+    /**
+     * AJAX: Update rider's GPS location for live tracking.
+     */
+    public function updateLocation(Request $request, $id)
+    {
+        $request->validate([
+            'lat' => 'required|numeric|between:-90,90',
+            'lng' => 'required|numeric|between:-180,180',
+        ]);
+
+        $order = Order::where('id', $id)
+            ->where('rider_id', Auth::id())
+            ->where('order_status', Order::STATUS_OUT_FOR_DELIVERY)
+            ->firstOrFail();
+
+        // Update rider position
+        $order->update([
+            'rider_lat' => $request->lat,
+            'rider_lng' => $request->lng,
+        ]);
+
+        // Recalculate ETA based on current position
+        if ($order->delivery_started_at) {
+            $destCoords = $this->getDestinationCoords($order);
+            $remainingKm = $this->haversineDistance($request->lat, $request->lng, $destCoords[0], $destCoords[1]);
+            $speedKmPerMin = ($order->shipping_method === 'express') ? 0.8 : 0.5;
+            $newEta = max(1, (int) ceil($remainingKm / $speedKmPerMin));
+
+            // Calculate how many minutes elapsed since delivery started
+            $elapsedMin = now()->diffInMinutes($order->delivery_started_at);
+            $order->update([
+                'estimated_delivery_minutes' => $elapsedMin + $newEta,
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'eta' => $order->fresh()->formatted_eta,
+            'progress' => $order->fresh()->getDeliveryProgressPercent(),
+        ]);
+    }
+
+    /**
+     * Calculate distance between two GPS points using Haversine formula.
+     */
+    private function haversineDistance(float $lat1, float $lng1, float $lat2, float $lng2): float
+    {
+        $R = 6371; // Earth radius in km
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLng = deg2rad($lng2 - $lng1);
+        $a = sin($dLat / 2) ** 2 + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLng / 2) ** 2;
+        return $R * 2 * atan2(sqrt($a), sqrt(1 - $a));
+    }
+
+    /**
+     * Get destination coordinates from the order's shipping address city.
+     */
+    private function getDestinationCoords(Order $order): array
+    {
+        $city = strtolower(trim(optional($order->shippingAddress)->city_municipality ?? 'butuan'));
+
+        // Philippine city coordinates lookup
+        $coords = [
+            'manila' => [14.5995, 120.9842],
+            'quezon city' => [14.6760, 121.0437],
+            'cebu' => [10.3157, 123.8854],
+            'cebu city' => [10.3157, 123.8854],
+            'davao' => [7.1907, 125.4553],
+            'davao city' => [7.1907, 125.4553],
+            'butuan' => [8.9475, 125.5406],
+            'butuan city' => [8.9475, 125.5406],
+            'cagayan de oro' => [8.4542, 124.6319],
+            'cagayan de oro city' => [8.4542, 124.6319],
+            'zamboanga' => [6.9214, 122.0790],
+            'zamboanga city' => [6.9214, 122.0790],
+            'iloilo' => [10.7202, 122.5621],
+            'iloilo city' => [10.7202, 122.5621],
+            'makati' => [14.5547, 121.0244],
+            'makati city' => [14.5547, 121.0244],
+            'taguig' => [14.5176, 121.0509],
+            'taguig city' => [14.5176, 121.0509],
+            'pasig' => [14.5764, 121.0851],
+            'pasig city' => [14.5764, 121.0851],
+            'caloocan' => [14.6488, 120.9842],
+            'caloocan city' => [14.6488, 120.9842],
+            'surigao' => [9.7572, 125.5138],
+            'surigao city' => [9.7572, 125.5138],
+            'bacolod' => [10.6840, 122.9563],
+            'bacolod city' => [10.6840, 122.9563],
+            'general santos' => [6.1164, 125.1716],
+            'general santos city' => [6.1164, 125.1716],
+            'nasipit' => [8.9953, 125.4987],
+            'cabadbaran' => [9.1233, 125.5339],
+            'san francisco' => [8.5000, 125.9833],
+            'bayugan' => [8.7167, 125.7500],
+            'prosperidad' => [8.6000, 125.9167],
+            'buenavista' => [8.9833, 125.4087],
+            'carmen' => [9.0333, 125.6833],
+            'las nieves' => [8.9500, 125.6333],
+            'santiago' => [8.9667, 125.5667],
+        ];
+
+        // Try exact match first
+        if (isset($coords[$city])) {
+            return $coords[$city];
+        }
+
+        // Try partial match
+        foreach ($coords as $name => $latLng) {
+            if (str_contains($city, $name) || str_contains($name, $city)) {
+                return $latLng;
+            }
+        }
+
+        // Default: offset from store location for unknown cities
+        return [8.9575, 125.5506];
     }
 }

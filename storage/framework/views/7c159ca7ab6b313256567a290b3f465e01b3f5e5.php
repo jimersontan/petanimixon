@@ -1,22 +1,31 @@
 
-<div data-ud-notification-widget="root" style="position: relative; display: inline-block; margin-right: -13px;">
-    <button type="button" id="userNotificationBell" class="ud-icon-btn" aria-label="Notifications" title="Notifications" style="text-decoration: none; background: none; border: none; cursor: pointer; padding: 0; position: relative;">
+<div data-ud-notification-widget="root" style="position: relative; display: inline-flex; align-items: center;">
+    <button type="button" id="userNotificationBell" class="ud-icon-btn" aria-label="Notifications" title="Notifications" style="text-decoration: none; background: none; border: none; cursor: pointer; padding: 0.5rem; position: relative;">
         <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true">
             <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
         </svg>
         <span id="userNotificationBadge" class="notification-badge-header" style="
-            position: absolute; top: -4px; right: -4px;
+            position: absolute; top: 2px; right: 0px;
             background: #ef4444; color: #fff; border-radius: 50%;
-            width: 18px; height: 18px; align-items: center;
+            min-width: 18px; height: 18px; align-items: center;
             justify-content: center; font-size: 10px; font-weight: 700;
-            display: none; border: 2px solid #fff;">0</span>
+            display: none; border: 2px solid #fff;
+            pointer-events: none; line-height: 1;
+            box-shadow: 0 1px 4px rgba(239,68,68,0.4);
+            animation: badgePop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        ">0</span>
     </button>
 
     <div id="userNotificationPanel" class="ud-notification-panel" style="
-        position: absolute; top: 100%; right: 0; margin-top: 8px;
-        background: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-        width: min(350px, 92vw); max-height: 500px; overflow-y: auto; display: none;
-        z-index: 1000; border: 1px solid #e5e7eb;">
+        position: absolute; top: calc(100% + 12px); right: -120px;
+        background: #fff; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        width: 380px; max-height: 500px; overflow-y: auto; display: none;
+        z-index: 1000; border: 1px solid #e5e7eb; transform-origin: top;
+        transition: opacity 0.2s, transform 0.2s;">
+        <!-- Top pointer arrow -->
+        <div style="position: absolute; top: -6px; right: 130px; width: 12px; height: 12px;
+            background: #fff; border-left: 1px solid #e5e7eb; border-top: 1px solid #e5e7eb;
+            transform: rotate(45deg); z-index: 1;"></div>
         <style>
             @media (max-width: 600px) {
                 #userNotificationPanel {

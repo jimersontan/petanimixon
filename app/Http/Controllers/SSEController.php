@@ -18,13 +18,19 @@ class SSEController extends Controller
         $userId = Auth::id();
 
         $response = new StreamedResponse(function () use ($userId) {
+            // Release session lock so other concurrent requests don't hang
+            session_write_close();
+            
             // Disable output buffering
             if (ob_get_level()) ob_end_clean();
 
             $lastNotifCheck = now();
             $lastChatCheck = now();
             $iterations = 0;
-            $maxIterations = 150; // ~5 minutes at 2s intervals
+            
+            // On PHP's built-in server (artisan serve), block for max 1 iteration 
+            // since it's single-threaded and would block CSS/JS from loading.
+            $maxIterations = php_sapi_name() === 'cli-server' ? 1 : 150; 
 
             while ($iterations < $maxIterations) {
                 if (connection_aborted()) break;
@@ -92,7 +98,9 @@ class SSEController extends Controller
                 @flush();
 
                 $iterations++;
-                sleep(2);
+                if ($iterations < $maxIterations) {
+                    sleep(2);
+                }
             }
 
             // Send reconnect hint
@@ -118,12 +126,17 @@ class SSEController extends Controller
         $adminId = Auth::id();
 
         $response = new StreamedResponse(function () use ($adminId) {
+            // Release session lock
+            session_write_close();
+            
             if (ob_get_level()) ob_end_clean();
 
             $lastNotifCheck = now();
             $lastChatCheck = now();
             $iterations = 0;
-            $maxIterations = 150;
+            
+            // On built-in server, avoid blocking single thread
+            $maxIterations = php_sapi_name() === 'cli-server' ? 1 : 150;
 
             while ($iterations < $maxIterations) {
                 if (connection_aborted()) break;
@@ -189,7 +202,9 @@ class SSEController extends Controller
                 @flush();
 
                 $iterations++;
-                sleep(2);
+                if ($iterations < $maxIterations) {
+                    sleep(2);
+                }
             }
 
             echo "event: reconnect\n";

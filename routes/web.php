@@ -82,6 +82,7 @@ Route::middleware(['auth', 'client'])->group(function () {
         Route::get('/checkout/success/{order_id}', [CheckoutController::class, 'success'])->name('checkout.success');
         Route::get('/checkout/payment/callback', [CheckoutController::class, 'paymentCallback'])->name('checkout.payment.callback');
         Route::get('/order/{order_id}/track', [CheckoutController::class, 'tracking'])->name('order.track');
+        Route::get('/order/{order_id}/tracking-data', [CheckoutController::class, 'trackingData'])->name('order.tracking-data');
     });
 
     // Wishlists
@@ -385,6 +386,7 @@ Route::middleware(['auth', 'rider'])->prefix('rider')->group(function () {
     Route::get('/active', [RiderDashboardController::class, 'activeDelivery'])->name('rider.active');
     Route::post('/pickup/{id}', [RiderDashboardController::class, 'pickUp'])->name('rider.pickup');
     Route::post('/deliver/{id}', [RiderDashboardController::class, 'deliver'])->name('rider.deliver');
+    Route::post('/update-location/{id}', [RiderDashboardController::class, 'updateLocation'])->name('rider.update-location');
     Route::get('/history', [RiderDashboardController::class, 'history'])->name('rider.history');
     Route::get('/products', [RiderDashboardController::class, 'products'])->name('rider.products');
 });

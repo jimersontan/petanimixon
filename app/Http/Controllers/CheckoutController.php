@@ -245,10 +245,39 @@ class CheckoutController extends Controller
     {
         $order = Order::where('order_id', $order_id)
             ->where('user_id', Auth::id())
-            ->with(['orderItems.product', 'shippingAddress'])
+            ->with(['orderItems.product', 'shippingAddress', 'rider'])
             ->firstOrFail();
 
         return view('frontend.order_tracking', compact('order'));
+    }
+
+    /**
+     * JSON: Live tracking data endpoint polled by the map.
+     */
+    public function trackingData($order_id)
+    {
+        $order = Order::where('order_id', $order_id)
+            ->where('user_id', Auth::id())
+            ->with(['shippingAddress', 'rider'])
+            ->firstOrFail();
+
+        return response()->json([
+            'status' => $order->order_status,
+            'payment_status' => $order->payment_status,
+            'rider' => $order->rider ? [
+                'name' => $order->rider->full_name ?? $order->rider->first_name,
+                'lat' => (float) $order->rider_lat,
+                'lng' => (float) $order->rider_lng,
+            ] : null,
+            'eta' => $order->formatted_eta,
+            'eta_minutes' => $order->estimated_delivery_minutes,
+            'progress' => $order->getDeliveryProgressPercent(),
+            'estimated_arrival' => optional($order->estimated_arrival)->format('g:i A'),
+            'delivery_started_at' => optional($order->delivery_started_at)->toISOString(),
+            'picked_up_at' => optional($order->rider_picked_up_at)->toISOString(),
+            'delivered_at' => optional($order->rider_delivered_at)->toISOString(),
+            'shipping_method' => $order->shipping_method,
+        ]);
     }
 
     /**

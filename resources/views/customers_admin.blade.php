@@ -140,6 +140,7 @@
                                 ];
                             @endphp
                             @forelse(($customers ?? []) as $customer)
+                            @php /** @var \App\Models\User $customer */ @endphp
                             <tr data-status="{{ $customer->account_status ?? 'active' }}">
                                 <td>
                                     <div class="customer-cell">{{ trim(($customer->first_name ?? '') . ' ' . ($customer->last_name ?? '')) ?: '—' }}</div>
@@ -155,12 +156,9 @@
                                     <span class="badge {{ $statusBadge[$status] ?? 'badge-pending' }}">{{ strtoupper($status) }}</span>
                                 </td>
                                 <td class="col-actions">
-                                    <a href="#" class="action-btn" title="View" aria-label="View customer">
+                                    <button type="button" class="action-btn" title="View Details" aria-label="View customer" onclick="openCustomerModal({{ $customer->id }})">
                                         <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
-                                    </a>
-                                    <a href="#" class="action-btn" title="Edit" aria-label="Edit customer">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-                                    </a>
+                                    </button>
                                 </td>
                             </tr>
                             @empty
@@ -172,7 +170,7 @@
                     </table>
                 </div>
 
-                @if(isset($customers) && $customers instanceof \Illuminate\Contracts\Pagination\Paginator && $customers->hasPages())
+                @if(isset($customers) && $customers instanceof \Illuminate\Pagination\LengthAwarePaginator && $customers->hasPages())
                 <div class="orders-pagination">
                     {{ $customers->links() }}
                 </div>
@@ -181,8 +179,98 @@
         </main>
     </div>
 
+    <!-- Customer Details Modal -->
+    <div class="modal-backdrop" id="customerModalBackdrop"></div>
+    <div id="customerModal" class="modal" style="max-width: 600px; width: 95%;" role="dialog" aria-modal="true" tabindex="-1">
+        <div class="modal-header">
+            <h2 class="modal-title">Customer Details</h2>
+            <button type="button" class="modal-close" onclick="closeCustomerModal()" aria-label="Close modal">&times;</button>
+        </div>
+        <div class="modal-body" id="customerModalBody" style="padding-top: 10px;">
+            <div style="text-align: center; color: #6b7280; padding: 20px;">Loading customer details...</div>
+        </div>
+        <div class="modal-footer" style="padding-top: 20px; border-top: 1px solid #f3f4f6; margin-top: 20px;">
+            <button type="button" class="btn-secondary" onclick="closeCustomerModal()">Close</button>
+        </div>
+    </div>
+
     <script src="{{ asset('js/orders.js') }}"></script>
     <script src="{{ asset('js/animations.js') }}"></script>
+    <script>
+        function openCustomerModal(id) {
+            const modal = document.getElementById('customerModal');
+            const backdrop = document.getElementById('customerModalBackdrop');
+            const body = document.getElementById('customerModalBody');
+            
+            modal.classList.add('open');
+            backdrop.classList.add('open');
+            
+            body.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 20px;">Loading customer details...</div>';
+            
+            fetch(`/admin/api/customers/${id}`, {
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                let html = `
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+                        <div style="width: 56px; height: 56px; border-radius: 50%; background: #ea580c; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold;">
+                            ${(data.first_name?.[0] || '') + (data.last_name?.[0] || '') || 'C'}
+                        </div>
+                        <div>
+                            <h3 style="margin: 0; font-size: 18px; color: #1f2937;">${data.first_name || ''} ${data.last_name || ''}</h3>
+                            <div style="color: #6b7280; font-size: 14px;">${data.email}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                        <div style="background: #f9fafb; padding: 16px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                            <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px; text-transform: uppercase; font-weight: 600;">Contact</div>
+                            <div style="font-size: 14px; color: #1f2937;">${data.phone_number || 'No phone'}</div>
+                        </div>
+                        <div style="background: #f9fafb; padding: 16px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                            <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px; text-transform: uppercase; font-weight: 600;">Status</div>
+                            <div style="font-size: 14px; color: #1f2937; text-transform: capitalize;">${data.account_status || 'Active'}</div>
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin: 0 0 12px 0; font-size: 15px; color: #374151; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px;">Shipping Address</h4>
+                    <div style="font-size: 14px; color: #4b5563; margin-bottom: 24px; line-height: 1.5;">
+                        ${data.full_address || '<ul><li>No address provided.</li></ul>'}
+                    </div>
+                    
+                    <h4 style="margin: 0 0 12px 0; font-size: 15px; color: #374151; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px;">Recent Orders</h4>
+                `;
+                
+                if (data.recent_orders && data.recent_orders.length > 0) {
+                    html += '<table class="orders-table" style="margin-top: 0;"><thead><tr><th>Order ID</th><th>Date</th><th>Status</th><th>Total</th></tr></thead><tbody>';
+                    data.recent_orders.forEach(order => {
+                        html += `
+                            <tr>
+                                <td>#${order.id}</td>
+                                <td>${new Date(order.created_at).toLocaleDateString()}</td>
+                                <td><span class="badge ${order.status === 'delivered' ? 'badge-paid' : (order.status === 'cancelled' ? 'badge-failed' : 'badge-pending')}">${order.status}</span></td>
+                                <td>₱${parseFloat(order.total_amount).toFixed(2)}</td>
+                            </tr>
+                        `;
+                    });
+                    html += '</tbody></table>';
+                } else {
+                    html += '<div style="color: #6b7280; font-size: 14px;">No recent orders.</div>';
+                }
+                
+                body.innerHTML = html;
+            })
+            .catch(err => {
+                body.innerHTML = '<div style="text-align: center; color: #ef4444; padding: 20px;">Failed to load customer details.</div>';
+            });
+        }
+        
+        function closeCustomerModal() {
+            document.getElementById('customerModal').classList.remove('open');
+            document.getElementById('customerModalBackdrop').classList.remove('open');
+        }
+    </script>
 </body>
 </html>
 

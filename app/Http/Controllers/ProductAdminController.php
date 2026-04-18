@@ -43,7 +43,7 @@ class ProductAdminController extends Controller
         ];
 
         // include variants so the stock accessor doesn't hit the database repeatedly
-        $productsQuery = Product::with(['category', 'variants']);
+        $productsQuery = Product::with(['category', 'variants', 'animalTypes']);
         if ($status !== 'all') {
             $productsQuery->where('product_status', $status);
         }
@@ -127,10 +127,16 @@ class ProductAdminController extends Controller
             if ($at) {
                 $animalTypeNames[] = $at->animal_type;
                 $stage = $data['life_stages'][$id] ?? null;
-                if ($stage) {
+                if (is_array($stage) && count($stage) > 0) {
+                    $stageStr = implode(', ', $stage);
+                    $lifeStageNames = array_merge($lifeStageNames, array_map('ucfirst', $stage));
+                    $syncData[$id] = ['life_stage' => $stageStr];
+                } else if (!is_array($stage) && $stage) {
                     $lifeStageNames[] = ucfirst($stage);
+                    $syncData[$id] = ['life_stage' => $stage];
+                } else {
+                    $syncData[$id] = ['life_stage' => null];
                 }
-                $syncData[$id] = ['life_stage' => $stage];
             }
         }
         $data['animal_type'] = implode(', ', $animalTypeNames);
@@ -210,10 +216,16 @@ class ProductAdminController extends Controller
             if ($at) {
                 $animalTypeNames[] = $at->animal_type;
                 $stage = $data['life_stages'][$typeId] ?? null;
-                if ($stage) {
+                if (is_array($stage) && count($stage) > 0) {
+                    $stageStr = implode(', ', $stage);
+                    $lifeStageNames = array_merge($lifeStageNames, array_map('ucfirst', $stage));
+                    $syncData[$typeId] = ['life_stage' => $stageStr];
+                } else if (!is_array($stage) && $stage) {
                     $lifeStageNames[] = ucfirst($stage);
+                    $syncData[$typeId] = ['life_stage' => $stage];
+                } else {
+                    $syncData[$typeId] = ['life_stage' => null];
                 }
-                $syncData[$typeId] = ['life_stage' => $stage];
             }
         }
         $data['animal_type'] = implode(', ', $animalTypeNames);
@@ -267,6 +279,19 @@ class ProductAdminController extends Controller
         $product = Product::findOrFail($id);
         $product->update(['product_status' => 'draft']);
         return redirect()->route('inventory.admin')->with('success', 'Product moved to draft');
+    }
+
+    /**
+     * Restore a drafted product back to active/out_of_stock.
+     */
+    public function restore($id)
+    {
+        $product = Product::findOrFail($id);
+        $status = ($product->stock > 0) ? 'active' : 'out_of_stock';
+        $product->update(['product_status' => $status]);
+        // Also sync variants status
+        $product->variants()->update(['product_status' => $status]);
+        return redirect()->route('inventory.admin')->with('success', 'Product restored successfully');
     }
 
     /**

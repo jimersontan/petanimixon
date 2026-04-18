@@ -70,17 +70,23 @@
         <div id="lifeStageContainers" style="display: none;"></div>
         <!-- End: Life Stages -->
 
-        <!-- Field: Category (required dropdown from categories table) -->
+        <!-- Field: Category (visual buttons + hidden input) -->
         <div class="form-group">
-            <label for="animal_category_id">Category</label>
-            <select name="animal_category_id" id="animal_category_id" class="form-control" required>
-                <option value="">Select category</option>
-                <!-- Loop: Render each active category -->
+            <label>Category *</label>
+            <input type="hidden" name="animal_category_id" id="animal_category_id" required>
+            <div id="categoryChipsContainer" style="display: flex; flex-wrap: wrap; gap: 8px;">
                 @foreach($categories as $cat)
-                    <option value="{{ $cat->id }}" {{ (old('animal_category_id', $product->animal_category_id) == $cat->id) ? 'selected' : '' }}>{{ $cat->category_name }}</option>
+                    <button type="button" class="category-chip" data-id="{{ $cat->id }}" style="
+                        padding: 8px 16px; background: #f3f4f6; border: 1px solid #d1d5db;
+                        border-radius: 20px; font-size: 13px; font-weight: 500; color: #4b5563;
+                        cursor: pointer; transition: all 0.2s;">
+                        {{ $cat->category_name }}
+                    </button>
                 @endforeach
-                <!-- End: Categories Loop -->
-            </select>
+            </div>
+            @if($errors->has('animal_category_id'))
+                <span class="text-danger" style="font-size: 12px; color: #dc2626;">Please select a category.</span>
+            @endif
         </div>
         <!-- End: Category -->
 
@@ -359,7 +365,7 @@
  * Handles: Select2 initialization, Manage Animal Types modal,
  * and all CRUD operations (Add, Edit, Delete, Draft, Restore)
  */
-document.addEventListener('DOMContentLoaded', function() {
+(function() {
 
     // ===== CONFIGURATION =====
     // CSRF token for AJAX security (from meta tag in layout)
@@ -370,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===== SELECT2 INITIALIZATION =====
     // Initialize the searchable dropdown on the Animal Type field
     function initSelect2() {
-        if ($.fn.select2) {
+        if (typeof jQuery !== 'undefined' && $.fn.select2) {
             $('#animal_type_id').select2({
                 placeholder: 'Search Animal Type...',
                 allowClear: true,
@@ -382,7 +388,9 @@ document.addEventListener('DOMContentLoaded', function() {
     initSelect2();
 
     // Re-initialize Select2 when a Bootstrap modal opens (for dynamic modals)
-    $(document).on('shown.bs.modal', function() { initSelect2(); });
+    if (typeof jQuery !== 'undefined') {
+        $(document).on('shown.bs.modal', function() { initSelect2(); });
+    }
     // ===== END SELECT2 INITIALIZATION =====
 
     // ===== MULTIPLE ANIMAL TYPE SELECTION WITH PER-ANIMAL LIFE STAGES =====
@@ -442,11 +450,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Remove an animal type
     window.removeAnimal = function(value) {
         animalTypeSelect.querySelector(`option[value="${value}"]`).selected = false;
-        updateChips();
+        updateChips({});
     };
 
     // Update chips display and life stage selectors
-    function updateChips() {
+    window.updateChips = function(existingStages = {}) {
         const selectedIds = Array.from(animalTypeSelect.selectedOptions).map(o => o.value);
         const selectedOptions = selectedIds.map(id => animalTypeSelect.querySelector(`option[value="${id}"]`));
         
@@ -467,14 +475,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Update life stage selectors
-        updateLifeStageSelectors(selectedOptions);
+        updateLifeStageSelectors(selectedOptions, existingStages);
         
         // Rebuild available animals buttons
         renderAvailableAnimals();
-    }
+    };
 
     // Update per-animal life stage selectors
-    function updateLifeStageSelectors(selectedOptions) {
+    function updateLifeStageSelectors(selectedOptions, existingStages) {
         lifeStageContainers.innerHTML = '';
         
         if (selectedOptions.length === 0) {
@@ -488,17 +496,24 @@ document.addEventListener('DOMContentLoaded', function() {
             const animalName = opt.text.toLowerCase();
             const stages = lifeStagesByAnimal[animalName] || ['Adult'];
             
+            const preselectedStages = (existingStages[opt.value] || existingStages[opt.text]) ? 
+                (existingStages[opt.value] || existingStages[opt.text]).split(', ').map(s => s.toLowerCase().trim()) 
+                : [];
+            
             const container = document.createElement('div');
             container.className = 'form-group';
             container.style.marginTop = '12px';
             container.innerHTML = `
                 <label for="life_stage_${opt.value}" style="font-size: 13px; font-weight: 600; color: #374151;">
-                    ${opt.text} - Life Stage
+                    ${opt.text} - Life Stages (Select Multiple)
                 </label>
-                <select name="life_stages[${opt.value}]" id="life_stage_${opt.value}" class="form-control">
-                    <option value="">Select life stage</option>
-                    ${stages.map(stage => `<option value="${stage.toLowerCase()}">${stage}</option>`).join('')}
+                <select name="life_stages[${opt.value}][]" id="life_stage_${opt.value}" class="form-control" multiple style="height: auto; min-height: 80px;">
+                    ${stages.map(stage => {
+                        const isSelected = preselectedStages.includes(stage.toLowerCase()) ? 'selected' : '';
+                        return \`<option value="\${stage.toLowerCase()}" \${isSelected}>\${stage}</option>\`;
+                    }).join('')}
                 </select>
+                <div style="font-size:11px;color:#6b7280;margin-top:4px;">Hold Ctrl (Windows) or Cmd (Mac) to select multiple</div>
             `;
             lifeStageContainers.appendChild(container);
         });
@@ -508,14 +523,70 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
             renderAvailableAnimals();
-            updateChips();
+            window.updateChips({});
+            initCategoryChips();
         });
     } else {
         renderAvailableAnimals();
-        updateChips();
+        window.updateChips({});
+        initCategoryChips();
     }
     // ===== END MULTIPLE ANIMAL TYPE SELECTION =====
-
+    
+    // ===== CATEGORY CHIPS LOGIC =====
+    function initCategoryChips() {
+        // Listeners for Category Chips
+        const catContainer = document.getElementById('categoryChipsContainer');
+        const catHiddenInput = document.getElementById('animal_category_id');
+        
+        if (catContainer && catHiddenInput) {
+            const catButtons = catContainer.querySelectorAll('.category-chip');
+            catButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active from all
+                    catButtons.forEach(b => {
+                        b.style.background = '#f3f4f6';
+                        b.style.color = '#4b5563';
+                        b.style.borderColor = '#d1d5db';
+                    });
+                    
+                    // Activate this one
+                    this.style.background = '#4b5563';
+                    this.style.color = '#fff';
+                    this.style.borderColor = '#4b5563';
+                    
+                    // Set hidden input value
+                    catHiddenInput.value = this.dataset.id;
+                    
+                    // Dispatch change event to trigger wet/dry logic
+                    const event = new Event('change', { bubbles: true });
+                    catHiddenInput.dispatchEvent(event);
+                });
+            });
+            
+            // Watch for programmatic changes on the hidden input to update the chips automatically
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === "attributes" && mutation.attributeName === "value") {
+                        const val = catHiddenInput.value;
+                        catButtons.forEach(b => {
+                            if (b.dataset.id == val) {
+                                b.style.background = '#4b5563';
+                                b.style.color = '#fff';
+                                b.style.borderColor = '#4b5563';
+                            } else {
+                                b.style.background = '#f3f4f6';
+                                b.style.color = '#4b5563';
+                                b.style.borderColor = '#d1d5db';
+                            }
+                        });
+                    }
+                });
+            });
+            observer.observe(catHiddenInput, { attributes: true });
+        }
+    }
+    // ===== END CATEGORY CHIPS LOGIC =====
 
     // ===== MANAGE MODAL: Element References =====
     const overlay = document.getElementById('manageAnimalOverlay');
@@ -793,7 +864,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     // ===== END SYNC SELECT2 DROPDOWN =====
 
-});
+})();
 </script>
 @endpush
 <!-- ===== END JAVASCRIPT ===== -->

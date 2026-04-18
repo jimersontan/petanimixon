@@ -99,7 +99,7 @@ class DashboardController extends Controller
             // Revenue per day for current week
             $data = [];
             $labels = [];
-            $startOfWeek = $now->copy()->startOfWeek(Carbon::MONDAY);
+            $startOfWeek = $now->copy()->startOfWeek(\Carbon\CarbonInterface::MONDAY);
             for ($d = 0; $d < 7; $d++) {
                 $day = $startOfWeek->copy()->addDays($d);
                 $rev = Order::where('payment_status', Order::PAYMENT_PAID)
@@ -113,6 +113,49 @@ class DashboardController extends Controller
         return response()->json([
             'data' => $data,
             'labels' => $labels,
+        ]);
+    }
+
+    /**
+     * API endpoint to get low/no stock alerts for the admin header notification bell.
+     */
+    public function stockAlerts()
+    {
+        // Out of stock (0 stock)
+        $outOfStock = Product::whereHas('variants', function ($q) {
+            $q->where('variant_quantity', 0);
+        })->where('product_status', '!=', 'draft')
+        ->select('id', 'product_name')
+        ->get()
+        ->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->product_name,
+                'type' => 'out_of_stock',
+                'message' => 'Out of stock'
+            ];
+        });
+
+        // Low stock (1-5 stock)
+        $lowStock = Product::whereHas('variants', function ($q) {
+            $q->whereBetween('variant_quantity', [1, 5]);
+        })->where('product_status', '!=', 'draft')
+        ->select('id', 'product_name')
+        ->get()
+        ->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->product_name,
+                'type' => 'low_stock',
+                'message' => 'Low stock'
+            ];
+        });
+        
+        $allAlerts = $outOfStock->concat($lowStock);
+        
+        return response()->json([
+            'count' => $allAlerts->count(),
+            'alerts' => $allAlerts
         ]);
     }
 }

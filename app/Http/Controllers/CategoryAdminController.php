@@ -38,10 +38,18 @@ class CategoryAdminController extends Controller
         $parents = Category::orderBy('category_name')->get();
 
         // Animal types for the second table
-        $animalTypes = \DB::table('animal_types')
+        $animalTypesQuery = \DB::table('animal_types')
             ->orderBy('sort_order')
-            ->orderBy('id')
-            ->get()
+            ->orderBy('id');
+            
+        if ($status === 'active') {
+            // using string literals matching what we saw in DB/blade (Active, Draft, etc.)
+            $animalTypesQuery->where('status', 'Active');
+        } elseif ($status === 'draft') {
+            $animalTypesQuery->where('status', 'Draft');
+        }
+
+        $animalTypes = $animalTypesQuery->get()
             ->map(function ($t) {
                 $t->product_count = Product::where('animal_type', $t->animal_type)->count();
                 $t->image_full_url = $t->image_url ? asset('storage/' . $t->image_url) : '';
@@ -106,6 +114,16 @@ class CategoryAdminController extends Controller
         $category = Category::findOrFail($id);
         $category->update(['is_active' => false]);
         return redirect()->route('categories.admin')->with('success', 'Category moved to draft');
+    }
+
+    /**
+     * Restore a drafted category back to active.
+     */
+    public function restore($id)
+    {
+        $category = Category::findOrFail($id);
+        $category->update(['is_active' => true]);
+        return redirect()->route('categories.admin')->with('success', 'Category restored to active');
     }
 
     /**

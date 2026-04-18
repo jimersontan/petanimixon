@@ -164,6 +164,14 @@
                             </button>
                         </form>
                         @else
+                        <!-- Restore Button -->
+                        <form method="POST" action="{{ route('brands.restore', $brand->id) }}" style="display:inline">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="action-btn" title="Restore Brand" style="color: #22c55e;" onclick="return confirm('Restore this brand and make it active again?')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
+                            </button>
+                        </form>
                         <!-- Permanent Delete Button -->
                         <form method="POST" action="{{ route('brands.destroy', $brand->id) }}" style="display:inline">
                             @csrf

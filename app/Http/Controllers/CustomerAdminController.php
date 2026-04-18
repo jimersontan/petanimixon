@@ -52,4 +52,21 @@ class CustomerAdminController extends Controller
 
         return view('customers_admin', compact('stats', 'customers', 'days'));
     }
+
+    /**
+     * API endpoint to get customer details.
+     */
+    public function show($id)
+    {
+        $customer = User::withCount('orders')
+            ->withSum('orders', 'total_amount')
+            ->with(['orders' => function($q) {
+                $q->orderBy('created_at', 'desc')->take(5);
+            }])
+            ->findOrFail($id);
+            
+        $customer->total_spent = $customer->orders_total_amount_sum ?? 0;
+            
+        return response()->json($customer);
+    }
 }

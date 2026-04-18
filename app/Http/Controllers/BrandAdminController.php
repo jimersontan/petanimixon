@@ -90,6 +90,16 @@ class BrandAdminController extends Controller
     }
 
     /**
+     * Restore a drafted brand back to active.
+     */
+    public function restore($id)
+    {
+        $brand = Brand::findOrFail($id);
+        $brand->update(['is_active' => true]);
+        return redirect()->route('brands.admin')->with('success', 'Brand restored to active');
+    }
+
+    /**
      * Permanently delete a brand (only allowed for inactive/draft brands).
      */
     public function destroy($id)

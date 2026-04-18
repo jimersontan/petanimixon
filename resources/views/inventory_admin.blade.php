@@ -209,9 +209,9 @@
                             $pivotLifeStages = [];
                             if ($product->relationLoaded('animalTypes')) {
                                 foreach ($product->animalTypes as $at) {
-                                    $pivotAnimalTypeIds[] = $at->id;
+                                    $pivotAnimalTypeIds[] = (int) $at->id;
                                     if ($at->pivot->life_stage) {
-                                        $pivotLifeStages[$at->id] = $at->pivot->life_stage;
+                                        $pivotLifeStages[(string) $at->id] = $at->pivot->life_stage;
                                     }
                                 }
                             }
@@ -219,7 +219,7 @@
                             if (empty($pivotAnimalTypeIds) && $product->animal_type && isset($animal_types)) {
                                 foreach ($animal_types as $at) {
                                     if (str_contains($product->animal_type, $at->animal_type)) {
-                                        $pivotAnimalTypeIds[] = $at->id;
+                                        $pivotAnimalTypeIds[] = (int) $at->id;
                                     }
                                 }
                             }
@@ -243,7 +243,7 @@
                             ];
                         @endphp
                         <button type="button" class="action-btn" title="Edit" aria-label="Edit product"
-                            onclick='openProductModal("edit", @json($prodData))'>
+                            onclick='openProductModal("edit", {!! json_encode($prodData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!})'>
                             <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                         </button>
                         <!-- Draft Button: Only for non-draft products -->
@@ -257,6 +257,14 @@
                             </button>
                         </form>
                         @else
+                        <!-- Restore Button -->
+                        <form method="POST" action="{{ route('inventory.restore', $product->id) }}" style="display:inline">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="action-btn" title="Restore Product" style="color: #22c55e;" onclick="return confirm('Restore this product and make it active again?')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
+                            </button>
+                        </form>
                         <!-- Permanent Delete Button -->
                         <form method="POST" action="{{ route('inventory.destroy', $product->id) }}" style="display:inline">
                             @csrf
@@ -351,8 +359,15 @@
         function toggleWetOrDryField() {
             if (!categorySelect || !wetOrDryGroup) return;
             
-            const selectedOption = categorySelect.options[categorySelect.selectedIndex];
-            const selectedText = selectedOption ? selectedOption.text : '';
+            let selectedText = '';
+            if (categorySelect.tagName === 'SELECT') {
+                const selectedOption = categorySelect.options[categorySelect.selectedIndex];
+                selectedText = selectedOption ? selectedOption.text : '';
+            } else {
+                // It's a hidden input, find the active chip
+                const activeChip = document.querySelector('.category-chip[data-id="' + categorySelect.value + '"]');
+                selectedText = activeChip ? activeChip.textContent : '';
+            }
             
             // Show the field if "Food & Nutrition" is selected
             if (selectedText.includes('Food & Nutrition') || selectedText.includes('Food &') ) {
@@ -437,14 +452,15 @@
             });
             
             // Pre-select animal types for multi-select
-            if (animalTypeSelect && data.animal_type_ids) {
+            if (animalTypeSelect && data.animal_type_ids && data.animal_type_ids.length > 0) {
+                var idsAsNumbers = data.animal_type_ids.map(function(id) { return Number(id); });
                 Array.from(animalTypeSelect.options).forEach(opt => {
-                    opt.selected = data.animal_type_ids.includes(parseInt(opt.value));
+                    opt.selected = idsAsNumbers.includes(Number(opt.value));
                 });
             }
             
             // Update chips and life stage selectors
-            if (window.updateChips) window.updateChips();
+            if (window.updateChips) window.updateChips(data.animal_life_stages || {});
             
             // Handle image preview
             if (data.image_url) {

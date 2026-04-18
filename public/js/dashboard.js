@@ -21,6 +21,47 @@
         initRestockButtons();
         initProfileDropdown();
         initModals();
+        fetchStockAlerts();
+    }
+
+    /**
+     * Fetch stock alerts for notification bell
+     */
+    function fetchStockAlerts() {
+        var bells = document.querySelectorAll('.dashboard-header button[aria-label="Notifications"]');
+        if (!bells.length) return;
+        
+        // Ensure each admin bell has a stock badge dynamically so we don't need to manually update 10 different layout files
+        bells.forEach(function(bell) {
+            bell.style.position = 'relative';
+            if (!bell.querySelector('.stock-badge')) {
+                var badge = document.createElement('span');
+                badge.className = 'notification-badge stock-badge';
+                // Position it on the top-left to avoid colliding with the system notification SSE badge on the top-right
+                badge.style.cssText = 'display: none; position: absolute; right: auto; left: -6px; top: -6px; padding: 0 4px; border-radius: 12px; background: #ea580c; border: 2px solid #fff; min-width: 20px; font-size: 11px; font-weight: 700; color: #fff; align-items: center; justify-content: center;';
+                badge.textContent = '0';
+                bell.appendChild(badge);
+            }
+        });
+
+        fetch('/admin/api/stock-alerts', {
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            bells.forEach(function(bell) {
+                var badge = bell.querySelector('.stock-badge');
+                if (badge) {
+                    if (data.count > 0) {
+                        badge.style.display = 'flex';
+                        badge.textContent = data.count > 99 ? '99+' : data.count;
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            });
+        })
+        .catch(function(e) { console.error('Failed to fetch stock alerts', e); });
     }
 
     /**

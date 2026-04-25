@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'PetMarkt-PH')</title>
+    <title>@yield('title', 'Pet Markt-PH')</title>
 
     <link rel="stylesheet" href="{{ asset('css/user_dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/themes.css') }}">
@@ -15,82 +15,88 @@
 <body class="user-dashboard theme-{{ Auth::check() ? (Auth::user()->color_theme ?? 'citrus_tail') : 'citrus_tail' }}">
     <header class="ud-header">
         <div class="ud-header-inner">
-            <a href="{{ route('shop') }}" class="ud-logo" style="display:flex; align-items:center; gap:0; text-decoration:none;">
-                <img src="{{ asset('images/logo.png') }}" alt="PetMarkt-PH Logo" style="max-height: 38px; margin-right: -8px;">
-                <span class="ud-logo-text" style="font-size: 24px; color:#1f2937; margin:0;">Pet <span style="color: #ff8a00; font-weight: 700;">Markt-PH</span></span>
-            </a>
+            <div class="ud-header-left" style="display: flex; align-items: center; gap: 32px;">
+                <a href="{{ route('shop') }}" class="ud-logo" style="display:flex; align-items:center; gap:0; text-decoration:none;">
+                    <img src="{{ asset('images/logo.png') }}" alt="Pet Markt-PH Logo" style="max-height: 38px; margin-right: -8px;">
+                    <span class="ud-logo-text" style="font-size: 24px; color:#1f2937; margin:0;">Pet <span style="color: #ff8a00; font-weight: 700;">Markt-PH</span></span>
+                </a>
 
-            <nav class="ud-nav">
-                <a href="{{ route('shop') }}" class="ud-nav-link {{ request()->routeIs('shop') ? 'active' : '' }}">Home</a>
-                <a href="{{ route('categories') }}" class="ud-nav-link {{ request()->routeIs('categories*') ? 'active' : '' }}">Categories</a>
-                <a href="{{ route('shop.all') }}" class="ud-nav-link {{ request()->routeIs('shop.all') ? 'active' : '' }}">Shop</a>
-                <a href="{{ route('brands') }}" class="ud-nav-link {{ request()->routeIs('brands*') ? 'active' : '' }}">Brands</a>
-            </nav>
-
-            <div class="ud-search-bar">
-                <span class="ud-search-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C8.01 14 6 11.99 6 9.5S8.01 5 10.5 5 15 7.01 15 9.5 12.99 14 10.5 14z"/>
-                    </svg>
-                </span>
-                <input type="text" class="ud-search-input" placeholder="Search products..." />
+                <nav class="ud-nav hide-on-mobile" style="margin: 0; padding: 0;">
+                    <a href="{{ route('shop') }}" class="ud-nav-link {{ request()->routeIs('shop') ? 'active' : '' }}">Home</a>
+                    <a href="{{ route('categories') }}" class="ud-nav-link {{ request()->routeIs('categories*') ? 'active' : '' }}">Categories</a>
+                    <a href="{{ route('shop.all') }}" class="ud-nav-link {{ request()->routeIs('shop.all') ? 'active' : '' }}">Shop</a>
+                    <a href="{{ route('brands') }}" class="ud-nav-link {{ request()->routeIs('brands*') ? 'active' : '' }}">Brands</a>
+                </nav>
             </div>
 
-            @auth
-                <div class="ud-header-actions">
-                    @include('components.user_notifications')
-
-                    <a href="{{ route('wishlist.index') }}" class="ud-icon-btn hide-on-mobile" aria-label="Wishlist" style="text-decoration:none;">
-                        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            <div class="ud-header-center" style="display: flex; justify-content: center; flex: 1; margin: 0 24px;">
+                <form action="{{ route('shop.all') }}" method="GET" class="ud-search-bar hide-on-mobile" style="width: 100%; max-width: 400px; position: relative;">
+                    <button type="submit" class="ud-search-icon" aria-label="Search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #999; background: transparent; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C8.01 14 6 11.99 6 9.5S8.01 5 10.5 5 15 7.01 15 9.5 12.99 14 10.5 14z"/>
                         </svg>
-                    </a>
+                    </button>
+                    <input type="text" name="q" class="ud-search-input" value="{{ request('q') }}" placeholder="Search products..." style="width: 100%; padding: 8px 12px 8px 36px; border-radius: 20px; border: 1px solid #e0e0e0; background: #f5f5f5; font-size: 13px;" />
+                </form>
+            </div>
 
-                    <a href="{{ route('cart.index') }}" class="ud-icon-btn" aria-label="Cart" style="text-decoration:none;">
-                        <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
-                            <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
-                        </svg>
-                        <span class="ud-cart-count">0</span>
-                    </a>
+            <div class="ud-header-right">
 
-                    <div class="ud-user-dropdown">
-                        <button id="udUserBtn" type="button" class="ud-user-btn" style="border: none; background: transparent; display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
-                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                @auth
+                    <div class="ud-header-actions" style="margin: 0; gap: 8px;">
+                        @include('components.user_notifications')
+
+                        <a href="{{ route('wishlist.index') }}" class="ud-icon-btn hide-on-mobile" aria-label="Wishlist" style="text-decoration:none;">
+                            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                             </svg>
-                            <span class="ud-user-name hide-on-mobile" style="font-size: 14px; color: #333;">{{ Auth::user()->first_name ?? Auth::user()->email }}</span>
-                        </button>
-                        <div id="udUserDropdown" class="ud-dropdown-menu">
-                            <div class="show-on-mobile" style="display: none;">
-                                <a href="#" style="display: flex; justify-content: space-between; align-items: center;">
-                                    Favorites <span class="ud-wishlist-count-badge" style="background:#e91e63; color:white; padding:2px 8px; border-radius:10px; font-size:11px;">0</span>
-                                </a>
-                                <a href="{{ route('cart.index') }}" style="display: flex; justify-content: space-between; align-items: center;">
-                                    Cart <span class="ud-cart-count" style="background:#3b7c42; color:white; padding:2px 8px; border-radius:10px; font-size:11px;">0</span>
-                                </a>
-                                <hr style="border:0; border-top:1px solid #f0f0f0; margin: 4px 0;">
-                            </div>
-                            <a href="{{ route('profile.edit') }}">My Account</a>
-                            <a href="{{ route('user.notifications') }}">Notifications</a>
-                            <a href="{{ route('wishlist.index') }}">My Wishlist</a>
-                            @if(! (Auth::user()->isAdmin() ?? false))
+                        </a>
+
+                        <a href="{{ route('cart.index') }}" class="ud-icon-btn" aria-label="Cart" style="text-decoration:none;">
+                            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+                                <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+                            </svg>
+                            <span class="ud-cart-count">0</span>
+                        </a>
+
+                        <div class="ud-user-dropdown">
+                            <button id="udUserBtn" type="button" class="ud-user-btn" style="border: none; background: transparent; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                </svg>
+                                <span class="ud-user-name hide-on-mobile" style="font-size: 14px; color: #333;">{{ Auth::user()->first_name ?? Auth::user()->email }}</span>
+                            </button>
+                            <div id="udUserDropdown" class="ud-dropdown-menu">
+                                <div class="show-on-mobile" style="display: none;">
+                                    <a href="#" style="display: flex; justify-content: space-between; align-items: center;">
+                                        Favorites <span class="ud-wishlist-count-badge" style="background:#e91e63; color:white; padding:2px 8px; border-radius:10px; font-size:11px;">0</span>
+                                    </a>
+                                    <a href="{{ route('cart.index') }}" style="display: flex; justify-content: space-between; align-items: center;">
+                                        Cart <span class="ud-cart-count" style="background:#3b7c42; color:white; padding:2px 8px; border-radius:10px; font-size:11px;">0</span>
+                                    </a>
+                                    <hr style="border:0; border-top:1px solid #f0f0f0; margin: 4px 0;">
+                                </div>
+                                <a href="{{ route('profile.edit') }}">My Account</a>
                                 <a href="{{ route('orders') }}">My Orders</a>
-                                <a href="{{ route('returns.index') }}">My Returns</a>
-                            @endif
-                            <a href="{{ route('faq') }}">FAQ</a>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" style="width:100%; text-align:left;">Logout</button>
-                            </form>
+                                <a href="{{ route('user.notifications') }}">Notifications</a>
+                                <a href="{{ route('wishlist.index') }}">My Wishlist</a>
+                                @if(! (Auth::user()->isAdmin() ?? false))
+                                    <a href="{{ route('returns.index') }}">My Returns</a>
+                                @endif
+                                <a href="{{ route('faq') }}">FAQ</a>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" style="width:100%; text-align:left;">Logout</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                </div>
-            @else
-                <div class="ud-auth-btns" style="display: flex; gap: 12px; align-items: center;">
-                    <a href="{{ route('login') }}" class="ud-btn ud-btn-outline">Login</a>
-                    <a href="{{ route('register') }}" class="ud-btn ud-btn-primary">Sign up</a>
-                </div>
-            @endauth
+                @else
+                    <div class="ud-auth-btns" style="display: flex; gap: 12px; align-items: center;">
+                        <a href="{{ route('login') }}" class="ud-btn ud-btn-outline">Login</a>
+                        <a href="{{ route('register') }}" class="ud-btn ud-btn-primary">Sign up</a>
+                    </div>
+                @endauth
             </div>
         </div>
     </header>
@@ -104,7 +110,7 @@
         <div class="footer-inner">
             <div class="footer-col footer-brand">
                 <a href="{{ route('shop') }}" class="footer-logo" style="display:flex; align-items:center; gap:0; text-decoration:none;">
-                    <img src="{{ asset('images/logo.png') }}" alt="PetMarkt-PH" style="max-height:36px; margin-right: -8px;">
+                    <img src="{{ asset('images/logo.png') }}" alt="Pet Markt-PH" style="max-height:36px; margin-right: -8px;">
                     <span style="font-size: 20px; font-weight: 400;">Pet <strong style="font-weight:700;">Markt-PH</strong></span>
                 </a>
                 <p class="footer-tagline">Your one-stop shop for premium pet products. Quality care for every furry, feathered & scaly friend.</p>
@@ -142,56 +148,24 @@
         </div>
 
         {{-- Newsletter Subscription --}}
-        <div class="footer-newsletter" style="background: linear-gradient(135deg, #ea580c15, #f9731620); border-radius: 12px; padding: 24px 32px; margin: 0 24px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+        <div class="footer-newsletter" style="background: linear-gradient(135deg, var(--ud-orange-dark)15, #f9731620); border-radius: 12px; padding: 24px 32px; margin: 0 24px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
             <div>
                 <h4 style="margin: 0 0 4px; font-size: 16px; color: #1a1a2e; font-weight: 700;">🐾 Get Pet Deals & Tips</h4>
                 <p style="margin: 0; font-size: 13px; color: #666;">Subscribe to our newsletter for exclusive offers!</p>
             </div>
             <form id="newsletterForm" style="display: flex; gap: 8px; flex: 1; max-width: 400px;" onsubmit="return submitNewsletter(event)">
                 <input type="email" id="newsletterEmail" placeholder="your@email.com" required style="flex: 1; padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none;">
-                <button type="submit" style="background: #ea580c; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; white-space: nowrap; transition: background 0.2s;">Subscribe</button>
+                <button type="submit" style="background: var(--ud-orange-dark); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; white-space: nowrap; transition: background 0.2s;">Subscribe</button>
             </form>
             <div id="newsletterMsg" style="display:none; font-size: 13px; font-weight: 600; width: 100%; text-align: center;"></div>
         </div>
 
         <div class="footer-bottom">
-            <p>&copy; {{ date('Y') }} PetMarkt-PH. All rights reserved.</p>
+            <p>&copy; {{ date('Y') }} Pet Markt-PH. All rights reserved.</p>
         </div>
     </footer>
 
-    {{-- ══════════ MOBILE BOTTOM NAV (Shopee-style) ══════════ --}}
-    <nav class="mobile-bottom-nav">
-        <a href="{{ route('shop') }}" class="bottom-nav-item {{ request()->routeIs('shop') ? 'active' : '' }}">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-            <span>Home</span>
-        </a>
-        <a href="{{ route('categories') }}" class="bottom-nav-item {{ request()->routeIs('categories*') ? 'active' : '' }}">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>
-            <span>Categories</span>
-        </a>
-        <a href="{{ route('shop.all') }}" class="bottom-nav-item {{ request()->routeIs('shop.all') ? 'active' : '' }}">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M18.36 9l.6 3H5.04l.6-3h12.72M20 4H4v2h16V4zm0 3H4l-1 5v2h1v6h10v-6h4v6h2v-6h1v-2l-1-5zM6 18v-4h6v4H6z"/></svg>
-            <span>Shop</span>
-        </a>
-        <a href="{{ route('cart.index') }}" class="bottom-nav-item {{ request()->routeIs('cart.index') ? 'active' : '' }}">
-            <div class="bottom-nav-icon-wrap">
-                <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
-                <span class="bottom-nav-badge ud-cart-count-mobile">0</span>
-            </div>
-            <span>Cart</span>
-        </a>
-        @auth
-        <a href="{{ route('profile.edit') }}" class="bottom-nav-item {{ request()->routeIs('profile*') ? 'active' : '' }}">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            <span>Account</span>
-        </a>
-        @else
-        <a href="{{ route('login') }}" class="bottom-nav-item">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            <span>Login</span>
-        </a>
-        @endauth
-    </nav>
+    {{-- Mobile Bottom Nav Removed by Request --}}
 
     {{-- Support Chat Widget --}}
     @include('components.support_chat')

@@ -140,7 +140,7 @@
                                 'sort_order' => $category->sort_order ?? 0,
                                 'is_featured' => (bool)$category->is_featured,
                                 'is_active' => (bool)$category->is_active,
-                                'image_url' => $category->image_url ? asset('storage/'.$category->image_url) : ''
+                                'image_url' => $category->image_url ? $category->image_full_url : ''
                             ]) }})">
                             <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                         </button>
@@ -151,7 +151,7 @@
                             @csrf
                             @method('PATCH')
                             <button type="submit" class="action-btn" title="Deactivate Category (Move to Draft)" onclick="return confirm('Deactivate this category and move to Draft?')">
-                                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg>
                             </button>
                         </form>
                         @else
@@ -221,11 +221,11 @@
                 <tr>
                     <td>
                         @if($at->image_url)
-                            <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: #f9f9f9;">
-                                <img src="{{ asset('storage/' . $at->image_url) }}" alt="{{ $at->animal_type }}" style="width: 100%; height: 100%; object-fit: contain;">
+                            <div style="width: 44px; height: 44px; border-radius: 50%; background: #f9f9f9; display: flex; align-items: center; justify-content: center; border: 1px solid #f0f0f0;">
+                                <img src="{{ $at->image_full_url }}" alt="{{ $at->animal_type }}" onerror="this.onerror=null; this.parentElement.innerHTML='🐾'; this.parentElement.style.fontSize='18px';" style="width: 75%; height: 75%; object-fit: contain;">
                             </div>
                         @else
-                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 18px;">🐾</div>
+                            <div style="width: 44px; height: 44px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 1px solid #eee;">🐾</div>
                         @endif
                     </td>
                     <td style="font-weight: 600;">{{ $at->animal_type }}</td>

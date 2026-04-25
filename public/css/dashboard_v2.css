@@ -1,0 +1,239 @@
+/* Dashboard V2 Grid Layout */
+.v2-dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    margin-top: 20px;
+}
+@media (max-width: 1024px) {
+    .v2-dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+.v2-left-col, .v2-right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Base Card Reset for V2 */
+.v2-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    border: 1px solid #f1f3f5;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+}
+.v2-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.v2-card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* V2 Top Stats */
+.v2-top-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+.v2-stat-mini {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    border: 1px solid #f1f3f5;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.v2-stat-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 600;
+}
+.v2-stat-top-inner {
+    display: flex;
+    align-items: center;
+    gap: 8px;    
+}
+.v2-stat-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+.v2-stat-number {
+    font-size: 24px;
+    font-weight: 800;
+    color: #111827;
+}
+.v2-stat-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.v2-badge-green { background: #ecfdf5; color: #10b981; }
+.v2-badge-red { background: #fef2f2; color: #ef4444; }
+
+/* V2 Sales Main Card */
+.v2-sales-card {
+    padding-bottom: 0px; 
+}
+.v2-sales-main-number {
+    font-size: 40px;
+    font-weight: 800;
+    color: #111827;
+    margin: 0;
+    line-height: 1.1;
+}
+.v2-sales-vs {
+    font-size: 13px;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    margin-bottom: 32px;
+}
+.v2-sales-badge {
+    background: #ecfdf5;
+    color: #10b981;
+    border: 1px solid #a7f3d0;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+/* Sales Categories Cards Hover Effects */
+.v2-sale-cat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+    border-color: transparent !important;
+}
+.v2-sale-cat-card:hover .v2-sale-cat-icon {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
+}
+.v2-sales-main-number {
+    font-size: 40px;
+    font-weight: 800;
+    color: #111827;
+    margin: 0;
+    line-height: 1.1;
+    background: linear-gradient(90deg, #111827 0%, #374151 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+/* V2 Sales Categories Custom Classes */
+.v2-sales-categories {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+.v2-sale-cat-card {
+    position: relative;
+    background: #ffffff;
+    border: 1px solid #f3f4f6;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    overflow: hidden;
+}
+@media (max-width: 1024px) {
+    .v2-sales-categories { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+    .v2-sales-categories { grid-template-columns: 1fr; }
+}
+
+/* Top Selling Products */
+.v2-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.v2-table th {
+    text-align: left;
+    color: #9ca3af;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f3f4f6;
+}
+.v2-table td {
+    padding: 16px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+}
+.v2-table tr:last-child td { border-bottom: none; }
+.v2-product-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.v2-product-img {
+    width: 40px; height: 40px; border-radius: 8px; background-size: cover; background-position: center; border: 1px solid #f3f4f6;
+}
+.v2-product-details { display: flex; flex-direction: column; }
+.v2-product-name { font-weight: 600; color: #111827; font-size: 14px;}
+.v2-product-sku { font-size: 11px; color: #9ca3af; }
+.v2-td-amount { font-weight: 600; color: #111827; }
+.v2-status-pill {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+    border: 1px solid #e5e7eb;
+}
+.v2-pill-low { color: #6b7280; }
+.v2-pill-pub { color: #0ea5e9; border-color: #bae6fd; background: #f0f9ff;}
+
+/* Charts placeholding structure */
+.v2-chart-dummy {
+    width: 100%;
+    height: 180px;
+    background-size: contain;
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    margin-top: 10px;
+}
+
+/* Leads by Industry List */
+.v2-leads-list {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.v2-lead-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f3f4f6;
+}
+.v2-lead-item:last-child { border-bottom: none; padding-bottom: 0;}
+.v2-lead-left { display: flex; flex-direction: column; }
+.v2-lead-name { font-weight: 600; color: #111827; font-size: 14px; margin-bottom: 4px;}
+.v2-lead-sessions { font-size: 12px; color: #9ca3af; }
+.v2-lead-right { font-size: 13px; font-weight: 600; color: #9ca3af; }

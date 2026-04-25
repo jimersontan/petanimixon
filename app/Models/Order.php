@@ -23,6 +23,8 @@ class Order extends Model
         'discount_amount',
         'shipping_fee',
         'shipping_method',
+        'shipping_type',
+        'courier_id',
         'voucher_code',
         'payment_method',
         'payment_status',
@@ -53,9 +55,15 @@ class Order extends Model
     ];
 
     /**
-     * Order status values for filtering.
+     * Order status values.
      */
     public const STATUS_PENDING = 'pending';
+    public const STATUS_CONFIRMED = 'confirmed';
+    public const STATUS_PREPARING = 'preparing';
+    public const STATUS_ASSIGNED_TO_RIDER = 'assigned_to_rider';
+    public const STATUS_RIDER_CONFIRMED = 'rider_confirmed';
+    public const STATUS_HANDED_TO_COURIER = 'handed_to_courier';
+    public const STATUS_IN_TRANSIT = 'in_transit';
     public const STATUS_PROCESSING = 'processing';
     public const STATUS_OUT_FOR_DELIVERY = 'out_for_delivery';
     public const STATUS_SHIPPED = 'shipped';
@@ -65,6 +73,50 @@ class Order extends Model
     public const PAYMENT_PAID = 'paid';
     public const PAYMENT_PENDING = 'pending';
     public const PAYMENT_FAILED = 'failed';
+
+    /**
+     * Human-readable status labels.
+     */
+    public const STATUS_LABELS = [
+        'pending' => 'Pending',
+        'confirmed' => 'Confirmed',
+        'preparing' => 'Preparing',
+        'assigned_to_rider' => 'Ready for Dispatch',
+        'rider_confirmed' => 'Rider Confirmed Pickup',
+        'handed_to_courier' => 'Handed to Courier',
+        'in_transit' => 'In Transit',
+        'processing' => 'Processing',
+        'out_for_delivery' => 'Out for Delivery',
+        'shipped' => 'Shipped',
+        'delivered' => 'Delivered',
+        'cancelled' => 'Cancelled',
+    ];
+
+    /**
+     * Status flow for local delivery.
+     */
+    public const LOCAL_STATUS_FLOW = [
+        'pending',
+        'confirmed',
+        'preparing',
+        'assigned_to_rider',
+        'rider_confirmed',
+        'out_for_delivery',
+        'delivered',
+    ];
+
+    /**
+     * Status flow for courier delivery.
+     */
+    public const COURIER_STATUS_FLOW = [
+        'pending',
+        'confirmed',
+        'preparing',
+        'handed_to_courier',
+        'in_transit',
+        'out_for_delivery',
+        'delivered',
+    ];
 
     /**
      * Get estimated arrival time as a Carbon instance.
@@ -137,6 +189,82 @@ class Order extends Model
     public function rider()
     {
         return $this->belongsTo(User::class, 'rider_id');
+    }
+
+    /**
+     * The courier used for this order.
+     */
+    public function courier()
+    {
+        return $this->belongsTo(Courier::class);
+    }
+
+    /**
+     * Status history timeline.
+     */
+    public function statusHistory()
+    {
+        return $this->hasMany(OrderStatusHistory::class)->orderBy('created_at');
+    }
+
+    /**
+     * Check if this is a local delivery order.
+     */
+    public function isLocal(): bool
+    {
+        return $this->shipping_type === 'local';
+    }
+
+    /**
+     * Check if this is a courier delivery order.
+     */
+    public function isCourier(): bool
+    {
+        return $this->shipping_type === 'courier';
+    }
+
+    /**
+     * Get the status flow for this order's shipping type.
+     */
+    public function getStatusFlow(): array
+    {
+        return $this->isCourier() ? self::COURIER_STATUS_FLOW : self::LOCAL_STATUS_FLOW;
+    }
+
+    /**
+     * Get the next status in the flow.
+     */
+    public function getNextStatus(): ?string
+    {
+        $flow = $this->getStatusFlow();
+        $currentIndex = array_search($this->order_status, $flow);
+
+        if ($currentIndex === false || $currentIndex >= count($flow) - 1) {
+            return null;
+        }
+
+        return $flow[$currentIndex + 1];
+    }
+
+    /**
+     * Get status label.
+     */
+    public function getStatusLabelAttribute(): string
+    {
+        return self::STATUS_LABELS[$this->order_status] ?? ucfirst(str_replace('_', ' ', $this->order_status));
+    }
+
+    /**
+     * Record a status change in history.
+     */
+    public function recordStatusChange(string $status, ?int $changedBy = null, ?string $note = null): void
+    {
+        $this->statusHistory()->create([
+            'status' => $status,
+            'changed_by' => $changedBy,
+            'note' => $note,
+            'created_at' => now(),
+        ]);
     }
 
     /**

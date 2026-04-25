@@ -3,28 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products - PetMarkt-PH Rider</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Products - Pet Markt-PH Rider</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/rider.css') }}">
 </head>
 <body class="rider-body">
 
-    <header class="rider-header">
-        <div class="logo">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo">
-            <span>Pet <span style="color: #059669;">Markt-PH</span></span>
-            <span class="rider-badge">🛵 Rider</span>
-        </div>
-        <div class="header-right">
-            <span class="rider-name">{{ Auth::user()->full_name }}</span>
-            <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-                @csrf
-                <button type="submit" class="icon-btn" aria-label="Logout" title="Logout">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
-                </button>
-            </form>
-        </div>
-    </header>
+    @include('partials.rider_header')
 
     <div class="rider-layout">
         <aside class="rider-sidebar">
@@ -83,7 +69,7 @@
                 @forelse($products as $product)
                 <div class="rider-product-card">
                     @if($product->image_url)
-                        <img src="{{ asset($product->image_url) }}" alt="{{ $product->product_name }}" style="width:100%; height:140px; object-fit:cover; border-radius:10px; margin-bottom:12px; background:#f1f5f9;">
+                        <img src="{{ $product->image_url }}" alt="{{ $product->product_name }}" onerror="this.onerror=null; this.src='{{ asset('images/placeholder.png') }}'" style="width:100%; height:140px; object-fit:cover; border-radius:10px; margin-bottom:12px; background:#f1f5f9;">
                     @else
                         <div style="width:100%; height:140px; border-radius:10px; margin-bottom:12px; background: linear-gradient(135deg, #ecfdf5, #d1fae5); display:flex; align-items:center; justify-content:center; font-size:2.5rem;">
                             🐾

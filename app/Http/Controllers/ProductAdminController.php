@@ -106,16 +106,48 @@ class ProductAdminController extends Controller
             'full_description' => 'nullable|string',
             'brand_name' => 'nullable|string',
             'wet_or_dry' => 'nullable|in:wet,dry',
+            'product_variants' => 'nullable|array',
+            'product_variants.*.value' => 'required_with:product_variants|string',
+            'product_variants.*.type' => 'required_with:product_variants|string',
+            'product_variants.*.price' => 'nullable|numeric|min:0',
+            'product_variants.*.stock' => 'nullable|integer|min:0',
         ]);
+        $productVariants = $data['product_variants'] ?? [];
+        // Store first weight in grams on product for backwards compatibility
+        if (!empty($productVariants)) {
+            $first = $productVariants[0];
+            if (in_array($first['type'], ['KG', 'G'])) {
+                $data['weight_in_grams'] = $first['type'] === 'KG' ? (float)$first['value'] * 1000 : (float)$first['value'];
+            } else {
+                $data['weight_in_grams'] = null;
+            }
+        } else {
+            $data['weight_in_grams'] = null;
+        }
         if (($data['brand_name'] ?? '') === '' || ($data['brand_name'] ?? null) === null) {
             $data['brand_name'] = ''; // empty string, not null (column doesn't allow null)
         }
         if (($data['short_description'] ?? '') === '' || ($data['short_description'] ?? null) === null) {
             $data['short_description'] = ''; // empty string, not null (column doesn't allow null)
         }
-        // handle product image upload
+        // handle product image upload with AI Background removal backing
         if ($request->hasFile('image')) {
-            $data['animal_image_url'] = $request->file('image')->store('products', 'public');
+            $file = $request->file('image');
+            \Illuminate\Support\Facades\Log::info('=== PRODUCT UPLOAD: Image detected, calling Remove.bg ===');
+            \Illuminate\Support\Facades\Log::info('File path: ' . $file->getRealPath());
+            $bgService = new \App\Services\BackgroundRemovalService();
+            // Automatically remove background using Remove.bg
+            $rawPng = $bgService->removeBackground($file->getRealPath());
+            \Illuminate\Support\Facades\Log::info('Remove.bg returned: ' . ($rawPng ? strlen($rawPng) . ' bytes' : 'NULL'));
+            if ($rawPng) {
+                $filename = uniqid('prod_nobg_') . '.png';
+                \Illuminate\Support\Facades\Storage::disk('public')->put('products/' . $filename, $rawPng);
+                $data['animal_image_url'] = 'products/' . $filename;
+                \Illuminate\Support\Facades\Log::info('Saved as: products/' . $filename);
+            } else {
+                $data['animal_image_url'] = $file->store('products', 'public');
+                \Illuminate\Support\Facades\Log::info('Fallback - saved without bg removal: ' . $data['animal_image_url']);
+            }
         }
 
         // Calculate comma separated strings for backwards compatibility
@@ -143,6 +175,9 @@ class ProductAdminController extends Controller
         $data['life_stage'] = implode(', ', array_unique(array_filter($lifeStageNames)));
         
         unset($data['animal_type_ids']);
+        unset($data['life_stages']);
+        unset($data['product_variants']);
+        
         // Auto-assign status based on stock
         if (isset($data['stock'])) {
             $data['product_status'] = ((int) $data['stock'] > 0) ? 'active' : 'out_of_stock';
@@ -154,14 +189,57 @@ class ProductAdminController extends Controller
         // sync many-to-many relationship
         try { $product->animalTypes()->sync($syncData); } catch (\Exception $e) {}
 
-        // create a simple default variant using stock & price if stock provided
-        if (!empty($data['stock'])) {
+        // Create variants from product_variants entries (or a single default variant)
+        if (!empty($productVariants)) {
+            // Auto-sum stock from variants
+            $totalStock = 0;
+            foreach ($productVariants as $idx => $pv) {
+                $val = $pv['value'];
+                $type = $pv['type'];
+                $variantPrice = (!empty($pv['price']) && (float)$pv['price'] > 0) ? (float)$pv['price'] : $data['price'];
+                $variantStock = (int)($pv['stock'] ?? 0);
+                $totalStock += $variantStock;
+                
+                $variantName = '';
+                if (in_array($type, ['KG', 'G', 'Lbs', 'Oz'])) {
+                    $variantName = $val . ' ' . $type;
+                } else {
+                    $variantName = $type . ': ' . $val;
+                }
+
+                $weightKg = null;
+                if ($type === 'KG') $weightKg = (float)$val;
+                if ($type === 'G') $weightKg = (float)$val / 1000;
+
+                $safeVal = preg_replace('/[^a-zA-Z0-9]/', '', $val);
+                $product->variants()->create([
+                    'variant_name' => $variantName,
+                    'variant_quantity' => $variantStock,
+                    'uom' => $type,
+                    'variant_price' => $variantPrice,
+                    'sku' => $data['sku'] . '-' . strtoupper($type) . strtoupper($safeVal),
+                    'specifications' => json_encode([
+                        'variant_type' => $type, 
+                        'variant_value' => $val,
+                        'weight_kg' => $weightKg
+                    ]),
+                    'low_stock_threshold' => null,
+                    'product_status' => $variantStock > 0 ? 'active' : 'out_of_stock',
+                ]);
+            }
+            // Update product stock to be the sum of all variant stocks
+            $product->update([
+                'stock' => $totalStock,
+                'product_status' => $totalStock > 0 ? 'active' : 'out_of_stock',
+            ]);
+        } elseif (!empty($data['stock'])) {
+            // No variant entries — create a single default variant
             $product->variants()->create([
                 'variant_name' => 'Default',
                 'variant_quantity' => $data['stock'],
                 'uom' => null,
                 'variant_price' => $data['price'],
-                'sku' => $data['sku'].'-VAR',
+                'sku' => $data['sku'] . '-VAR',
                 'specifications' => null,
                 'low_stock_threshold' => null,
                 'product_status' => $data['product_status'],
@@ -172,6 +250,14 @@ class ProductAdminController extends Controller
     }
 
 
+
+    /**
+     * Edit a product – redirects to inventory page (editing is handled via modals).
+     */
+    public function edit($id)
+    {
+        return redirect()->route('inventory.admin')->with('info', 'Use the edit button in the table to modify a product.');
+    }
 
     /**
      * Update a product.
@@ -186,14 +272,30 @@ class ProductAdminController extends Controller
             'life_stages' => 'nullable|array',
             'animal_category_id' => 'required|exists:categories,id',
             'price' => 'required|numeric|min:0',
-            'sku' => 'required|string|unique:products,sku,' . $product->id,
+            'sku' => ['required', 'string', \Illuminate\Validation\Rule::unique('products', 'sku')->ignore($product->id)],
             'stock' => 'nullable|integer|min:0',
             'image' => 'nullable|image|max:4096',
             'short_description' => 'nullable|string',
             'full_description' => 'nullable|string',
             'brand_name' => 'nullable|string',
             'wet_or_dry' => 'nullable|in:wet,dry',
+            'product_variants' => 'nullable|array',
+            'product_variants.*.value' => 'required_with:product_variants|string',
+            'product_variants.*.type' => 'required_with:product_variants|string',
+            'product_variants.*.price' => 'nullable|numeric|min:0',
+            'product_variants.*.stock' => 'nullable|integer|min:0',
         ]);
+        $productVariants = $data['product_variants'] ?? [];
+        if (!empty($productVariants)) {
+            $first = $productVariants[0];
+            if (in_array($first['type'], ['KG', 'G'])) {
+                $data['weight_in_grams'] = $first['type'] === 'KG' ? (float)$first['value'] * 1000 : (float)$first['value'];
+            } else {
+                $data['weight_in_grams'] = null;
+            }
+        } else {
+            $data['weight_in_grams'] = null;
+        }
         if (($data['brand_name'] ?? '') === '' || $data['brand_name'] === null) {
             $data['brand_name'] = ''; // use empty string, not null (column doesn't allow null)
         }
@@ -203,8 +305,18 @@ class ProductAdminController extends Controller
         if (array_key_exists('stock', $data) && $data['stock'] === 0) {
             $data['product_status'] = 'out_of_stock';
         }
+        // handle product image upload with AI Background removal backing
         if ($request->hasFile('image')) {
-            $data['animal_image_url'] = $request->file('image')->store('products', 'public');
+            $file = $request->file('image');
+            $bgService = new \App\Services\BackgroundRemovalService();
+            $rawPng = $bgService->removeBackground($file->getRealPath());
+            if ($rawPng) {
+                $filename = uniqid('prod_nobg_') . '.png';
+                \Illuminate\Support\Facades\Storage::disk('public')->put('products/' . $filename, $rawPng);
+                $data['animal_image_url'] = 'products/' . $filename;
+            } else {
+                $data['animal_image_url'] = $file->store('products', 'public');
+            }
         }
 
         // Calculate comma separated strings for backwards compatibility
@@ -233,6 +345,7 @@ class ProductAdminController extends Controller
         
         unset($data['animal_type_ids']);
         unset($data['life_stages']);
+        unset($data['product_variants']);
 
         // Auto-assign status based on stock if the product wasn't manually drafted
         if ($product->product_status !== 'draft') {
@@ -246,8 +359,52 @@ class ProductAdminController extends Controller
         $product->update($data);
         try { $product->animalTypes()->sync($syncData); } catch (\Exception $e) {}
 
-        // optionally sync stock to the first variant if exists or create one
-        if ($data['stock'] !== null) {
+        // Recreate variants from product_variants entries
+        if (!empty($productVariants)) {
+            // Delete old variants and recreate from new entries
+            $product->variants()->delete();
+            $totalStock = 0;
+            foreach ($productVariants as $idx => $pv) {
+                $val = $pv['value'];
+                $type = $pv['type'];
+                $variantPrice = (!empty($pv['price']) && (float)$pv['price'] > 0) ? (float)$pv['price'] : $data['price'];
+                $variantStock = (int)($pv['stock'] ?? 0);
+                $totalStock += $variantStock;
+
+                $variantName = '';
+                if (in_array($type, ['KG', 'G', 'Lbs', 'Oz'])) {
+                    $variantName = $val . ' ' . $type;
+                } else {
+                    $variantName = $type . ': ' . $val;
+                }
+
+                $weightKg = null;
+                if ($type === 'KG') $weightKg = (float)$val;
+                if ($type === 'G') $weightKg = (float)$val / 1000;
+
+                $safeVal = preg_replace('/[^a-zA-Z0-9]/', '', $val);
+                $product->variants()->create([
+                    'variant_name' => $variantName,
+                    'variant_quantity' => $variantStock,
+                    'uom' => $type,
+                    'variant_price' => $variantPrice,
+                    'sku' => $data['sku'] . '-' . strtoupper($type) . strtoupper($safeVal),
+                    'specifications' => json_encode([
+                        'variant_type' => $type,
+                        'variant_value' => $val,
+                        'weight_kg' => $weightKg
+                    ]),
+                    'low_stock_threshold' => null,
+                    'product_status' => $variantStock > 0 ? 'active' : 'out_of_stock',
+                ]);
+            }
+            // Update product stock to be the sum of all variant stocks
+            $product->update([
+                'stock' => $totalStock,
+                'product_status' => $totalStock > 0 ? 'active' : 'out_of_stock',
+            ]);
+        } elseif ($data['stock'] !== null) {
+            // No variant entries — sync to first variant or create default
             $variant = $product->variants()->first();
             if ($variant) {
                 $variant->update([
@@ -261,7 +418,7 @@ class ProductAdminController extends Controller
                     'variant_quantity' => $data['stock'],
                     'uom' => null,
                     'variant_price' => $data['price'],
-                    'sku' => $data['sku'].'-VAR',
+                    'sku' => $data['sku'] . '-VAR',
                     'specifications' => null,
                     'low_stock_threshold' => null,
                     'product_status' => $data['product_status'],

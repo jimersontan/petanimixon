@@ -76,6 +76,7 @@ Route::middleware(['auth', 'client'])->group(function () {
 
     // Checkout Routes
     Route::middleware('verified')->group(function () {
+        Route::post('/checkout/init', [CheckoutController::class, 'initCheckout'])->name('checkout.init');
         Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
         Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
         Route::post('/checkout/apply-voucher', [CheckoutController::class, 'applyVoucher'])->name('checkout.voucher');
@@ -169,12 +170,31 @@ Route::get('/admin/orders', [OrdersController::class, 'index'])
     ->middleware(['auth', 'admin'])
     ->name('admin.orders');
 
+Route::get('/admin/orders/{id}', [OrdersController::class, 'show'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.orders.show');
+
+Route::patch('/admin/orders/{id}/status', [OrdersController::class, 'updateStatus'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.orders.status');
+
+Route::post('/admin/orders/{id}/rider', [OrdersController::class, 'assignRider'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.orders.rider');
+
+Route::post('/admin/orders/{id}/tracking', [OrdersController::class, 'saveTracking'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.orders.tracking');
+
 // Admin routes (dashboard and all admin pages - admin only)
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'admin'])->name('dashboard');
 
 Route::get('/admin/api/dashboard-chart', [DashboardController::class, 'chartData'])
     ->middleware(['auth', 'admin'])->name('admin.chart');
+
+Route::get('/admin/api/stock-alerts', [DashboardController::class, 'stockAlerts'])
+    ->middleware(['auth', 'admin'])->name('admin.stock-alerts');
 
 // Read-only Products View
 Route::get('/admin/products', [ProductAdminController::class, 'readOnlyIndex'])
@@ -206,6 +226,10 @@ Route::patch('/admin/inventory/{id}/draft', [ProductAdminController::class, 'dra
     ->middleware(['auth', 'admin'])
     ->name('inventory.draft');
 
+Route::patch('/admin/inventory/{id}/restore', [ProductAdminController::class, 'restore'])
+    ->middleware(['auth', 'admin'])
+    ->name('inventory.restore');
+
 Route::patch('/admin/inventory/{id}/toggle-sale', [ProductAdminController::class, 'toggleSale'])
     ->middleware(['auth', 'admin'])
     ->name('products.toggle-sale');
@@ -225,6 +249,10 @@ Route::delete('/admin/inventory/{id}', [ProductAdminController::class, 'destroy'
 Route::get('/admin/customers', [CustomerAdminController::class, 'index'])
     ->middleware(['auth', 'admin'])
     ->name('customers.admin');
+
+Route::get('/admin/api/customer/{id}', [CustomerAdminController::class, 'show'])
+    ->middleware(['auth', 'admin'])
+    ->name('customers.show');
 
 Route::get('/admin/analytics', [AnalyticsAdminController::class, 'index'])
     ->middleware(['auth', 'admin', 'admin.role:main_admin,supervisor'])
@@ -259,6 +287,10 @@ Route::patch('/admin/categories/{id}/draft', [CategoryAdminController::class, 'd
     ->middleware(['auth', 'admin'])
     ->name('categories.draft');
 
+Route::patch('/admin/categories/{id}/restore', [CategoryAdminController::class, 'restore'])
+    ->middleware(['auth', 'admin'])
+    ->name('categories.restore');
+
 Route::delete('/admin/categories/{id}', [CategoryAdminController::class, 'destroy'])
     ->middleware(['auth', 'admin'])
     ->name('categories.destroy');
@@ -288,13 +320,18 @@ Route::patch('/admin/brands/{id}/draft', [BrandAdminController::class, 'draft'])
     ->middleware(['auth', 'admin'])
     ->name('brands.draft');
 
+Route::patch('/admin/brands/{id}/restore', [BrandAdminController::class, 'restore'])
+    ->middleware(['auth', 'admin'])
+    ->name('brands.restore');
+
 Route::delete('/admin/brands/{id}', [BrandAdminController::class, 'destroy'])
     ->middleware(['auth', 'admin'])
     ->name('brands.destroy');
 
-Route::get('/admin/revenue', [RevenueAdminController::class, 'index'])
-    ->middleware(['auth', 'admin', 'admin.role:main_admin'])
-    ->name('revenue.admin');
+// Revenue page removed — analytics page now covers this
+// Route::get('/admin/revenue', [RevenueAdminController::class, 'index'])
+//     ->middleware(['auth', 'admin', 'admin.role:main_admin'])
+//     ->name('revenue.admin');
 
 // Admin settings page
 Route::get('/admin/settings', [\App\Http\Controllers\SettingsAdminController::class, 'index'])
@@ -399,6 +436,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin/riders')->group(function () 
     Route::get('/{id}/edit', [RiderAdminController::class, 'edit'])->name('riders.edit');
     Route::put('/{id}', [RiderAdminController::class, 'update'])->name('riders.update');
     Route::patch('/{id}/toggle', [RiderAdminController::class, 'toggleStatus'])->name('riders.toggle');
+});
+
+// ============================================================
+// ADMIN: COURIERS MANAGEMENT
+// ============================================================
+Route::middleware(['auth', 'admin'])->prefix('admin/couriers')->group(function () {
+    Route::get('/', [\App\Http\Controllers\CourierAdminController::class, 'index'])->name('couriers.admin');
+    Route::post('/', [\App\Http\Controllers\CourierAdminController::class, 'store'])->name('couriers.store');
+    Route::get('/{id}/edit', [\App\Http\Controllers\CourierAdminController::class, 'edit'])->name('couriers.edit');
+    Route::put('/{id}', [\App\Http\Controllers\CourierAdminController::class, 'update'])->name('couriers.update');
+    Route::patch('/{id}/toggle', [\App\Http\Controllers\CourierAdminController::class, 'toggleStatus'])->name('couriers.toggle');
 });
 
 // ============================================================

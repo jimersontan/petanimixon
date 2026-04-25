@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orders - PetMarkt-PH Admin</title>
+    <title>Orders - Pet Markt-PH Admin</title>
     <!-- Core Stylesheets -->
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/orders.css') }}">
@@ -14,45 +14,7 @@
 <body class="dashboard-body">
 
     <!-- ===== HEADER SECTION ===== -->
-    <!-- Top navigation bar with logo, search, and user actions -->
-    <header class="dashboard-header">
-
-        <!-- Logo and Brand Name -->
-        <div class="header-left">
-            <div class="logo" style="display:flex; align-items:center; gap:8px;">
-                <img src="{{ asset('images/logo.png') }}" alt="Logo" style="max-height: 28px;">
-                <span class="logo-text" style="color:#1f2937;">Pet <span style="color: #ea580c;">Markt-PH</span></span>
-            </div>
-        </div>
-        <!-- End: Logo -->
-
-        <!-- Search Bar -->
-        <div class="header-center">
-            <div class="search-bar">
-                <svg class="search-icon" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                <input type="text" class="search-input" placeholder="Search orders, products, customers...">
-            </div>
-        </div>
-        <!-- End: Search Bar -->
-
-        <!-- User Actions: Notifications, Profile, Settings -->
-        <div class="header-right">
-            <!-- Notifications Bell -->
-            <button type="button" class="icon-btn" aria-label="Notifications">
-                <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
-            </button>
-            <!-- Profile Icon -->
-            <button type="button" class="icon-btn" aria-label="Profile">
-                <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            </button>
-            <!-- Settings Gear -->
-            <button type="button" class="icon-btn" aria-label="Settings">
-                <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M11.4 24H0V12.6h2.4v9.4h9v2.4zm12-12H12.6V0H24v2.4h-9.6v9.6H24V12zM2.4 9.6V0h2.4v9.6H2.4zm19.2 0V0H24v9.6h-2.4zM9.6 2.4V0h4.8v2.4H9.6zm4.8 19.2v-2.4h4.8V24h-4.8z"/></svg>
-            </button>
-        </div>
-        <!-- End: User Actions -->
-
-    </header>
+    @include('partials.admin_header')
     <!-- ===== END HEADER SECTION ===== -->
 
     <!-- ===== DASHBOARD LAYOUT: Sidebar + Main Content ===== -->
@@ -185,6 +147,7 @@
                                 <th>Product</th>
                                 <th>Date</th>
                                 <th>Total</th>
+                                <th>Type</th>
                                 <th>Payment</th>
                                 <th>Status</th>
                                 <th class="col-actions">Actions</th>
@@ -203,7 +166,14 @@
                                 ];
                                 $statusBadge = [
                                     'pending' => 'badge-pending',
+                                    'confirmed' => 'badge-pending',
+                                    'preparing' => 'badge-processing',
+                                    'assigned_to_rider' => 'badge-processing',
+                                    'rider_confirmed' => 'badge-processing',
+                                    'handed_to_courier' => 'badge-processing',
+                                    'in_transit' => 'badge-shipped',
                                     'processing' => 'badge-processing',
+                                    'out_for_delivery' => 'badge-shipped',
                                     'shipped' => 'badge-shipped',
                                     'delivered' => 'badge-delivered',
                                     'cancelled' => 'badge-cancelled',
@@ -255,14 +225,22 @@
                                 </td>
                                 <!-- Order Total -->
                                 <td class="total-cell">{{ $order->formatted_total ?? '—' }}</td>
+                                <!-- Shipping Type Badge -->
+                                <td>
+                                    @if($order->isLocal())
+                                        <span class="badge" style="background:#fef3c7;color:#d97706;"><span style="margin-right:4px;">🛵</span> Local</span>
+                                    @else
+                                        <span class="badge" style="background:#fce7f3;color:#be185d;"><span style="margin-right:4px;">📦</span> Courier</span>
+                                    @endif
+                                </td>
                                 <!-- Payment Status Badge -->
                                 <td><span class="badge {{ $paymentBadge[$order->payment_status] ?? 'badge-pending' }}">{{ $paymentLabel[$order->payment_status] ?? ucfirst($order->payment_status) }}</span></td>
                                 <!-- Order Status Badge -->
-                                <td><span class="badge {{ $statusBadge[$order->order_status] ?? 'badge-pending' }}">{{ $statusLabel[$order->order_status] ?? ucfirst($order->order_status) }}</span></td>
+                                <td><span class="badge {{ $statusBadge[$order->order_status] ?? 'badge-pending' }}">{{ $order->status_label }}</span></td>
                                 <!-- Action Buttons: View and Edit -->
                                 <td class="col-actions">
                                     <!-- View Button -->
-                                    <a href="#" class="action-btn" title="View" aria-label="View order"><svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></a>
+                                    <a href="{{ route('admin.orders.show', $order->id) }}" class="action-btn" title="View" aria-label="View order"><svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></a>
                                     <!-- Edit Button -->
                                     <a href="#" class="action-btn" title="Edit" aria-label="Edit order"><svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a>
                                 </td>
@@ -271,7 +249,7 @@
                             @empty
                             <!-- Empty State: Shown when no orders exist for the period -->
                             <tr>
-                                <td colspan="9" class="text-center empty-orders">No orders found for the selected period.</td>
+                                <td colspan="10" class="text-center empty-orders">No orders found for the selected period.</td>
                             </tr>
                             @endforelse
                             <!-- End: Order Rows Loop -->

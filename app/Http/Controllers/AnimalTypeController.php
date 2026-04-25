@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\AnimalType;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Product;
@@ -14,12 +15,12 @@ class AnimalTypeController extends Controller
      */
     public function index()
     {
-        $types = DB::table('animal_types')->orderBy('sort_order')->orderBy('id')->get();
+        $types = AnimalType::query()->orderBy('sort_order')->orderBy('id')->get();
 
         $types->transform(function ($t) {
             $t->product_count = Product::where('animal_type', $t->animal_type)->count();
             $t->name = $t->animal_type;
-            $t->image_full_url = $t->image_url ? asset('storage/' . $t->image_url) : '';
+            $t->image_full_url = $t->image_full_url;
             $t->life_stages = $t->life_stages ? json_decode($t->life_stages, true) : [];
             return $t;
         });
@@ -72,7 +73,7 @@ class AnimalTypeController extends Controller
             'status' => 'Active',
             'product_count' => 0,
             'image_url' => $imageUrl,
-            'image_full_url' => $imageUrl ? asset('storage/' . $imageUrl) : '',
+            'image_full_url' => $this->buildImageUrl($imageUrl),
             'description' => $request->input('description', ''),
             'sort_order' => (int) $request->input('sort_order', 0),
             'life_stages' => $lifeStagesJson ? json_decode($lifeStagesJson, true) : [],
@@ -132,11 +133,33 @@ class AnimalTypeController extends Controller
             'message' => 'Animal type updated successfully.',
             'name' => $name,
             'image_url' => $imageUrl,
-            'image_full_url' => $imageUrl ? asset('storage/' . $imageUrl) : '',
+            'image_full_url' => $this->buildImageUrl($imageUrl),
             'description' => $request->input('description', ''),
             'sort_order' => (int) $request->input('sort_order', 0),
             'life_stages' => $lifeStagesJson ? json_decode($lifeStagesJson, true) : [],
         ]);
+    }
+
+    protected function buildImageUrl(?string $path): string
+    {
+        if (empty($path)) {
+            return asset('images/placeholder.png');
+        }
+
+        $path = str_replace('\\', '/', trim($path));
+
+        if (strpos($path, 'http://') === 0 || strpos($path, 'https://') === 0) {
+            return $path;
+        }
+
+        $path = ltrim($path, '/');
+        if (strpos($path, 'storage/') === 0) {
+            $path = substr($path, strlen('storage/'));
+        } elseif (strpos($path, 'public/') === 0) {
+            $path = substr($path, strlen('public/'));
+        }
+
+        return asset('storage/' . ltrim($path, '/'));
     }
 
     /**

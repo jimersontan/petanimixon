@@ -8,7 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -160,10 +160,32 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getProfilePictureUrlAttribute()
     {
-        if ($this->profile_picture) {
-            return asset('storage/profile_pictures/' . $this->profile_picture);
+        $raw = $this->profile_picture;
+
+        if (empty($raw)) {
+            return 'https://ui-avatars.com/api/?name=' . urlencode($this->full_name) . '&color=ea580c&background=ffedd5';
         }
-        
-        return 'https://ui-avatars.com/api/?name=' . urlencode($this->full_name) . '&color=ea580c&background=ffedd5';
+
+        $raw = str_replace('\\', '/', trim((string) $raw));
+
+        // External URL
+        if (strpos($raw, 'http://') === 0 || strpos($raw, 'https://') === 0) {
+            return $raw;
+        }
+
+        // Normalize path prefixes
+        $raw = ltrim($raw, '/');
+        if (strpos($raw, 'storage/') === 0) {
+            $raw = substr($raw, strlen('storage/'));
+        } elseif (strpos($raw, 'public/') === 0) {
+            $raw = substr($raw, strlen('public/'));
+        }
+
+        // If it's just a filename (no directory separator), prepend the profile_pictures folder
+        if (strpos($raw, '/') === false) {
+            $raw = 'profile_pictures/' . $raw;
+        }
+
+        return asset('storage/' . ltrim($raw, '/'));
     }
 }

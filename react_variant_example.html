@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Variant Manager Data Example</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- React & ReactDOM (UMD development builds) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel for in-browser JSX parsing -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-gray-100 p-8 min-h-screen">
+    
+    <div class="max-w-5xl mx-auto mb-6 text-center">
+        <h1 class="text-3xl font-extrabold text-blue-600">Product Variant Manager</h1>
+        <p class="text-gray-600 mt-2">Shopee/Lazada style variant combination generator</p>
+    </div>
+
+    <!-- React Root -->
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        function ProductVariantManager() {
+            // State for variant types
+            const [variantTypes, setVariantTypes] = useState([
+                { id: 'v1', name: 'Weight', options: ['1kg', '3kg'] },
+                { id: 'v2', name: 'Flavor', options: ['Chicken', 'Beef'] }
+            ]);
+
+            // State for global price and stock (used when no variants exist)
+            const [globalPrice, setGlobalPrice] = useState('');
+            const [globalStock, setGlobalStock] = useState('');
+
+            // State for the data of each combination row
+            const [variantsMap, setVariantsMap] = useState({
+                '1kg|Chicken': { price: '250', stock: '20', sku: 'CHK-1KG', enabled: true },
+                '3kg|Chicken': { price: '700', stock: '15', sku: 'CHK-3KG', enabled: true },
+                '1kg|Beef': { price: '280', stock: '10', sku: 'BEEF-1KG', enabled: true },
+                '3kg|Beef': { price: '750', stock: '5', sku: 'BEEF-3KG', enabled: true },
+            });
+
+            // State for inputs when adding new options
+            const [newOptionInputs, setNewOptionInputs] = useState({});
+
+            // Auto-generate cartesian combinations based on types and options
+            const combinations = useMemo(() => {
+                if (variantTypes.length === 0) return [];
+                
+                // Filter out empty options just in case
+                const validTypes = variantTypes.map(vt => ({...vt, options: vt.options.filter(o => o.trim() !== '')}));
+
+                if (validTypes.length === 1) {
+                    if (validTypes[0].options.length === 0) return [];
+                    return validTypes[0].options.map(opt => ({
+                        names: [opt],
+                        key: opt
+                    }));
+                }
+                
+                if (validTypes.length === 2) {
+                    if (validTypes[0].options.length === 0 || validTypes[1].options.length === 0) return [];
+                    const combos = [];
+                    validTypes[0].options.forEach(opt1 => {
+                        validTypes[1].options.forEach(opt2 => {
+                            combos.push({
+                                names: [opt1, opt2],
+                                key: `${opt1}|${opt2}` // Unique key for the combination
+                            });
+                        });
+                    });
+                    return combos;
+                }
+                return [];
+            }, [variantTypes]);
+
+            const handleAddVariantType = () => {
+                if (variantTypes.length >= 2) return;
+                const newId = `v${Date.now()}`;
+                setVariantTypes([...variantTypes, { id: newId, name: '', options: [] }]);
+            };
+
+            const handleRemoveVariantType = (id) => {
+                setVariantTypes(variantTypes.filter(vt => vt.id !== id));
+            };
+
+            const handleUpdateVariantName = (id, newName) => {
+                setVariantTypes(variantTypes.map(vt => vt.id === id ? { ...vt, name: newName } : vt));
+            };
+
+            const handleAddOption = (typeId) => {
+                const optVal = newOptionInputs[typeId]?.trim();
+                if (!optVal) return; // ignore empty
+                
+                setVariantTypes(variantTypes.map(vt => {
+                    if (vt.id === typeId) {
+                        if (!vt.options.includes(optVal)) {
+                            return { ...vt, options: [...vt.options, optVal] };
+                        }
+                    }
+                    return vt;
+                }));
+                // clear input
+                setNewOptionInputs({ ...newOptionInputs, [typeId]: '' });
+            };
+
+            const handleRemoveOption = (typeId, optIndex) => {
+                setVariantTypes(variantTypes.map(vt => {
+                    if (vt.id === typeId) {
+                        const newOptions = [...vt.options];
+                        newOptions.splice(optIndex, 1);
+                        return { ...vt, options: newOptions };
+                    }
+                    return vt;
+                }));
+            };
+
+            const handleVariantMapChange = (key, field, value) => {
+                setVariantsMap(prev => ({
+                    ...prev,
+                    [key]: {
+                        ...(prev[key] || { price: '', stock: '', sku: '', enabled: true }),
+                        [field]: value
+                    }
+                }));
+            };
+
+            return (
+                <div className="max-w-5xl mx-auto bg-white p-8 rounded-xl shadow-lg border border-gray-100 font-sans">
+                    
+                    <div className="flex justify-between items-center border-b pb-4 mb-6">
+                        <h2 className="text-xl font-bold text-gray-800">Edit Product Variants</h2>
+                    </div>
+                    
+                    {/* Variant Types Section */}
+                    <div className="mb-8 space-y-6">
+                        {variantTypes.map((vt, index) => (
+                            <div key={vt.id} className="p-5 border border-gray-200 rounded-lg bg-gray-50 relative group">
+                                <div className="flex justify-between items-center mb-4">
+                                    <div className="flex-1 mr-4">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-1">Variant Type {index + 1}</label>
+                                        <input 
+                                            type="text" 
+                                            value={vt.name} 
+                                            onChange={(e) => handleUpdateVariantName(vt.id, e.target.value)}
+                                            placeholder="e.g., Weight, Size, Color"
+                                            className="w-full md:w-1/2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                                        />
+                                    </div>
+                                    <button 
+                                        onClick={() => handleRemoveVariantType(vt.id)}
+                                        className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-md font-medium text-sm transition"
+                                    >
+                                        <i className="fas fa-trash-alt mr-1"></i> Remove
+                                    </button>
+                                </div>
+                                
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Options</label>
+                                    <div className="flex flex-wrap gap-2 mb-4">
+                                        {vt.options.map((opt, optIdx) => (
+                                            <div key={optIdx} className="bg-white text-gray-800 px-3 py-1.5 rounded-md flex items-center border border-gray-300 shadow-sm text-sm">
+                                                <span className="mr-2">{opt}</span>
+                                                <button 
+                                                    onClick={() => handleRemoveOption(vt.id, optIdx)} 
+                                                    className="text-gray-400 hover:text-red-500 focus:outline-none transition leading-none mt-0.5"
+                                                >
+                                                    <i className="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    
+                                    <div className="flex shadow-sm rounded-md w-full md:w-2/3">
+                                        <input 
+                                            type="text" 
+                                            value={newOptionInputs[vt.id] || ''}
+                                            onChange={(e) => setNewOptionInputs({...newOptionInputs, [vt.id]: e.target.value})}
+                                            onKeyPress={(e) => e.key === 'Enter' && handleAddOption(vt.id)}
+                                            placeholder="Add option (e.g., 1kg)"
+                                            className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                        <button 
+                                            onClick={() => handleAddOption(vt.id)}
+                                            className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 font-medium rounded-r-md border border-l-0 border-gray-300 transition"
+                                        >
+                                            Add
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+
+                        {variantTypes.length < 2 && (
+                            <button 
+                                onClick={handleAddVariantType}
+                                className="w-full py-4 border-2 border-dashed border-gray-300 text-gray-500 bg-gray-50 rounded-lg hover:bg-blue-50 hover:border-blue-400 hover:text-blue-600 transition font-medium flex items-center justify-center"
+                            >
+                                <i className="fas fa-plus mr-2"></i> Add Variant Type {variantTypes.length > 0 && "(Max 2)"}
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="border-t border-gray-200 pt-8 mt-2">
+                        {combinations.length === 0 ? (
+                            /* Global Price and Stock */
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                                <div className="mb-4 text-yellow-800">
+                                    <i className="fas fa-info-circle mr-2"></i>
+                                    <strong>No variants defined.</strong> Please set a global price and stock.
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-xl">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-1">Global Price (₱)</label>
+                                        <div className="relative">
+                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <span className="text-gray-500 sm:text-sm">₱</span>
+                                            </div>
+                                            <input 
+                                                type="number" 
+                                                value={globalPrice}
+                                                onChange={(e) => setGlobalPrice(e.target.value)}
+                                                className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                                                placeholder="0.00"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-1">Global Stock</label>
+                                        <input 
+                                            type="number" 
+                                            value={globalStock}
+                                            onChange={(e) => setGlobalStock(e.target.value)}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                                            placeholder="0"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            /* Variant Table */
+                            <div>
+                                <h3 className="text-lg font-bold mb-4 text-gray-800">Variant Price & Stock Info</h3>
+                                <div className="overflow-x-auto bg-white rounded-lg border border-gray-200 shadow-sm">
+                                    <table className="min-w-full divide-y divide-gray-200">
+                                        <thead className="bg-gray-100">
+                                            <tr>
+                                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">{variantTypes[0]?.name || "Type 1"}</th>
+                                                {variantTypes.length === 2 && (
+                                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">{variantTypes[1]?.name || "Type 2"}</th>
+                                                )}
+                                                <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider w-32">Price (₱) <span className="text-red-500">*</span></th>
+                                                <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider w-32">Stock <span className="text-red-500">*</span></th>
+                                                <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider w-40">SKU (Opt)</th>
+                                                <th className="px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider w-28">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="bg-white divide-y divide-gray-200">
+                                            {combinations.map((combo, idx) => {
+                                                const data = variantsMap[combo.key] || { price: '', stock: '', sku: '', enabled: true };
+                                                return (
+                                                    <tr key={combo.key} className={`hover:bg-gray-50 transition ${data.enabled ? '' : 'bg-gray-50'}`}>
+                                                        <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${data.enabled ? 'text-gray-900' : 'text-gray-400'}`}>
+                                                            {combo.names[0]}
+                                                        </td>
+                                                        {variantTypes.length === 2 && (
+                                                            <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${data.enabled ? 'text-gray-900' : 'text-gray-400'}`}>
+                                                                {combo.names[1]}
+                                                            </td>
+                                                        )}
+                                                        <td className="px-4 py-3 whitespace-nowrap">
+                                                            <input 
+                                                                type="number" 
+                                                                value={data.price}
+                                                                onChange={(e) => handleVariantMapChange(combo.key, 'price', e.target.value)}
+                                                                disabled={!data.enabled}
+                                                                placeholder="0.00"
+                                                                className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200 disabled:cursor-not-allowed"
+                                                            />
+                                                        </td>
+                                                        <td className="px-4 py-3 whitespace-nowrap">
+                                                            <input 
+                                                                type="number" 
+                                                                value={data.stock}
+                                                                onChange={(e) => handleVariantMapChange(combo.key, 'stock', e.target.value)}
+                                                                disabled={!data.enabled}
+                                                                placeholder="0"
+                                                                className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200 disabled:cursor-not-allowed"
+                                                            />
+                                                        </td>
+                                                        <td className="px-4 py-3 whitespace-nowrap">
+                                                            <input 
+                                                                type="text" 
+                                                                value={data.sku}
+                                                                onChange={(e) => handleVariantMapChange(combo.key, 'sku', e.target.value)}
+                                                                disabled={!data.enabled}
+                                                                placeholder="e.g. SKU-123"
+                                                                className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200 disabled:cursor-not-allowed"
+                                                            />
+                                                        </td>
+                                                        <td className="px-4 py-3 whitespace-nowrap text-center">
+                                                            <button
+                                                                onClick={() => handleVariantMapChange(combo.key, 'enabled', !data.enabled)}
+                                                                className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-sm ${
+                                                                    data.enabled 
+                                                                    ? 'bg-green-100 text-green-800 border-green-200 border hover:bg-green-200' 
+                                                                    : 'bg-red-100 text-red-800 border-red-200 border hover:bg-red-200'
+                                                                } transition`}
+                                                            >
+                                                                {data.enabled ? 'Enabled' : 'Disabled'}
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div className="flex justify-between items-center mt-3">
+                                    <p className="text-xs text-gray-500">
+                                        <i className="fas fa-info-circle mr-1 text-blue-500"></i>
+                                        Toggle 'Enabled' to permanently mark a combination as unavailable.
+                                    </p>
+                                    <div className="text-sm text-gray-600 font-medium">Total variants: {combinations.length}</div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById("root"));
+        root.render(<ProductVariantManager />);
+    </script>
+</body>
+</html>

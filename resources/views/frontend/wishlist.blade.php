@@ -1,30 +1,30 @@
 @extends('frontend.layouts.app')
-@section('title', 'My Wishlist - PetMarkt-PH')
+@section('title', 'My Wishlist - Pet Markt-PH')
 
 @push('styles')
 <style>
-.wl-page { max-width: 1100px; margin: 0 auto; padding: 32px 20px 60px; }
+.wl-page { width: 100%; padding: 32px 2rem 60px; }
 .wl-header { margin-bottom: 28px; }
 .wl-heading { font-size: 28px; font-weight: 800; color: #1a1a2e; }
-.wl-heading span { color: #E85D04; }
+.wl-heading span { color: var(--ud-orange); }
 .wl-subtitle { font-size: 14px; color: #888; margin-top: 4px; }
-.wl-count { background: #E85D04; color: #fff; padding: 2px 10px; border-radius: 10px; font-size: 13px; font-weight: 700; margin-left: 8px; }
+.wl-count { background: var(--ud-orange); color: #fff; padding: 2px 10px; border-radius: 10px; font-size: 13px; font-weight: 700; margin-left: 8px; }
 .wl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
 .wl-card {
     background: #fff; border: 1px solid #eee; border-radius: 14px; overflow: hidden;
     transition: all 0.25s; position: relative;
 }
-.wl-card:hover { border-color: #E85D04; transform: translateY(-4px); box-shadow: 0 10px 24px rgba(232,93,4,0.1); }
+.wl-card:hover { border-color: var(--ud-orange); transform: translateY(-4px); box-shadow: 0 10px 24px rgba(232,93,4,0.1); }
 .wl-img-wrap { width: 100%; aspect-ratio: 1; overflow: hidden; background: #f9f9f9; }
 .wl-img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; transition: transform 0.3s; }
 .wl-card:hover .wl-img { transform: scale(1.06); }
 .wl-body { padding: 14px 16px 18px; }
-.wl-brand { font-size: 11px; color: #E85D04; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.wl-brand { font-size: 11px; color: var(--ud-orange); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
 .wl-name { font-size: 14px; font-weight: 600; color: #222; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 40px; }
-.wl-price { font-size: 20px; font-weight: 800; color: #E85D04; margin-bottom: 12px; }
+.wl-price { font-size: 20px; font-weight: 800; color: var(--ud-orange); margin-bottom: 12px; }
 .wl-actions { display: flex; gap: 8px; }
 .wl-btn { flex: 1; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 4px; border: none; }
-.wl-btn-cart { background: #E85D04; color: #fff; }
+.wl-btn-cart { background: var(--ud-orange); color: #fff; }
 .wl-btn-cart:hover { background: #d14f00; }
 .wl-btn-remove { background: #fff; color: #666; border: 1px solid #ddd; }
 .wl-btn-remove:hover { border-color: #ef4444; color: #ef4444; }
@@ -64,7 +64,7 @@
                         </div>
                     </a>
                     <div class="wl-body">
-                        <div class="wl-brand">{{ $item->product->brand_name ?: 'PetMarkt-PH' }}</div>
+                        <div class="wl-brand">{{ $item->product->brand_name ?: 'Pet Markt-PH' }}</div>
                         <h4 class="wl-name js-open-product-modal" data-product-id="{{ $item->product->id }}" style="cursor: pointer;">{{ $item->product->product_name }}</h4>
                         <div class="wl-price">₱{{ number_format($item->product->price, 0) }}</div>
                         <div class="wl-actions">

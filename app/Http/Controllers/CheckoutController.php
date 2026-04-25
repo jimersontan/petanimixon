@@ -17,6 +17,20 @@ use Illuminate\Support\Str;
 class CheckoutController extends Controller
 {
     /**
+     * Initialize checkout from cart selection
+     */
+    public function initCheckout(Request $request)
+    {
+        $request->validate([
+            'selected_items' => 'required|array|min:1',
+            'selected_items.*' => 'integer|exists:cart_items,id'
+        ]);
+
+        session(['checkout_items' => $request->selected_items]);
+        return redirect()->route('checkout');
+    }
+
+    /**
      * Show the multi-step checkout page.
      */
     public function index()
@@ -28,6 +42,19 @@ class CheckoutController extends Controller
 
         if (!$cart || $cart->items->isEmpty()) {
             return redirect()->route('cart.index')->with('message', 'Your cart is empty.');
+        }
+
+        $checkoutItems = session('checkout_items', []);
+        
+        if (empty($checkoutItems)) {
+            return redirect()->route('cart.index')->with('error', 'Please select items to checkout.');
+        }
+
+        // Filter cart items to only contain the selected ones
+        $cart->setRelation('items', $cart->items->whereIn('id', $checkoutItems));
+
+        if ($cart->items->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Selected items are no longer available in your cart.');
         }
 
         $addresses = UserAddress::where('user_id', Auth::id())->get();
@@ -43,7 +70,7 @@ class CheckoutController extends Controller
     {
         $request->validate([
             'payment_method' => 'required|string|in:cod,gcash',
-            'shipping_method' => 'required|string|in:standard,express,pickup',
+            'shipping_type' => 'required|string|in:local,courier',
         ]);
 
         $cart = Cart::where('user_id', Auth::id())
@@ -53,6 +80,19 @@ class CheckoutController extends Controller
 
         if (!$cart || $cart->items->isEmpty()) {
             return redirect()->route('cart.index')->with('message', 'Your cart is empty.');
+        }
+
+        $checkoutItems = session('checkout_items', []);
+        
+        if (empty($checkoutItems)) {
+            return redirect()->route('cart.index')->with('error', 'Please select items to checkout.');
+        }
+
+        // Filter cart items to only contain the selected ones
+        $cart->setRelation('items', $cart->items->whereIn('id', $checkoutItems));
+
+        if ($cart->items->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Selected items are no longer available in your cart.');
         }
 
         return DB::transaction(function () use ($request, $cart) {
@@ -94,7 +134,7 @@ class CheckoutController extends Controller
 
             // Calculate amounts
             $subtotal = $cart->items->sum('subtotal');
-            $shippingFee = $this->getShippingFee($request->shipping_method, $subtotal);
+            $shippingFee = $this->getShippingFee($request->shipping_type);
             $discount = $this->getVoucherDiscount($request->voucher_code, $subtotal);
             $total = $subtotal + $shippingFee - $discount;
 
@@ -108,7 +148,7 @@ class CheckoutController extends Controller
                 'order_status' => Order::STATUS_PENDING,
                 'order_amount' => $subtotal,
                 'shipping_fee' => $shippingFee,
-                'shipping_method' => $request->shipping_method,
+                'shipping_type' => $request->shipping_type,
                 'discount_amount' => $discount,
                 'voucher_code' => $request->voucher_code,
                 'total_amount' => $total,
@@ -116,6 +156,9 @@ class CheckoutController extends Controller
                 'payment_status' => Order::PAYMENT_PENDING,
                 'shipping_address_id' => $addressId,
             ]);
+
+            // Save initial status to history
+            $order->recordStatusChange(Order::STATUS_PENDING, Auth::id(), 'Order placed by customer.');
 
             foreach ($cart->items as $item) {
                 OrderItem::create([
@@ -156,7 +199,16 @@ class CheckoutController extends Controller
                 }
             }
 
-            $cart->update(['cart_status' => 'completed']);
+            // Instead of marking cart as completed, delete the checked out items
+            $itemIds = $cart->items->pluck('id')->toArray();
+            \App\Models\CartItem::whereIn('id', $itemIds)->delete();
+            
+            // If the cart is now empty, we can mark it as completed
+            if (\App\Models\CartItem::where('cart_id', $cart->id)->count() === 0) {
+                $cart->update(['cart_status' => 'completed']);
+            }
+
+            session()->forget('checkout_items');
 
             $order->notifyOrderPlaced();
 
@@ -276,21 +328,18 @@ class CheckoutController extends Controller
             'delivery_started_at' => optional($order->delivery_started_at)->toISOString(),
             'picked_up_at' => optional($order->rider_picked_up_at)->toISOString(),
             'delivered_at' => optional($order->rider_delivered_at)->toISOString(),
-            'shipping_method' => $order->shipping_method,
+            'shipping_type' => $order->shipping_type,
         ]);
     }
 
     /**
      * Get shipping fee based on method and subtotal.
      */
-    private function getShippingFee(string $method, float $subtotal): float
+    private function getShippingFee(string $type): float
     {
-        if ($method === 'pickup') return 0;
-        if ($method === 'express') return $subtotal >= 1500 ? 99 : 199;
-        // standard
-        if ($subtotal >= 1500) return 0;
-        if ($subtotal >= 500) return 59;
-        return 99;
+        if ($type === 'local') return 50.00;
+        if ($type === 'courier') return 150.00; // Flat fee for demo, real implementation uses region API
+        return 50.00;
     }
 
     /**

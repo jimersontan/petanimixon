@@ -60,7 +60,7 @@
                 <input type="file" name="image" id="image" accept="image/*" style="display:none;">
                 <div class="upload-preview">
                     @if(!empty($category->image_url))
-                        <img src="{{ asset('storage/'.$category->image_url) }}" alt="{{ $category->category_name }}">
+                        <img src="{{ $category->image_full_url }}" alt="{{ $category->category_name }}">
                     @endif
                 </div>
             </div>

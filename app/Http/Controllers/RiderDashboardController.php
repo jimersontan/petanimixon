@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\User;
+use App\Models\UserNotification;
 use App\Events\OrderDelivered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,25 +34,23 @@ class RiderDashboardController extends Controller
             ->where('order_status', Order::STATUS_DELIVERED)
             ->count();
 
-        // Active delivery (out_for_delivery status for this rider)
+        // Current assignment: either waiting for pickup or already out for delivery
         $activeDelivery = Order::where('rider_id', $rider->id)
-            ->where('order_status', Order::STATUS_OUT_FOR_DELIVERY)
+            ->whereIn('order_status', [Order::STATUS_RIDER_CONFIRMED, Order::STATUS_OUT_FOR_DELIVERY])
             ->with(['user', 'orderItems.product', 'shippingAddress'])
+            ->orderByRaw("CASE WHEN order_status = ? THEN 0 ELSE 1 END", [Order::STATUS_RIDER_CONFIRMED])
             ->first();
 
-        // Available orders (pending/processing, no rider assigned)
-        $availableOrders = Order::whereNull('rider_id')
-            ->whereIn('order_status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
-            ->with(['user', 'shippingAddress'])
+        // Available orders: pool of local orders ready for dispatch (unassigned OR assigned to this rider)
+        $availableOrders = Order::where('order_status', Order::STATUS_ASSIGNED_TO_RIDER)
+            ->where('shipping_type', 'local')
+            ->where(function($q) use ($rider) {
+                $q->whereNull('rider_id')
+                  ->orWhere('rider_id', $rider->id);
+            })
+            ->with(['user', 'shippingAddress', 'orderItems'])
             ->orderBy('created_at', 'asc')
             ->take(10)
-            ->get();
-
-        // Pending pickup (assigned to rider, but not yet picked up)
-        $pendingPickup = Order::where('rider_id', $rider->id)
-            ->where('order_status', Order::STATUS_OUT_FOR_DELIVERY)
-            ->whereNull('rider_picked_up_at')
-            ->with(['user', 'orderItems.product', 'shippingAddress'])
             ->get();
 
         return view('rider.dashboard', [
@@ -60,23 +60,29 @@ class RiderDashboardController extends Controller
             'totalDeliveries' => $totalDeliveries,
             'activeDelivery' => $activeDelivery,
             'availableOrders' => $availableOrders,
-            'pendingPickup' => $pendingPickup,
         ]);
     }
 
-    /**
-     * List available orders for pickup.
-     */
     public function availableOrders()
     {
-        $orders = Order::whereNull('rider_id')
-            ->whereIn('order_status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
+        $rider = Auth::user();
+        $hasCurrentAssignment = Order::where('rider_id', $rider->id)
+            ->whereIn('order_status', [Order::STATUS_RIDER_CONFIRMED, Order::STATUS_OUT_FOR_DELIVERY])
+            ->exists();
+
+        $orders = Order::where('order_status', Order::STATUS_ASSIGNED_TO_RIDER)
+            ->where('shipping_type', 'local')
+            ->where(function($q) use ($rider) {
+                $q->whereNull('rider_id')
+                  ->orWhere('rider_id', $rider->id);
+            })
             ->with(['user', 'orderItems.product', 'shippingAddress'])
             ->orderBy('created_at', 'asc')
             ->paginate(15);
 
         return view('rider.available_orders', [
             'orders' => $orders,
+            'hasCurrentAssignment' => $hasCurrentAssignment,
         ]);
     }
 
@@ -85,20 +91,43 @@ class RiderDashboardController extends Controller
      */
     public function acceptOrder($id)
     {
+        $hasCurrentAssignment = Order::where('rider_id', Auth::id())
+            ->whereIn('order_status', [Order::STATUS_RIDER_CONFIRMED, Order::STATUS_OUT_FOR_DELIVERY])
+            ->exists();
+
+        if ($hasCurrentAssignment) {
+            return redirect()
+                ->route('rider.active')
+                ->with('error', 'Finish your current assignment first before accepting a new order.');
+        }
+
         $order = Order::where('id', $id)
-            ->whereIn('order_status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
-            ->whereNull('rider_id')
+            ->where('order_status', Order::STATUS_ASSIGNED_TO_RIDER)
+            ->where(function($q) {
+                $q->whereNull('rider_id')
+                  ->orWhere('rider_id', Auth::id());
+            })
             ->firstOrFail();
 
+        // Auto-assign this rider to the order
         $order->update([
             'rider_id' => Auth::id(),
-            'order_status' => Order::STATUS_OUT_FOR_DELIVERY,
+            'order_status' => Order::STATUS_RIDER_CONFIRMED,
         ]);
+
+        $order->recordStatusChange(Order::STATUS_RIDER_CONFIRMED, Auth::id(), 'Rider ' . Auth::user()->full_name . ' claimed and confirmed pickup via Rider App.');
 
         $order->refresh();
         $order->notifyRiderAssigned();
+        $this->notifyAdminsAboutRiderUpdate(
+            $order,
+            'Rider confirmed pickup task',
+            Auth::user()->full_name . " claimed order {$order->display_id}.",
+            '🛵',
+            '#0ea5e9'
+        );
 
-        return redirect()->route('rider.active')->with('success', 'Order accepted! Head to the store for pickup.');
+        return redirect()->route('rider.active')->with('success', 'Order claimed! Head to the store for pickup. 🎉');
     }
 
     /**
@@ -109,8 +138,9 @@ class RiderDashboardController extends Controller
         $rider = Auth::user();
 
         $activeOrders = Order::where('rider_id', $rider->id)
-            ->where('order_status', Order::STATUS_OUT_FOR_DELIVERY)
+            ->whereIn('order_status', [Order::STATUS_RIDER_CONFIRMED, Order::STATUS_OUT_FOR_DELIVERY])
             ->with(['user', 'orderItems.product', 'shippingAddress'])
+            ->orderByRaw("CASE WHEN order_status = ? THEN 0 ELSE 1 END", [Order::STATUS_RIDER_CONFIRMED])
             ->orderBy('created_at', 'asc')
             ->get();
 
@@ -126,26 +156,26 @@ class RiderDashboardController extends Controller
     {
         $order = Order::where('id', $id)
             ->where('rider_id', Auth::id())
-            ->where('order_status', Order::STATUS_OUT_FOR_DELIVERY)
+            ->where('order_status', Order::STATUS_RIDER_CONFIRMED)
             ->with('shippingAddress')
             ->firstOrFail();
 
-        // Store location: PetMarkt-PH Store, Libertad, Butuan City
+        // Store location: Pet Markt-PH Store, Libertad, Butuan City
         $storeLat = 8.9475;
         $storeLng = 125.5406;
 
-        // Calculate estimated delivery time based on shipping method and distance
+        // Calculate estimated delivery time based on distance
         $destCoords = $this->getDestinationCoords($order);
         $distanceKm = $this->haversineDistance($storeLat, $storeLng, $destCoords[0], $destCoords[1]);
 
-        // Base ETA by shipping method, scaled by distance
-        $baseMinutes = ($order->shipping_method === 'express') ? 25 : 40;
-        $speedKmPerMin = ($order->shipping_method === 'express') ? 0.8 : 0.5; // km per minute
+        $baseMinutes = 30; // standard delivery
+        $speedKmPerMin = 0.5; // km per minute
         $etaMinutes = max($baseMinutes, (int) ceil($distanceKm / $speedKmPerMin));
         // Cap at reasonable max (for same-city deliveries)
         $etaMinutes = min($etaMinutes, 120);
 
         $order->update([
+            'order_status' => Order::STATUS_OUT_FOR_DELIVERY,
             'rider_picked_up_at' => now(),
             'delivery_started_at' => now(),
             'estimated_delivery_minutes' => $etaMinutes,
@@ -153,7 +183,16 @@ class RiderDashboardController extends Controller
             'rider_lng' => $storeLng,
         ]);
 
+        $order->recordStatusChange(Order::STATUS_OUT_FOR_DELIVERY, Auth::id(), 'Rider picked up order from store.');
+
         $order->notifyRiderOutForDelivery();
+        $this->notifyAdminsAboutRiderUpdate(
+            $order,
+            'Order is now out for delivery',
+            Auth::user()->full_name . " picked up order {$order->display_id} from the store.",
+            '📦',
+            '#2563eb'
+        );
 
         return redirect()->route('rider.active')->with('success', 'Order picked up! ETA: ~' . $etaMinutes . ' min. Deliver to customer now.');
     }
@@ -181,12 +220,40 @@ class RiderDashboardController extends Controller
             'estimated_delivery_minutes' => 0,
         ]);
 
+        $order->recordStatusChange(Order::STATUS_DELIVERED, Auth::id(), 'Rider delivered order to customer.');
+
         // Dispatch event to reduce stock for delivered order
         OrderDelivered::dispatch($order);
 
         $order->notifyOrderDelivered();
+        $this->notifyAdminsAboutRiderUpdate(
+            $order,
+            'Delivery completed',
+            Auth::user()->full_name . " delivered order {$order->display_id}.",
+            '✅',
+            '#10b981'
+        );
 
         return redirect()->route('rider.dashboard')->with('success', 'Delivery completed! Great job! 🎉');
+    }
+
+    protected function notifyAdminsAboutRiderUpdate(Order $order, string $title, string $message, string $icon, string $color): void
+    {
+        $adminIds = User::where('is_admin', true)->pluck('id');
+
+        foreach ($adminIds as $adminId) {
+            UserNotification::createNotification(
+                $adminId,
+                'delivery',
+                $title,
+                $message,
+                $icon,
+                $color,
+                $order->id,
+                'Order',
+                ['rider_id' => Auth::id()]
+            );
+        }
     }
 
     /**
@@ -273,7 +340,7 @@ class RiderDashboardController extends Controller
         if ($order->delivery_started_at) {
             $destCoords = $this->getDestinationCoords($order);
             $remainingKm = $this->haversineDistance($request->lat, $request->lng, $destCoords[0], $destCoords[1]);
-            $speedKmPerMin = ($order->shipping_method === 'express') ? 0.8 : 0.5;
+            $speedKmPerMin = 0.5;
             $newEta = max(1, (int) ceil($remainingKm / $speedKmPerMin));
 
             // Calculate how many minutes elapsed since delivery started

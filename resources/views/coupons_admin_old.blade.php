@@ -83,7 +83,7 @@
             <tbody>
                 @forelse($coupons as $coupon)
                 <tr>
-                    <td><strong style="color: #ea580c; font-family: monospace; font-size: 14px;">{{ $coupon->coupon_code }}</strong></td>
+                    <td><strong style="color: var(--ud-orange-dark); font-family: monospace; font-size: 14px;">{{ $coupon->coupon_code }}</strong></td>
                     <td>{{ $coupon->coupon_name }}</td>
                     <td>
                         @if($coupon->discount_type === 'percent')

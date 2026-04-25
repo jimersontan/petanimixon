@@ -5,9 +5,9 @@ $excludeDirs = ['storage', 'vendor', 'node_modules', '.git', '.idea'];
 $extensions = ['php', 'blade.php', 'env', 'json', 'js', 'css', 'html', 'md'];
 
 $replacements = [
-    'PetMarkt-PH'  => 'PetMarkt-PH',
-    'PetMarkt-PH'   => 'PetMarkt-PH',
-    'PETMARKT-PH'  => 'PETMARKT-PH',
+    'Pet Markt-PH'  => 'Pet Markt-PH',
+    'Pet Markt-PH'   => 'Pet Markt-PH',
+    'PET MARKT-PH'  => 'PET MARKT-PH',
     'petmarkt-ph.com' => 'petmarkt-ph.com',
     'petmarkt-ph'   => 'petmarkt-ph'
 ];

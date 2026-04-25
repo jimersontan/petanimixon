@@ -23,40 +23,51 @@ class CartController extends Controller
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
+            'variant_id' => 'nullable|exists:product_variants,id',
             'quantity' => 'required|integer|min:1'
         ]);
 
         $product = Product::findOrFail($request->product_id);
+        $variant = $request->variant_id ? \App\Models\ProductVariant::find($request->variant_id) : null;
         $cart = $this->getOrCreateCart();
 
         // Check available stock
-        $availableStock = $product->stock;
-        $cartItem = $cart->items()->where('product_id', $product->id)->first();
+        $availableStock = $variant ? $variant->variant_quantity : $product->stock;
+        $productName = $variant ? $product->product_name . ' (' . $variant->variant_name . ')' : $product->product_name;
+        
+        $cartItemDb = $cart->items()->where('product_id', $product->id);
+        if ($variant) {
+            $cartItemDb->where('product_variant_id', $variant->id);
+        } else {
+            $cartItemDb->whereNull('product_variant_id');
+        }
+        $cartItem = $cartItemDb->first();
+        
         $alreadyInCart = $cartItem ? $cartItem->quantity : 0;
         $requestedTotal = $alreadyInCart + $request->quantity;
 
         if ($availableStock <= 0) {
             if ($request->expectsJson()) {
-                return response()->json(['error' => "\"{$product->product_name}\" is currently out of stock."], 422);
+                return response()->json(['error' => "\"{$productName}\" is currently out of stock."], 422);
             }
-            return redirect()->back()->with('error', "\"{$product->product_name}\" is currently out of stock.");
+            return redirect()->back()->with('error', "\"{$productName}\" is currently out of stock.");
         }
 
         if ($requestedTotal > $availableStock) {
             $canAdd = $availableStock - $alreadyInCart;
             if ($canAdd <= 0) {
                 if ($request->expectsJson()) {
-                    return response()->json(['error' => "You already have the maximum available stock of \"{$product->product_name}\" in your cart ({$availableStock} units)."], 422);
+                    return response()->json(['error' => "You already have the maximum available stock of \"{$productName}\" in your cart ({$availableStock} units)."], 422);
                 }
-                return redirect()->back()->with('error', "You already have the maximum available stock of \"{$product->product_name}\" in your cart ({$availableStock} units).");
+                return redirect()->back()->with('error', "You already have the maximum available stock of \"{$productName}\" in your cart ({$availableStock} units).");
             }
             if ($request->expectsJson()) {
-                return response()->json(['error' => "Sorry, only {$availableStock} unit(s) of \"{$product->product_name}\" are available. You already have {$alreadyInCart} in your cart."], 422);
+                return response()->json(['error' => "Sorry, only {$availableStock} unit(s) of \"{$productName}\" are available. You already have {$alreadyInCart} in your cart."], 422);
             }
-            return redirect()->back()->with('error', "Sorry, only {$availableStock} unit(s) of \"{$product->product_name}\" are available. You already have {$alreadyInCart} in your cart.");
+            return redirect()->back()->with('error', "Sorry, only {$availableStock} unit(s) of \"{$productName}\" are available. You already have {$alreadyInCart} in your cart.");
         }
 
-        $unitPrice = $product->sale_price;
+        $unitPrice = $variant && $variant->variant_price > 0 ? $variant->variant_price : $product->sale_price;
 
         if ($cartItem) {
             // Keep cart line price synced with current product sale/base price.
@@ -67,6 +78,7 @@ class CartController extends Controller
         } else {
             $cart->items()->create([
                 'product_id' => $product->id,
+                'product_variant_id' => $variant ? $variant->id : null,
                 'quantity' => $request->quantity,
                 'unit_price' => $unitPrice,
                 'subtotal' => $request->quantity * $unitPrice
@@ -89,27 +101,33 @@ class CartController extends Controller
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
+            'variant_id' => 'nullable|exists:product_variants,id',
             'quantity' => 'required|integer|min:1'
         ]);
 
         $product = Product::findOrFail($request->product_id);
+        $variant = $request->variant_id ? \App\Models\ProductVariant::find($request->variant_id) : null;
         $quantity = (int) $request->quantity;
 
-        if ($product->stock <= 0) {
-            return redirect()->back()->with('error', "\"{$product->product_name}\" is currently out of stock.");
+        $availableStock = $variant ? $variant->variant_quantity : $product->stock;
+        $productName = $variant ? $product->product_name . ' (' . $variant->variant_name . ')' : $product->product_name;
+
+        if ($availableStock <= 0) {
+            return redirect()->back()->with('error', "\"{$productName}\" is currently out of stock.");
         }
 
-        if ($quantity > $product->stock) {
-            return redirect()->back()->with('error', "Sorry, only {$product->stock} unit(s) of \"{$product->product_name}\" are available.");
+        if ($quantity > $availableStock) {
+            return redirect()->back()->with('error', "Sorry, only {$availableStock} unit(s) of \"{$productName}\" are available.");
         }
 
         $cart = $this->getOrCreateCart();
 
         // Buy now should checkout only the selected product.
         $cart->items()->delete();
-        $unitPrice = $product->sale_price;
+        $unitPrice = $variant && $variant->variant_price > 0 ? $variant->variant_price : $product->sale_price;
         $cart->items()->create([
             'product_id' => $product->id,
+            'product_variant_id' => $variant ? $variant->id : null,
             'quantity' => $quantity,
             'unit_price' => $unitPrice,
             'subtotal' => $quantity * $unitPrice
@@ -129,7 +147,7 @@ class CartController extends Controller
 
         // Validate against available stock
         if ($product) {
-            $availableStock = $product->stock;
+            $availableStock = $cartItem->variant ? $cartItem->variant->variant_quantity : $product->stock;
             if ($request->quantity > $availableStock) {
                 $msg = $availableStock > 0
                     ? "Sorry, only {$availableStock} unit(s) of \"{$product->product_name}\" are available."

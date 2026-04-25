@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\AnimalType;
 use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Support\Facades\Schema;
 
 class CategoryAdminController extends Controller
 {
@@ -38,21 +40,20 @@ class CategoryAdminController extends Controller
         $parents = Category::orderBy('category_name')->get();
 
         // Animal types for the second table
-        $animalTypesQuery = \DB::table('animal_types')
+        $animalTypesQuery = AnimalType::query()
             ->orderBy('sort_order')
             ->orderBy('id');
             
-        if ($status === 'active') {
+        if (Schema::hasColumn('animal_types', 'status') && $status === 'active') {
             // using string literals matching what we saw in DB/blade (Active, Draft, etc.)
             $animalTypesQuery->where('status', 'Active');
-        } elseif ($status === 'draft') {
+        } elseif (Schema::hasColumn('animal_types', 'status') && $status === 'draft') {
             $animalTypesQuery->where('status', 'Draft');
         }
 
         $animalTypes = $animalTypesQuery->get()
             ->map(function ($t) {
                 $t->product_count = Product::where('animal_type', $t->animal_type)->count();
-                $t->image_full_url = $t->image_url ? asset('storage/' . $t->image_url) : '';
                 return $t;
             });
 

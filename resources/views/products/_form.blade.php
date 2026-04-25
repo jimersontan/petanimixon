@@ -55,35 +55,23 @@
             <div id="availableAnimalsRow" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
             </div>
 
-            <!-- + Manage Button -->
-            <button type="button" class="btn-manage-animals" id="btnManageAnimals" title="Manage Animal Types" style="
-                background: #ea580c; color: #fff; border: none; padding: 8px 12px; border-radius: 6px;
-                font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;
-                display: inline-flex; align-items: center; gap: 4px; transition: background 0.2s;">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                Manage
-            </button>
+            <!-- Dynamic Life Stage Selectors (One per Selected Animal) -->
+            <div id="lifeStageContainers" style="display: none;"></div>
+
         </div>
         <!-- End: Animal Type -->
 
-        <!-- Dynamic Life Stage Selectors (One per Selected Animal) -->
-        <div id="lifeStageContainers" style="display: none;"></div>
-        <!-- End: Life Stages -->
-
-        <!-- Field: Category (visual buttons + hidden input) -->
+        <!-- Field: Category -->
         <div class="form-group">
-            <label>Category *</label>
-            <input type="hidden" name="animal_category_id" id="animal_category_id" required>
-            <div id="categoryChipsContainer" style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <label for="animal_category_id">Category *</label>
+            <select name="animal_category_id" id="animal_category_id" class="form-control" required>
+                <option value="">Select a category</option>
                 @foreach($categories as $cat)
-                    <button type="button" class="category-chip" data-id="{{ $cat->id }}" style="
-                        padding: 8px 16px; background: #f3f4f6; border: 1px solid #d1d5db;
-                        border-radius: 20px; font-size: 13px; font-weight: 500; color: #4b5563;
-                        cursor: pointer; transition: all 0.2s;">
+                    <option value="{{ $cat->id }}" {{ (old('animal_category_id', $product->animal_category_id) == $cat->id) ? 'selected' : '' }}>
                         {{ $cat->category_name }}
-                    </button>
+                    </option>
                 @endforeach
-            </div>
+            </select>
             @if($errors->has('animal_category_id'))
                 <span class="text-danger" style="font-size: 12px; color: #dc2626;">Please select a category.</span>
             @endif
@@ -101,6 +89,14 @@
         </div>
         <!-- End: Wet or Dry -->
 
+        <!-- Field: SKU (required, unique product identifier) -->
+        <div class="form-group">
+            <label for="sku">SKU</label>
+            <input type="text" name="sku" id="sku" class="form-control" value="{{ old('sku', $product->sku) }}" required>
+        </div>
+        <!-- End: SKU -->
+
+
         <!-- Field: Brand (optional dropdown from brands table) -->
         <div class="form-group">
             <label for="brand_name">Brand</label>
@@ -115,18 +111,18 @@
         </div>
         <!-- End: Brand -->
 
-        <!-- Price and Stock Fields: Side-by-side row -->
-        <div class="form-row" style="display: flex; gap: 15px;">
-            <!-- Field: Price (required, currency format) -->
+        <!-- Price and Stock Fields: Hidden because variants handle them now -->
+        <div class="form-row" style="display: none !important; gap: 15px;">
+            <!-- Field: Price (hidden default to 0) -->
             <div class="form-group" style="flex: 1; min-width: 0;">
-                <label for="price">Price (₱)</label>
-                <input type="number" step="0.01" name="price" id="price" class="form-control" style="width: 100%;" value="{{ old('price', $product->price) }}" required>
+                <label for="price">Base Price (₱)</label>
+                <input type="number" step="0.01" name="price" id="price" class="form-control" style="width: 100%;" value="{{ old('price', $product->price ?? 0) }}">
             </div>
             <!-- End: Price -->
-            <!-- Field: Stock (optional, whole number) -->
+            <!-- Field: Stock (hidden default to 0) -->
             <div class="form-group" style="flex: 1; min-width: 0;">
                 <label for="stock">Stock</label>
-                <input type="number" min="0" name="stock" id="stock" class="form-control" style="width: 100%;" value="{{ old('stock', $product->stock ?? '') }}">
+                <input type="number" min="0" name="stock" id="stock" class="form-control" style="width: 100%;" value="{{ old('stock', $product->stock ?? 0) }}">
             </div>
             <!-- End: Stock -->
         </div>
@@ -159,25 +155,45 @@
         </div>
         <!-- End: Product Image -->
 
-        <!-- Field: SKU (required, unique product identifier) -->
-        <div class="form-group">
-            <label for="sku">SKU</label>
-            <input type="text" name="sku" id="sku" class="form-control" value="{{ old('sku', $product->sku) }}" required>
+        <!-- Field: Product Variants (Table with per-variant Price & Stock) -->
+        <div class="form-group" id="variantGroup">
+            <label>Product Variants <span style="font-weight:normal; color:#6b7280; font-size:12px;">(Optional — each variant gets its own price & stock)</span></label>
+
+            <!-- Input row: value + unit selector + add button -->
+            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+                <input type="text" id="variantInputValue" class="form-control"
+                       placeholder="Value (e.g. 1.5, Large, Red)" style="flex: 1; min-width: 0;">
+                <select id="variantInputType" class="form-control" style="width: auto; min-width: 100px;">
+                    <option value="KG">Weight (KG)</option>
+                    <option value="G">Weight (Grams)</option>
+                    <option value="Lbs">Weight (Lbs)</option>
+                    <option value="Oz">Weight (Oz)</option>
+                    <option value="Size">Size</option>
+                    <option value="Color">Color</option>
+                    <option value="Flavor">Flavor</option>
+                    <option value="Material">Material</option>
+                    <option value="Type">Type</option>
+                </select>
+                <button type="button" id="addVariantBtn" style="
+                    padding: 8px 16px; background: var(--ud-orange-dark); color: #fff; border: none;
+                    border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer;
+                    white-space: nowrap; transition: background 0.2s;">+ Add</button>
+            </div>
+
+            <!-- Variant Table: Rendered by JS -->
+            <div id="variantTableContainer"></div>
+
+            <!-- Hidden inputs container: generated by JS for form submission -->
+            <div id="variantHiddenInputs"></div>
         </div>
-        <!-- End: SKU -->
+        <!-- End: Product Variants -->
+
 
         <!-- Status is now handled automatically based on stock levels -->
 
-        <!-- Field: Short Description (optional, brief summary) -->
-        <div class="form-group">
-            <label for="short_description">Short Description</label>
-            <textarea name="short_description" id="short_description" class="form-control" rows="2">{{ old('short_description', $product->short_description) }}</textarea>
-        </div>
-        <!-- End: Short Description -->
-
         <!-- Field: Full Description (optional, detailed product info) -->
         <div class="form-group">
-            <label for="full_description">Full Description</label>
+            <label for="full_description">Description</label>
             <textarea name="full_description" id="full_description" class="form-control" rows="4">{{ old('full_description', $product->full_description) }}</textarea>
         </div>
         <!-- End: Full Description -->
@@ -189,82 +205,7 @@
 <!-- ===== END TWO-PANEL FORM LAYOUT ===== -->
 
 
-<!-- ===== MANAGE ANIMAL TYPES MINI MODAL ===== -->
-<!-- Overlay: Dark backdrop for the manage modal (appears on top of the product modal) -->
-<div id="manageAnimalOverlay" style="
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.4); z-index: 10001; justify-content: center; align-items: center;">
 
-    <!-- Modal Container: 420px centered white card -->
-    <div id="manageAnimalModal" style="
-        background: #fff; border-radius: 12px; width: 420px; max-height: 80vh;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden;">
-
-        <!-- Modal Header: Title and Close Button -->
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px 16px; border-bottom: 1px solid #f3f4f6;">
-            <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: #111827;">Manage Animal Types</h3>
-            <!-- Close (X) Button -->
-            <button type="button" id="closeManageModal" style="
-                background: none; border: none; cursor: pointer; color: #9ca3af; font-size: 20px;
-                width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-                border-radius: 6px; transition: all 0.2s;"
-                onmouseover="this.style.background='#f3f4f6';this.style.color='#111827'"
-                onmouseout="this.style.background='none';this.style.color='#9ca3af'">✕</button>
-        </div>
-        <!-- End: Modal Header -->
-
-        <!-- Animal Types List: Dynamically loaded via AJAX -->
-        <!-- Each row shows animal name + edit/delete buttons (or restore for drafted items) -->
-        <div id="animalTypesList" style="flex: 1; overflow-y: auto; padding: 12px 24px; max-height: 400px;">
-            <div style="text-align: center; padding: 24px; color: #9ca3af;">Loading...</div>
-        </div>
-        <!-- End: Animal Types List -->
-
-        <!-- Add New Animal Footer -->
-        <div style="border-top: 1px solid #f3f4f6; padding: 16px 24px;">
-
-            <!-- Add Button: Shows the inline input form when clicked -->
-            <div id="addNewAnimalArea">
-                <button type="button" id="btnShowAddAnimal" style="
-                    background: none; border: 1px dashed #d1d5db; color: #ea580c; padding: 8px 16px;
-                    border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;
-                    width: 100%; transition: all 0.2s;"
-                    onmouseover="this.style.borderColor='#ea580c';this.style.background='#fff7ed'"
-                    onmouseout="this.style.borderColor='#d1d5db';this.style.background='none'">
-                    + Add New Animal
-                </button>
-            </div>
-            <!-- End: Add Button -->
-
-            <!-- Inline Add Form: Text input with Save and Cancel buttons -->
-            <div id="addNewAnimalForm" style="display: none;">
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <!-- New Animal Name Input -->
-                    <input type="text" id="newAnimalName" placeholder="Enter animal name" style="
-                        flex: 1; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px;
-                        font-size: 13px; transition: border-color 0.2s;">
-                    <!-- Save Button: Sends POST request to create animal -->
-                    <button type="button" id="btnSaveNewAnimal" style="
-                        background: #ea580c; color: #fff; border: none; padding: 8px 14px;
-                        border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">Save</button>
-                    <!-- Cancel Button: Hides the input form -->
-                    <button type="button" id="btnCancelNewAnimal" style="
-                        background: #f3f4f6; color: #4b5563; border: none; padding: 8px 14px;
-                        border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">Cancel</button>
-                </div>
-                <!-- Error Message: Shows duplicate or validation errors in red -->
-                <div id="addAnimalError" style="color: #ef4444; font-size: 12px; margin-top: 6px; display: none;"></div>
-            </div>
-            <!-- End: Inline Add Form -->
-
-        </div>
-        <!-- End: Add New Animal Footer -->
-
-    </div>
-    <!-- End: Modal Container -->
-
-</div>
-<!-- ===== END MANAGE ANIMAL TYPES MINI MODAL ===== -->
 
 
 <!-- ===== CSS STYLES (pushed to layout head) ===== -->
@@ -292,23 +233,23 @@
     /* Select2 Focus/Open: Orange border and glow on focus */
     .select2-container--default.select2-container--focus .select2-selection--single,
     .select2-container--default.select2-container--open .select2-selection--single {
-        border-color: #ea580c !important;
+        border-color: var(--ud-orange-dark) !important;
         box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1) !important;
     }
     /* Select2 Highlighted Option: Orange background when hovering options */
     .select2-container--default .select2-results__option--highlighted[aria-selected] {
-        background-color: #ea580c !important;
+        background-color: var(--ud-orange-dark) !important;
         color: #fff !important;
     }
     /* Select2 Selected Option: Light orange background for the currently selected item */
     .select2-container--default .select2-results__option[aria-selected=true] {
         background-color: #fff7ed !important;
-        color: #ea580c !important;
+        color: var(--ud-orange-dark) !important;
     }
     /* Select2 Search Input: Orange border on focus */
     .select2-container--default .select2-search--dropdown .select2-search__field:focus {
         outline: none;
-        border-color: #ea580c;
+        border-color: var(--ud-orange-dark);
     }
     /* Select2 Dropdown Container: Rounded corners and shadow */
     .select2-dropdown {
@@ -427,7 +368,7 @@
                     padding: 8px 14px; background: #f3f4f6; border: 1px solid #d1d5db;
                     border-radius: 20px; font-size: 13px; cursor: pointer; transition: all 0.2s;
                     color: #374151; font-weight: 500;`;
-                btn.onmouseover = () => { btn.style.background = '#ea580c'; btn.style.color = '#fff'; btn.style.borderColor = '#ea580c'; };
+                btn.onmouseover = () => { btn.style.background = 'var(--ud-orange-dark)'; btn.style.color = '#fff'; btn.style.borderColor = 'var(--ud-orange-dark)'; };
                 btn.onmouseout = () => { btn.style.background = '#f3f4f6'; btn.style.color = '#374151'; btn.style.borderColor = '#d1d5db'; };
                 btn.onclick = (e) => {
                     e.preventDefault();
@@ -464,7 +405,7 @@
             const chip = document.createElement('div');
             chip.style.cssText = `
                 display: inline-flex; align-items: center; gap: 6px;
-                background: #ea580c; color: #fff; padding: 6px 12px;
+                background: var(--ud-orange-dark); color: #fff; padding: 6px 12px;
                 border-radius: 20px; font-size: 13px; font-weight: 500;`;
             chip.innerHTML = `
                 ${opt.text}
@@ -481,7 +422,79 @@
         renderAvailableAnimals();
     };
 
-    // Update per-animal life stage selectors
+    // Global window functions for the popover UI
+    window.togglePopover = function(popoverId, badgeElt) {
+        // Close others
+        document.querySelectorAll('.lifestage-popover').forEach(p => {
+            if(p.id !== popoverId) {
+                p.style.display = 'none';
+                p.previousElementSibling.style.borderColor = '#d1d5db';
+                p.previousElementSibling.style.background = '#f9fafb';
+            }
+        });
+        
+        const popover = document.getElementById(popoverId);
+        if(!popover) return;
+        
+        if (popover.style.display === 'none' || !popover.style.display) {
+            popover.style.display = 'flex';
+            badgeElt.style.borderColor = 'var(--ud-orange-dark)';
+            badgeElt.style.background = '#fff7ed';
+        } else {
+            popover.style.display = 'none';
+            badgeElt.style.borderColor = '#d1d5db';
+            badgeElt.style.background = '#f9fafb';
+        }
+    };
+
+    window.closeAllPopoversOnClickOutside = function(e) {
+        if (!e.target.closest('.lifestage-badge-wrapper')) {
+            document.querySelectorAll('.lifestage-popover').forEach(p => p.style.display = 'none');
+            document.querySelectorAll('.lifestage-badge').forEach(b => {
+                b.style.borderColor = '#d1d5db';
+                b.style.background = '#f9fafb';
+            });
+        }
+    };
+
+    window.updateLifestageChip = function(checkbox, animalValue) {
+        // Update visual look of the clicked chip
+        if(checkbox.checked) {
+            checkbox.parentElement.style.background = 'var(--ud-orange-dark)';
+            checkbox.parentElement.style.borderColor = 'var(--ud-orange-dark)';
+            checkbox.parentElement.style.color = 'white';
+        } else {
+            checkbox.parentElement.style.background = 'white';
+            checkbox.parentElement.style.borderColor = '#d1d5db';
+            checkbox.parentElement.style.color = '#4b5563';
+        }
+
+        // Update the notification count dot on the badge
+        const badgeId = 'badge_' + animalValue;
+        const badge = document.getElementById(badgeId);
+        if (badge) {
+            const countSpan = badge.querySelector('.lifestage-count');
+            const checkedCount = document.querySelectorAll(`input[name="life_stages[${animalValue}][]"]:checked`).length;
+            if(countSpan) {
+                countSpan.textContent = checkedCount;
+                if(checkedCount > 0) {
+                    countSpan.style.opacity = '1';
+                    countSpan.style.width = 'auto';
+                    countSpan.style.minWidth = '16px';
+                    countSpan.style.marginLeft = '4px';
+                    countSpan.style.padding = '0 5px';
+                } else {
+                    countSpan.style.opacity = '0';
+                    countSpan.style.width = '0px';
+                    countSpan.style.minWidth = '0px';
+                    countSpan.style.marginLeft = '-6px';
+                    countSpan.style.padding = '0';
+                }
+            }
+        }
+    };
+
+    // Update per-animal life stage selectors using the space-saving popover badge design
     function updateLifeStageSelectors(selectedOptions, existingStages) {
         lifeStageContainers.innerHTML = '';
         
@@ -490,7 +503,20 @@
             return;
         }
 
+        // Show container but make it a clean flex row without the bulky grey box
         lifeStageContainers.style.display = 'block';
+        lifeStageContainers.style.background = 'transparent';
+        lifeStageContainers.style.border = 'none';
+        lifeStageContainers.style.padding = '0';
+        lifeStageContainers.style.marginTop = '0';
+
+        const rowLabel = document.createElement('label');
+        rowLabel.textContent = 'Selected Life Stages (Click to Select)';
+        rowLabel.style.cssText = 'font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 8px; display: block;';
+        lifeStageContainers.appendChild(rowLabel);
+
+        const badgeRow = document.createElement('div');
+        badgeRow.style.cssText = 'display: flex; flex-wrap: wrap; gap: 12px; position: relative; width: 100%;';
 
         selectedOptions.forEach((opt, idx) => {
             const animalName = opt.text.toLowerCase();
@@ -500,23 +526,75 @@
                 (existingStages[opt.value] || existingStages[opt.text]).split(', ').map(s => s.toLowerCase().trim()) 
                 : [];
             
-            const container = document.createElement('div');
-            container.className = 'form-group';
-            container.style.marginTop = '12px';
-            container.innerHTML = `
-                <label for="life_stage_${opt.value}" style="font-size: 13px; font-weight: 600; color: #374151;">
-                    ${opt.text} - Life Stages (Select Multiple)
-                </label>
-                <select name="life_stages[${opt.value}][]" id="life_stage_${opt.value}" class="form-control" multiple style="height: auto; min-height: 80px;">
-                    ${stages.map(stage => {
-                        const isSelected = preselectedStages.includes(stage.toLowerCase()) ? 'selected' : '';
-                        return \`<option value="\${stage.toLowerCase()}" \${isSelected}>\${stage}</option>\`;
-                    }).join('')}
-                </select>
-                <div style="font-size:11px;color:#6b7280;margin-top:4px;">Hold Ctrl (Windows) or Cmd (Mac) to select multiple</div>
+            const count = preselectedStages.filter(s => stages.map(st=>st.toLowerCase()).includes(s)).length;
+            const badgeId = `badge_${opt.value}`;
+            const popoverId = `popover_${opt.value}`;
+
+            const badgeWrapper = document.createElement('div');
+            badgeWrapper.className = 'lifestage-badge-wrapper';
+            badgeWrapper.style.cssText = 'position: relative; display: inline-block;';
+
+            let html = `
+                <!-- The Clickable Badge -->
+                <button type="button" id="${badgeId}" class="lifestage-badge" style="
+                    display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px;
+                    border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer;
+                    background: #f9fafb; border: 1px solid #d1d5db; color: #4b5563; transition: all 0.2s;
+                    user-select: none; white-space: nowrap; outline: none;
+                " onclick="window.togglePopover('${popoverId}', this)">
+                    <span>${opt.text}</span>
+                    <span class="lifestage-count" style="
+                        background: var(--ud-orange-dark); color: white; border-radius: 50%; font-size: 11px;
+                        height: 18px; display: inline-flex; align-items: center; justify-content: center;
+                        font-weight: 700; transition: all 0.2s;
+                        ${count === 0 ? 'opacity: 0; width: 0; min-width: 0; margin-left: -6px; padding: 0; overflow: hidden;' : 'opacity: 1; width: auto; min-width: 16px; margin-left: 4px; padding: 0 5px;'}
+                    ">${count}</span>
+                </button>
+
+                <!-- The Popover content -->
+                <div id="${popoverId}" class="lifestage-popover" style="
+                    display: none; position: absolute; top: calc(100% + 8px); left: 0;
+                    background: white; border: 1px solid #e5e7eb; border-radius: 12px;
+                    box-shadow: 0 10px 25px -4px rgba(0,0,0,0.1), 0 4px 10px -4px rgba(0,0,0,0.06); 
+                    padding: 12px; z-index: 1001; min-width: 200px; flex-wrap: wrap; gap: 8px;
+                    transform-origin: top left;
+                ">
             `;
-            lifeStageContainers.appendChild(container);
+
+            // Render checkboxes as chips inside the popover
+            stages.forEach(stage => {
+                const stageLower = stage.toLowerCase();
+                const isSelected = preselectedStages.includes(stageLower);
+                const checkboxId = `ls_${opt.value}_${stageLower}`;
+                
+                html += `
+                    <label for="${checkboxId}" style="
+                        display: inline-flex; align-items: center; justify-content: center;
+                        padding: 6px 14px; border-radius: 20px; font-size: 12px; 
+                        border: 1px solid ${isSelected ? 'var(--ud-orange-dark)' : '#d1d5db'};
+                        background: ${isSelected ? 'var(--ud-orange-dark)' : 'white'};
+                        color: ${isSelected ? 'white' : '#4b5563'};
+                        cursor: pointer; transition: all 0.2s ease; font-weight: 500;
+                        margin: 0;
+                    ">
+                        <input type="checkbox" id="${checkboxId}" name="life_stages[${opt.value}][]" value="${stageLower}" 
+                               ${isSelected ? 'checked' : ''} style="display:none;"
+                               onchange="window.updateLifestageChip(this, '${opt.value}')">
+                        ${stage}
+                    </label>
+                `;
+            });
+
+            html += `</div>`;
+            badgeWrapper.innerHTML = html;
+            badgeRow.appendChild(badgeWrapper);
         });
+
+        lifeStageContainers.appendChild(badgeRow);
+
+        // Bind global click away
+        document.removeEventListener('click', window.closeAllPopoversOnClickOutside);
+        document.addEventListener('click', window.closeAllPopoversOnClickOutside);
     }
 
     // Initialize on page load
@@ -524,349 +602,218 @@
         document.addEventListener('DOMContentLoaded', function() {
             renderAvailableAnimals();
             window.updateChips({});
-            initCategoryChips();
         });
     } else {
         renderAvailableAnimals();
         window.updateChips({});
-        initCategoryChips();
     }
     // ===== END MULTIPLE ANIMAL TYPE SELECTION =====
-    
-    // ===== CATEGORY CHIPS LOGIC =====
-    function initCategoryChips() {
-        // Listeners for Category Chips
-        const catContainer = document.getElementById('categoryChipsContainer');
-        const catHiddenInput = document.getElementById('animal_category_id');
-        
-        if (catContainer && catHiddenInput) {
-            const catButtons = catContainer.querySelectorAll('.category-chip');
-            catButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    // Remove active from all
-                    catButtons.forEach(b => {
-                        b.style.background = '#f3f4f6';
-                        b.style.color = '#4b5563';
-                        b.style.borderColor = '#d1d5db';
-                    });
-                    
-                    // Activate this one
-                    this.style.background = '#4b5563';
-                    this.style.color = '#fff';
-                    this.style.borderColor = '#4b5563';
-                    
-                    // Set hidden input value
-                    catHiddenInput.value = this.dataset.id;
-                    
-                    // Dispatch change event to trigger wet/dry logic
-                    const event = new Event('change', { bubbles: true });
-                    catHiddenInput.dispatchEvent(event);
-                });
-            });
-            
-            // Watch for programmatic changes on the hidden input to update the chips automatically
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.type === "attributes" && mutation.attributeName === "value") {
-                        const val = catHiddenInput.value;
-                        catButtons.forEach(b => {
-                            if (b.dataset.id == val) {
-                                b.style.background = '#4b5563';
-                                b.style.color = '#fff';
-                                b.style.borderColor = '#4b5563';
-                            } else {
-                                b.style.background = '#f3f4f6';
-                                b.style.color = '#4b5563';
-                                b.style.borderColor = '#d1d5db';
-                            }
-                        });
-                    }
-                });
-            });
-            observer.observe(catHiddenInput, { attributes: true });
+
+    // ===== PRODUCT VARIANTS TABLE SYSTEM =====
+    const variantTableContainer = document.getElementById('variantTableContainer');
+    const variantHiddenInputs = document.getElementById('variantHiddenInputs');
+    const variantInputValue = document.getElementById('variantInputValue');
+    const variantInputType = document.getElementById('variantInputType');
+    const addVariantBtn = document.getElementById('addVariantBtn');
+    const globalStockInput = document.getElementById('stock');
+    const globalPriceInput = document.getElementById('price');
+    const priceHint = document.getElementById('priceHint');
+    const stockAutoLabel = document.getElementById('stockAutoLabel');
+
+    window._productVariants = [];
+
+    function getDefaultPrice() {
+        return parseFloat(globalPriceInput?.value) || 0;
+    }
+
+    function syncGlobalStock() {
+        if (!globalStockInput) return;
+        if (window._productVariants.length > 0) {
+            var total = 0;
+            window._productVariants.forEach(function(v) { total += (parseInt(v.stock, 10) || 0); });
+            globalStockInput.value = total;
+            globalStockInput.readOnly = true;
+            globalStockInput.style.background = '#f3f4f6';
+            globalStockInput.style.color = '#6b7280';
+            if (stockAutoLabel) stockAutoLabel.style.display = 'inline';
+            if (priceHint) priceHint.style.display = 'inline';
+        } else {
+            globalStockInput.readOnly = false;
+            globalStockInput.style.background = '';
+            globalStockInput.style.color = '';
+            if (stockAutoLabel) stockAutoLabel.style.display = 'none';
+            if (priceHint) priceHint.style.display = 'none';
         }
     }
-    // ===== END CATEGORY CHIPS LOGIC =====
 
-    // ===== MANAGE MODAL: Element References =====
-    const overlay = document.getElementById('manageAnimalOverlay');
-    const listContainer = document.getElementById('animalTypesList');
-    const btnManage = document.getElementById('btnManageAnimals');
-    const btnClose = document.getElementById('closeManageModal');
-    const btnShowAdd = document.getElementById('btnShowAddAnimal');
-    const addArea = document.getElementById('addNewAnimalArea');
-    const addForm = document.getElementById('addNewAnimalForm');
-    const addInput = document.getElementById('newAnimalName');
-    const addError = document.getElementById('addAnimalError');
-    const btnSaveNew = document.getElementById('btnSaveNewAnimal');
-    const btnCancelNew = document.getElementById('btnCancelNewAnimal');
+    window.renderVariantTable = function() {
+        if (!variantTableContainer || !variantHiddenInputs) return;
 
-    // ===== MANAGE MODAL: Open and Close =====
-    // Open: Show overlay and load the animal types list from API
-    function openManageModal() {
-        overlay.style.display = 'flex';
-        loadAnimalTypes();
-    }
-    // Close: Hide overlay and reset the add form
-    function closeManageModal() {
-        overlay.style.display = 'none';
-        hideAddForm();
-    }
-
-    // Event Listeners: Open/Close manage modal
-    if (btnManage) btnManage.addEventListener('click', openManageModal);
-    if (btnClose) btnClose.addEventListener('click', closeManageModal);
-    // Close when clicking the dark overlay background
-    overlay.addEventListener('click', function(e) {
-        if (e.target === overlay) closeManageModal();
-    });
-    // ===== END MANAGE MODAL: Open and Close =====
-
-
-    // ===== LOAD ANIMAL TYPES LIST =====
-    // Fetch all animal types from the API and render them in the modal
-    function loadAnimalTypes() {
-        listContainer.innerHTML = '<div style="text-align:center;padding:24px;color:#9ca3af;">Loading...</div>';
-        fetch(API_BASE, { headers: { 'Accept': 'application/json' } })
-            .then(r => r.json())
-            .then(data => renderList(data))
-            .catch(() => {
-                listContainer.innerHTML = '<div style="text-align:center;padding:24px;color:#ef4444;">Failed to load.</div>';
-            });
-    }
-
-    // Render the animal types list HTML from API data
-    function renderList(items) {
-        if (!items.length) {
-            listContainer.innerHTML = '<div style="text-align:center;padding:24px;color:#9ca3af;">No animal types yet.</div>';
+        if (window._productVariants.length === 0) {
+            variantTableContainer.innerHTML = '';
+            variantHiddenInputs.innerHTML = '';
+            syncGlobalStock();
             return;
         }
-        let html = '';
-        // Loop: Build HTML for each animal type row
-        items.forEach(item => {
-            const isDrafted = item.status === 'Inactive';
-            html += `<div class="at-row ${isDrafted ? 'drafted' : ''}" data-id="${item.id}">
-                <span class="at-name" data-name="${escHtml(item.name)}">${escHtml(item.name)}</span>
-                <div class="at-actions">`;
 
-            // Conditional: Show Restore button for drafted items, Edit/Delete for active
-            if (isDrafted) {
-                html += `<button class="btn-restore" onclick="restoreAnimal(${item.id})" title="Restore">Restore</button>`;
+        var html = '<table style="width:100%; border-collapse: separate; border-spacing: 0; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; font-size: 13px;">';
+        html += '<thead><tr style="background: #f9fafb;">';
+        html += '<th style="padding: 10px 12px; text-align: left; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb;">Variant</th>';
+        html += '<th style="padding: 10px 12px; text-align: left; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb; width: 140px;">Price (₱)</th>';
+        html += '<th style="padding: 10px 12px; text-align: left; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb; width: 110px;">Stock</th>';
+        html += '<th style="padding: 10px 12px; text-align: center; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb; width: 40px;"></th>';
+        html += '</tr></thead><tbody>';
+
+        window._productVariants.forEach(function(entry, idx) {
+            var displayLabel = '';
+            if (['KG','G','Lbs','Oz'].includes(entry.type)) {
+                displayLabel = entry.value + ' ' + entry.type;
             } else {
-                html += `<button onclick="editAnimal(${item.id}, '${escAttr(item.name)}')" title="Edit">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                </button>
-                <button onclick="deleteAnimal(${item.id}, ${item.product_count || 0})" title="Delete">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                </button>`;
+                displayLabel = entry.type + ': ' + entry.value;
             }
-            html += `</div></div>`;
+
+            var isLast = (idx === window._productVariants.length - 1);
+            var borderStyle = isLast ? 'none' : '1px solid #f3f4f6';
+
+            html += '<tr style="border-bottom: ' + borderStyle + ';">';
+            html += '<td style="padding: 8px 12px; color: #374151; font-weight: 500;">';
+            html += '<span style="display:inline-flex;align-items:center;gap:6px;background:#fff7ed;color:var(--ud-orange-dark);padding:4px 10px;border-radius:16px;font-size:12px;font-weight:600;border:1px solid #fed7aa;">' + displayLabel + '</span>';
+            html += '</td>';
+            html += '<td style="padding: 8px 12px;">';
+            html += '<input type="number" step="0.01" min="0" value="' + (entry.price || 0) + '" ';
+            html += 'onchange="window.updateVariantField(' + idx + ',\'price\',this.value)" ';
+            html += 'style="width:100%;padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;background:#fff;outline:none;" ';
+            html += 'onfocus="this.style.borderColor=\'var(--ud-orange-dark)\';this.style.boxShadow=\'0 0 0 2px rgba(234,88,12,0.1)\'" ';
+            html += 'onblur="this.style.borderColor=\'#d1d5db\';this.style.boxShadow=\'none\'">';
+            html += '</td>';
+            html += '<td style="padding: 8px 12px;">';
+            html += '<input type="number" min="0" value="' + (entry.stock || 0) + '" ';
+            html += 'onchange="window.updateVariantField(' + idx + ',\'stock\',this.value);window.syncGlobalStockFromTable()" ';
+            html += 'style="width:100%;padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;background:#fff;outline:none;" ';
+            html += 'onfocus="this.style.borderColor=\'var(--ud-orange-dark)\';this.style.boxShadow=\'0 0 0 2px rgba(234,88,12,0.1)\'" ';
+            html += 'onblur="this.style.borderColor=\'#d1d5db\';this.style.boxShadow=\'none\'">';
+            html += '</td>';
+            html += '<td style="padding: 8px 12px; text-align: center;">';
+            html += '<button type="button" onclick="window.removeVariantRow(' + idx + ')" ';
+            html += 'style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:18px;padding:2px 6px;border-radius:4px;transition:all 0.15s;" ';
+            html += 'onmouseover="this.style.background=\'#fef2f2\'" onmouseout="this.style.background=\'none\'" ';
+            html += 'title="Remove variant">×</button>';
+            html += '</td>';
+            html += '</tr>';
         });
-        listContainer.innerHTML = html;
-    }
-    // ===== END LOAD ANIMAL TYPES LIST =====
 
+        // Footer row: total stock
+        var totalStock = 0;
+        window._productVariants.forEach(function(v) { totalStock += (parseInt(v.stock, 10) || 0); });
+        html += '</tbody><tfoot><tr style="background:#f9fafb;">';
+        html += '<td style="padding: 8px 12px; font-weight: 600; color: #374151;" colspan="2">Total Stock</td>';
+        html += '<td style="padding: 8px 12px; font-weight: 700; color: var(--ud-orange-dark);">' + totalStock + '</td>';
+        html += '<td></td>';
+        html += '</tr></tfoot>';
+        html += '</table>';
 
-    // ===== UTILITY FUNCTIONS =====
-    // Escape HTML to prevent XSS in rendered content
-    function escHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
-    // Escape attribute values for safe insertion into HTML attributes
-    function escAttr(str) { return str.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+        variantTableContainer.innerHTML = html;
 
-
-    // ===== ADD NEW ANIMAL TYPE =====
-    // Show the inline add form when "+ Add New Animal" button is clicked
-    btnShowAdd.addEventListener('click', function() {
-        addArea.style.display = 'none';
-        addForm.style.display = 'block';
-        addInput.value = '';
-        addError.style.display = 'none';
-        addInput.focus();
-    });
-    // Cancel: Hide the add form and show the button again
-    btnCancelNew.addEventListener('click', hideAddForm);
-    function hideAddForm() {
-        addForm.style.display = 'none';
-        addArea.style.display = 'block';
-        addError.style.display = 'none';
-    }
-
-    // Save new animal: POST to API with duplicate check
-    btnSaveNew.addEventListener('click', function() {
-        const name = addInput.value.trim();
-        if (!name) { showAddError('Please enter an animal name.'); return; }
-        btnSaveNew.disabled = true;
-        fetch(API_BASE, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-            body: JSON.stringify({ name: name })
-        })
-        .then(r => r.json().then(d => ({ ok: r.ok, data: d })))
-        .then(({ ok, data }) => {
-            btnSaveNew.disabled = false;
-            if (!ok) { showAddError(data.error || 'Error saving.'); return; }
-            hideAddForm();
-            loadAnimalTypes();    // Refresh manage modal list
-            refreshSelect2Dropdown(); // Refresh main dropdown
-        })
-        .catch(() => { btnSaveNew.disabled = false; showAddError('Network error.'); });
-    });
-
-    // Allow Enter key to submit the add form
-    addInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') { e.preventDefault(); btnSaveNew.click(); }
-    });
-
-    // Display error message below the add input
-    function showAddError(msg) { addError.textContent = msg; addError.style.display = 'block'; }
-    // ===== END ADD NEW ANIMAL TYPE =====
-
-
-    // ===== EDIT ANIMAL TYPE =====
-    // Convert the animal name to an inline editable input with Save/Cancel
-    window.editAnimal = function(id, currentName) {
-        const row = listContainer.querySelector(`.at-row[data-id="${id}"]`);
-        if (!row) return;
-        const nameSpan = row.querySelector('.at-name');
-        const actionsDiv = row.querySelector('.at-actions');
-        const origName = nameSpan.dataset.name;
-
-        // Replace name text with editable input
-        nameSpan.innerHTML = `<input type="text" value="${escHtml(origName)}" style="
-            padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;width:100%;">`;
-        // Replace action buttons with Save/Cancel
-        actionsDiv.innerHTML = `
-            <button onclick="saveEdit(${id})" style="background:#ea580c;color:#fff;border:none;padding:5px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;">Save</button>
-            <button onclick="loadAnimalTypes()" style="background:#f3f4f6;color:#4b5563;border:none;padding:5px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;">Cancel</button>`;
-        const input = nameSpan.querySelector('input');
-        if (input) { input.focus(); input.select(); }
-
-        // Create error message div for edit validation
-        let errDiv = row.querySelector('.edit-error');
-        if (!errDiv) {
-            errDiv = document.createElement('div');
-            errDiv.className = 'edit-error';
-            errDiv.style.cssText = 'color:#ef4444;font-size:12px;margin-top:4px;display:none;width:100%;';
-            row.appendChild(errDiv);
-        }
-    };
-
-    // Save the edited animal name: PUT to API with duplicate check
-    window.saveEdit = function(id) {
-        const row = listContainer.querySelector(`.at-row[data-id="${id}"]`);
-        if (!row) return;
-        const input = row.querySelector('input[type="text"]');
-        const errDiv = row.querySelector('.edit-error');
-        const name = input ? input.value.trim() : '';
-        if (!name) { if (errDiv) { errDiv.textContent = 'Name cannot be empty.'; errDiv.style.display = 'block'; } return; }
-
-        fetch(`${API_BASE}/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-            body: JSON.stringify({ name: name })
-        })
-        .then(r => r.json().then(d => ({ ok: r.ok, data: d })))
-        .then(({ ok, data }) => {
-            if (!ok) { if (errDiv) { errDiv.textContent = data.error || 'Error saving.'; errDiv.style.display = 'block'; } return; }
-            loadAnimalTypes();        // Refresh manage modal list
-            refreshSelect2Dropdown(); // Refresh main dropdown
-        })
-        .catch(() => { if (errDiv) { errDiv.textContent = 'Network error.'; errDiv.style.display = 'block'; } });
-    };
-    // ===== END EDIT ANIMAL TYPE =====
-
-
-    // ===== DELETE / DRAFT ANIMAL TYPE =====
-    // Show inline Draft/Delete/Cancel buttons when delete icon is clicked
-    window.deleteAnimal = function(id, productCount) {
-        const row = listContainer.querySelector(`.at-row[data-id="${id}"]`);
-        if (!row) return;
-        const actionsDiv = row.querySelector('.at-actions');
-
-        // Warning: If this animal type is used by products
-        let warningHtml = '';
-        if (productCount > 0) {
-            warningHtml = `<div style="color:#ef4444;font-size:11px;margin-top:4px;width:100%;">⚠ Used by ${productCount} product(s). You can Draft it instead.</div>`;
-        }
-
-        // Replace actions with Draft/Delete/Cancel buttons
-        actionsDiv.innerHTML = `
-            <button onclick="draftAnimal(${id})" style="background:#fef3c7;color:#92400e;border:none;padding:5px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;">Draft</button>
-            ${productCount === 0 ? `<button onclick="confirmDelete(${id})" style="background:#fee2e2;color:#dc2626;border:none;padding:5px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;">Delete</button>` : ''}
-            <button onclick="loadAnimalTypes()" style="background:#f3f4f6;color:#4b5563;border:none;padding:5px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;">Cancel</button>`;
-
-        // Append usage warning if applicable
-        if (warningHtml) {
-            let wd = row.querySelector('.delete-warning');
-            if (!wd) { wd = document.createElement('div'); wd.className = 'delete-warning'; row.appendChild(wd); }
-            wd.innerHTML = warningHtml;
-        }
-    };
-
-    // Draft an animal type: PATCH status to Inactive (hides from dropdown, keeps in database)
-    window.draftAnimal = function(id) {
-        fetch(`${API_BASE}/${id}/status`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
-        })
-        .then(r => r.json())
-        .then(() => { loadAnimalTypes(); refreshSelect2Dropdown(); });
-    };
-
-    // Restore a drafted animal type: PATCH status back to Active
-    window.restoreAnimal = function(id) {
-        fetch(`${API_BASE}/${id}/status`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
-        })
-        .then(r => r.json())
-        .then(() => { loadAnimalTypes(); refreshSelect2Dropdown(); });
-    };
-
-    // Permanently delete an animal type: DELETE request (only if not used by products)
-    window.confirmDelete = function(id) {
-        fetch(`${API_BASE}/${id}`, {
-            method: 'DELETE',
-            headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
-        })
-        .then(r => r.json().then(d => ({ ok: r.ok, data: d })))
-        .then(({ ok, data }) => {
-            if (!ok) { alert(data.error || 'Cannot delete.'); return; }
-            loadAnimalTypes();
-            refreshSelect2Dropdown();
-        });
-    };
-    // ===== END DELETE / DRAFT ANIMAL TYPE =====
-
-
-    // Make loadAnimalTypes globally accessible (used by Cancel buttons in rendered HTML)
-    window.loadAnimalTypes = loadAnimalTypes;
-
-
-    // ===== SYNC SELECT2 DROPDOWN =====
-    // Re-fetch animal types from API and rebuild the main dropdown options
-    // Called after every CRUD action to keep the dropdown in sync with the database
-    function refreshSelect2Dropdown() {
-        const currentVal = $('#animal_type_id').val();
-        fetch(API_BASE, { headers: { 'Accept': 'application/json' } })
-            .then(r => r.json())
-            .then(data => {
-                const $sel = $('#animal_type_id');
-                $sel.empty();
-                $sel.append('<option value="">Search Animal Type...</option>');
-                // Only show Active animal types in the dropdown
-                data.filter(t => t.status === 'Active').forEach(t => {
-                    const selected = (String(t.id) === String(currentVal)) ? ' selected' : '';
-                    $sel.append(`<option value="${t.id}"${selected}>${escHtml(t.name)}</option>`);
-                });
-                $sel.trigger('change'); // Notify Select2 of the updated options
+        // Generate hidden inputs for form submission
+        variantHiddenInputs.innerHTML = '';
+        window._productVariants.forEach(function(entry, idx) {
+            var fields = {value: entry.value, type: entry.type, price: entry.price, stock: entry.stock};
+            Object.keys(fields).forEach(function(key) {
+                var inp = document.createElement('input');
+                inp.type = 'hidden';
+                inp.name = 'product_variants[' + idx + '][' + key + ']';
+                inp.value = fields[key] ?? '';
+                variantHiddenInputs.appendChild(inp);
             });
+        });
+
+        syncGlobalStock();
+    };
+
+    window.updateVariantField = function(idx, field, value) {
+        if (window._productVariants[idx]) {
+            window._productVariants[idx][field] = value;
+        }
+    };
+
+    window.syncGlobalStockFromTable = function() {
+        syncGlobalStock();
+        // Also re-render the footer total
+        window.renderVariantTable();
+    };
+
+    window.addVariantRow = function() {
+        if (!variantInputValue) return;
+        var val = variantInputValue.value.trim();
+        if (!val) {
+            variantInputValue.style.borderColor = '#ef4444';
+            setTimeout(function() { variantInputValue.style.borderColor = ''; }, 1500);
+            return;
+        }
+        var type = variantInputType ? variantInputType.value : 'Type';
+
+        var isDuplicate = window._productVariants.some(function(e) {
+            return e.value.toLowerCase() === val.toLowerCase() && e.type === type;
+        });
+        if (isDuplicate) {
+            variantInputValue.style.borderColor = '#f59e0b';
+            setTimeout(function() { variantInputValue.style.borderColor = ''; }, 1500);
+            return;
+        }
+
+        window._productVariants.push({ value: val, type: type, price: getDefaultPrice(), stock: 0 });
+        variantInputValue.value = '';
+        window.renderVariantTable();
+    };
+
+    window.removeVariantRow = function(idx) {
+        window._productVariants.splice(idx, 1);
+        window.renderVariantTable();
+    };
+
+    window.clearVariantChips = function() {
+        window._productVariants = [];
+        window.renderVariantTable();
+    };
+
+    window.setVariantChips = function(entries) {
+        window._productVariants = entries.map(function(e) {
+            return {
+                value: e.value,
+                type: e.type || e.unit || e.uom || 'Type',
+                price: e.price || getDefaultPrice(),
+                stock: e.stock ?? e.variant_quantity ?? 0
+            };
+        });
+        window.renderVariantTable();
+    };
+
+    // Alias for backwards compat
+    window.setWeightChips = window.setVariantChips;
+    window.clearWeightChips = window.clearVariantChips;
+    window.renderVariantChips = window.renderVariantTable;
+
+    if (addVariantBtn) {
+        addVariantBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.addVariantRow();
+        });
     }
-    // ===== END SYNC SELECT2 DROPDOWN =====
+
+    if (variantInputValue) {
+        variantInputValue.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                window.addVariantRow();
+            }
+        });
+    }
+
+    window.renderVariantTable();
+    // ===== END PRODUCT VARIANTS TABLE SYSTEM =====
 
 })();
 </script>
 @endpush
 <!-- ===== END JAVASCRIPT ===== -->
-
 

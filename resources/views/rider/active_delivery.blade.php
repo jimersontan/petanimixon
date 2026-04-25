@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Active Delivery - PetMarkt-PH Rider</title>
+    <title>Active Delivery - Pet Markt-PH Rider</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/rider.css') }}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -148,22 +148,11 @@
         <div class="rider-toast">{{ session('success') }}</div>
     @endif
 
-    <header class="rider-header">
-        <div class="logo">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo">
-            <span>Pet <span style="color: #059669;">Markt-PH</span></span>
-            <span class="rider-badge">🛵 Rider</span>
-        </div>
-        <div class="header-right">
-            <span class="rider-name">{{ Auth::user()->full_name }}</span>
-            <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-                @csrf
-                <button type="submit" class="icon-btn" aria-label="Logout" title="Logout">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
-                </button>
-            </form>
-        </div>
-    </header>
+    @if(session('error'))
+        <div class="rider-toast" style="background:#dc2626;">{{ session('error') }}</div>
+    @endif
+
+    @include('partials.rider_header')
 
     <div class="rider-layout">
         <aside class="rider-sidebar">
@@ -204,8 +193,8 @@
         <main class="rider-main">
             <div class="rider-page-header">
                 <div>
-                    <h1>Active Deliveries</h1>
-                    <div class="subtitle">Your current delivery assignments</div>
+                    <h1>Current Assignments</h1>
+                    <div class="subtitle">Accepted pickups and deliveries currently assigned to you</div>
                 </div>
             </div>
 
@@ -226,7 +215,9 @@
                     $cl = strtolower(trim($destCity));
                     $dLat = $cityCoords[$cl][0] ?? 8.9575;
                     $dLng = $cityCoords[$cl][1] ?? 125.5506;
-                    $hasPickedUp = $order->rider_picked_up_at !== null;
+                    $hasPickedUp = $order->order_status === \App\Models\Order::STATUS_OUT_FOR_DELIVERY;
+                    $statusLabel = $hasPickedUp ? 'In Transit' : 'Awaiting Pickup';
+                    $statusBadgeClass = $hasPickedUp ? 'rider-badge-out_for_delivery' : 'rider-badge-rider_confirmed';
                     
                     $fullAddress = trim(implode(', ', array_filter([
                         $order->shippingAddress->street_address ?? '',
@@ -280,8 +271,8 @@
                 {{-- ═══ ORDER CARD ═══ --}}
                 <div class="active-order-detail">
                     <div class="order-header">
-                        <h3>🚀 {{ $order->display_id }} — {{ $hasPickedUp ? 'In Transit' : 'Awaiting Pickup' }}</h3>
-                        <span class="rider-badge-status rider-badge-out_for_delivery">Out for Delivery</span>
+                        <h3>{{ $hasPickedUp ? '🚀' : '📦' }} {{ $order->display_id }} — {{ $statusLabel }}</h3>
+                        <span class="rider-badge-status {{ $statusBadgeClass }}">{{ $statusLabel }}</span>
                     </div>
                     <div class="order-body">
                         <!-- Customer Info -->
@@ -566,8 +557,8 @@
                     <div class="rider-card-body">
                         <div class="rider-empty-state">
                             <div class="empty-icon">🛵</div>
-                            <h3>No Active Deliveries</h3>
-                            <p>Accept an order from the Available Orders page to start delivering.</p>
+                            <h3>No Current Assignments</h3>
+                            <p>Accept an order from the Available Orders page, then pick it up and complete the delivery here.</p>
                             <a href="{{ route('rider.available') }}" class="btn-rider-primary" style="margin-top: 16px;">View Available Orders →</a>
                         </div>
                     </div>

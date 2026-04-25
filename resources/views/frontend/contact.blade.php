@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Contact Us - PetMarkt-PH')
+@section('title', 'Contact Us - Pet Markt-PH')
 
 @push('styles')
 <style>
@@ -14,7 +14,7 @@
     .contact-hero p { font-size: 15px; color: #777; margin: 0; }
     .contact-hero-wave { position: absolute; bottom: -2px; left: 0; right: 0; height: 40px; background: #fafafa; clip-path: ellipse(55% 100% at 50% 100%); }
 
-    .contact-container { max-width: 1000px; margin: 40px auto; padding: 0 20px 60px; }
+    .contact-container { width: 100%; margin: 40px 0; padding: 0 2rem 60px; }
 
     .contact-info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 40px; }
     .contact-info-card {

@@ -22,7 +22,7 @@ class PasswordResetMail extends Mailable
 
     public function build()
     {
-        return $this->subject('Reset Your Password - PetMarkt-PH')
+        return $this->subject('Reset Your Password - Pet Markt-PH')
             ->view('emails.password_reset');
     }
 }

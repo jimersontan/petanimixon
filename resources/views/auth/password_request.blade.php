@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password - PetMarkt-PH</title>
+    <title>Forgot Password - Pet Markt-PH</title>
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
     <link rel="stylesheet" href="{{ asset('css/animations.css') }}">
 </head>
@@ -12,7 +12,7 @@
         <div class="login-left gradient-orange">
             <div class="left-content">
                 <div class="brand-logo" style="display:flex; align-items:center; gap:14px;">
-                    <img src="{{ asset('images/logo.png') }}" alt="PetMarkt-PH Logo" style="max-height: 64px;">
+                    <img src="{{ asset('images/logo.png') }}" alt="Pet Markt-PH Logo" style="max-height: 64px;">
                     <h1 style="margin:0; font-size:30px;">Pet <span style="color: #e9f2ea;">Markt-PH</span></h1>
                 </div>
                 <div class="welcome-section" style="margin-bottom: 20px;">

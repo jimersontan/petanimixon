@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'About Us - PetMarkt-PH')
+@section('title', 'About Us - Pet Markt-PH')
 
 @push('styles')
 <style>
@@ -16,7 +16,7 @@
     .about-hero p { font-size: 16px; color: rgba(255,255,255,0.7); margin: 0; max-width: 600px; margin: 0 auto; }
     .about-hero-wave { position: absolute; bottom: -2px; left: 0; right: 0; height: 40px; background: #fafafa; clip-path: ellipse(55% 100% at 50% 100%); }
 
-    .about-container { max-width: 1000px; margin: 0 auto; padding: 50px 20px 60px; }
+    .about-container { width: 100%; padding: 50px 2rem 60px; }
 
     .about-section { margin-bottom: 60px; }
     .about-section h2 { font-size: 28px; font-weight: 800; color: #222; margin: 0 0 16px; text-align: center; }
@@ -90,7 +90,7 @@
 @section('content')
 <div class="about-hero">
     <div class="about-hero-wave"></div>
-    <h1>About <span>PetMarkt-PH</span></h1>
+    <h1>About <span>Pet Markt-PH</span></h1>
     <p>We're passionate pet lovers on a mission to provide the best products for your furry, feathered, and scaly family members.</p>
 </div>
 
@@ -101,7 +101,7 @@
         <div class="accent-line"></div>
         <div class="about-story">
             <div class="about-story-text">
-                <p>PetMarkt-PH was born from a simple belief: every pet deserves access to quality products that enhance their health, happiness, and well-being.</p>
+                <p>Pet Markt-PH was born from a simple belief: every pet deserves access to quality products that enhance their health, happiness, and well-being.</p>
                 <p>Founded by a group of dedicated pet enthusiasts, we've grown from a small local shop to a trusted online destination for pet parents across the Philippines. We carefully curate our product selection, partnering with top brands to bring you only the best.</p>
                 <p>Whether you have a playful pup, a curious cat, a chirpy bird, or a scaly companion — we're here to make pet parenthood a joyful experience.</p>
             </div>

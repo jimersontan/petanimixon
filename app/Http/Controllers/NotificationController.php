@@ -42,7 +42,16 @@ class NotificationController extends Controller
             $query->where('read', false);
         }
 
-        return response()->json($query->paginate($limit));
+        $notifications = $query->paginate($limit);
+        $notifications->getCollection()->transform(function (UserNotification $notification) use ($user) {
+            $notification->action_url = $notification->resolveActionUrlFor($user);
+            $notification->action_label = $notification->resolveActionLabelFor($user);
+            $notification->type_label = $notification->type_label;
+
+            return $notification;
+        });
+
+        return response()->json($notifications);
     }
 
     /**

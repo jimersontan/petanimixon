@@ -50,6 +50,12 @@ if(loginForm){
             }
 
             if(res.ok && json.success){
+                const rememberChecked = document.getElementById('remember') && document.getElementById('remember').checked;
+                if (rememberChecked) {
+                    localStorage.setItem('petMarkt_rememberedEmail', email);
+                } else {
+                    localStorage.removeItem('petMarkt_rememberedEmail');
+                }
                 btn.textContent = '✓ Login Successful!';
                 setTimeout(()=> window.location.href = json.redirect || '/', 800);
             } else {
@@ -63,4 +69,12 @@ if(loginForm){
 const emailEl = document.getElementById('email'); if(emailEl) emailEl.addEventListener('blur', function(){ if(this.value && !isValidEmail(this.value)){ this.classList.add('error'); showError('emailError','Please enter a valid email address'); } else { this.classList.remove('error'); showError('emailError',''); }});
 const pwEl = document.getElementById('password'); if(pwEl) pwEl.addEventListener('input', function(){ if(this.value.length && this.value.length < 6){ this.classList.add('error'); showError('passwordError','Password must be at least 6 characters'); } else{ this.classList.remove('error'); showError('passwordError',''); }});
 
-document.addEventListener('DOMContentLoaded', ()=> console.log('Login.js loaded'));
+document.addEventListener('DOMContentLoaded', ()=> {
+    console.log('Login.js loaded');
+    const rememberedEmail = localStorage.getItem('petMarkt_rememberedEmail');
+    if (rememberedEmail && emailEl) {
+        emailEl.value = rememberedEmail;
+        const rememberCheckbox = document.getElementById('remember');
+        if (rememberCheckbox) rememberCheckbox.checked = true;
+    }
+});

@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Users - PetMarkt-PH Admin</title>
+    <title>Admin Users - Pet Markt-PH Admin</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/orders.css') }}"> <!-- reuse whatever table styles exist -->
+    <link rel="stylesheet" href="{{ asset('css/animations.css') }}">
 </head>
 <body class="dashboard-body">
     @include('partials.admin_header')

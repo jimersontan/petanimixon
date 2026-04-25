@@ -7,8 +7,8 @@
 <body style="margin: 0; padding: 0; background: #f5f5f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
     <div style="max-width: 600px; margin: 40px auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
         <!-- Header -->
-        <div style="background: linear-gradient(135deg, #ea580c, #f97316); padding: 32px; text-align: center;">
-            <h1 style="margin: 0; color: #fff; font-size: 24px;">🐾 PetMarkt-PH</h1>
+        <div style="background: linear-gradient(135deg, var(--ud-orange-dark), #f97316); padding: 32px; text-align: center;">
+            <h1 style="margin: 0; color: #fff; font-size: 24px;">🐾 Pet Markt-PH</h1>
             <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0; font-size: 14px;">Password Reset Request</p>
         </div>
 
@@ -24,7 +24,7 @@
 
             <!-- CTA Button -->
             <div style="text-align: center; margin: 32px 0;">
-                <a href="{{ $resetUrl }}" style="display: inline-block; background: #ea580c; color: #fff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 15px;">
+                <a href="{{ $resetUrl }}" style="display: inline-block; background: var(--ud-orange-dark); color: #fff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 15px;">
                     Reset My Password
                 </a>
             </div>
@@ -37,14 +37,14 @@
 
             <p style="color: #bbb; font-size: 12px;">
                 If the button doesn't work, copy and paste this link into your browser:<br>
-                <a href="{{ $resetUrl }}" style="color: #ea580c; word-break: break-all;">{{ $resetUrl }}</a>
+                <a href="{{ $resetUrl }}" style="color: var(--ud-orange-dark); word-break: break-all;">{{ $resetUrl }}</a>
             </p>
         </div>
 
         <!-- Footer -->
         <div style="background: #fafafa; padding: 20px; text-align: center; border-top: 1px solid #eee;">
             <p style="margin: 0; color: #999; font-size: 12px;">
-                &copy; {{ date('Y') }} PetMarkt-PH. All rights reserved.
+                &copy; {{ date('Y') }} Pet Markt-PH. All rights reserved.
             </p>
         </div>
     </div>

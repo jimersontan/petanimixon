@@ -1,20 +1,20 @@
 @extends('frontend.layouts.app')
-@section('title', 'Request Return - PetMarkt-PH')
+@section('title', 'Request Return - Pet Markt-PH')
 
 @push('styles')
 <style>
 .rr-page { max-width: 600px; margin: 0 auto; padding: 32px 20px 60px; }
 .rr-heading { font-size: 24px; font-weight: 800; color: #1a1a2e; margin-bottom: 24px; }
-.rr-heading span { color: #E85D04; }
+.rr-heading span { color: var(--ud-orange); }
 .rr-product { display: flex; gap: 16px; align-items: center; background: #f9fafb; border-radius: 12px; padding: 16px; margin-bottom: 24px; }
 .rr-product img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; }
 .rr-form .form-group { margin-bottom: 16px; }
 .rr-form label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; color: #333; }
 .rr-form .form-control { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
 .rr-form select.form-control { appearance: auto; }
-.rr-form .form-control:focus { border-color: #E85D04; outline: none; box-shadow: 0 0 0 3px rgba(232,93,4,0.1); }
+.rr-form .form-control:focus { border-color: var(--ud-orange); outline: none; box-shadow: 0 0 0 3px rgba(232,93,4,0.1); }
 .rr-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
-.rr-btn-primary { background: #E85D04; color: #fff; }
+.rr-btn-primary { background: var(--ud-orange); color: #fff; }
 .rr-btn-primary:hover { background: #d14f00; }
 .rr-btn-secondary { background: #fff; color: #666; border: 1px solid #ddd; text-decoration: none; }
 </style>

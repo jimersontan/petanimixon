@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   PETMARKT-PH — MULTI-THEME COLOR PALETTE SYSTEM
+   PET MARKT-PH — MULTI-THEME COLOR PALETTE SYSTEM
    Each theme overrides the CSS custom properties defined in
    user_dashboard.css :root. Because the entire site already
    uses var(--ud-*) tokens, a single body class is all it takes

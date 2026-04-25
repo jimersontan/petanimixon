@@ -68,7 +68,6 @@
 .rider-header .logo .rider-badge {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
     background: linear-gradient(135deg, var(--rider-primary), var(--rider-accent));
     color: #fff;
     padding: 3px 10px;
@@ -104,6 +103,19 @@
 .rider-header .icon-btn:hover {
     background: #f1f5f9;
     color: var(--rider-primary);
+}
+
+.rider-header .pmn-trigger.icon-btn {
+    background: #f8fafc;
+    border: 1px solid var(--rider-border);
+    color: var(--rider-text-muted);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+}
+
+.rider-header .pmn-trigger.icon-btn:hover {
+    background: #ecfdf5;
+    color: var(--rider-primary);
+    border-color: rgba(5, 150, 105, 0.22);
 }
 
 /* ===== SIDEBAR ===== */
@@ -551,6 +563,7 @@
 
 .rider-badge-pending { background: #fef3c7; color: #92400e; }
 .rider-badge-processing { background: #dbeafe; color: #1e40af; }
+.rider-badge-rider_confirmed { background: #fef3c7; color: #92400e; }
 .rider-badge-out_for_delivery { background: #d1fae5; color: #065f46; }
 .rider-badge-shipped { background: #e0e7ff; color: #3730a3; }
 .rider-badge-delivered { background: #dcfce7; color: #166534; }
@@ -1233,5 +1246,3 @@
         justify-content: center;
     }
 }
-
-

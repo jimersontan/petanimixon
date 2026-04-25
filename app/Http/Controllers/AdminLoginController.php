@@ -75,7 +75,7 @@ class AdminLoginController extends Controller
             return redirect()->back()->withErrors(['password' => 'Invalid credentials'])->withInput();
         }
 
-        Auth::login($user, $request->has('keep_signed'));
+        Auth::login($user, $request->boolean('keep_signed'));
 
         if ($request->wantsJson() || $request->ajax()) {
             // always return JSON for POST logins

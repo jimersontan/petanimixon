@@ -1,12 +1,12 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Track Order - PetMarkt-PH')
+@section('title', 'Track Order - Pet Markt-PH')
 
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
 /* ═══════════════════════════════════════════════════════
-   PREMIUM ORDER TRACKING PAGE — PetMarkt-PH
+   PREMIUM ORDER TRACKING PAGE — Pet Markt-PH
    ═══════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
@@ -317,8 +317,10 @@
     width: 54px;
     height: 54px;
     border-radius: 10px;
-    object-fit: cover;
-    background: #f5f5f5;
+    object-fit: contain;
+    background: #f9f9f9;
+    padding: 3px;
+    box-sizing: border-box;
     flex-shrink: 0;
 }
 .track-item-name { font-size: 13px; font-weight: 600; color: #222; }
@@ -420,7 +422,7 @@
             <span>🧾</span>
             <span>{{ $order->order_id }}</span>
             <span style="margin-left: 8px; padding-left: 8px; border-left: 1px solid rgba(46,125,50,.3);">
-                {{ ucfirst(str_replace('_', ' ', $order->order_status)) }}
+                {{ $order->status_label }}
             </span>
         </div>
     </div>
@@ -462,7 +464,7 @@
             <div class="eta-cell">
                 <div class="label">Arrives At</div>
                 <div class="value" id="etaArriveAt" style="font-size:16px;">—</div>
-                <div class="sub" id="etaMethod">{{ ucfirst($order->shipping_method ?? 'Standard') }}</div>
+                <div class="sub" id="etaMethod">{{ $order->isLocal() ? 'Local Delivery' : 'Courier Shipping' }}</div>
             </div>
         </div>
 
@@ -573,7 +575,7 @@
         </div>
         <div class="detail-row">
             <span class="detail-label">Status</span>
-            <span class="detail-value status-badge badge-{{ $order->order_status }}">{{ ucfirst(str_replace('_', ' ', $order->order_status)) }}</span>
+            <span class="detail-value status-badge badge-{{ $order->order_status }}">{{ $order->status_label }}</span>
         </div>
         <div class="detail-row">
             <span class="detail-label">Payment</span>
@@ -581,7 +583,7 @@
         </div>
         <div class="detail-row">
             <span class="detail-label">Shipping</span>
-            <span class="detail-value">{{ ucfirst($order->shipping_method ?? 'Standard') }} Delivery</span>
+            <span class="detail-value">{{ $order->isLocal() ? 'Local Delivery' : 'Courier Shipping' }}</span>
         </div>
         @if($order->tracking_number)
         <div class="detail-row">
@@ -643,7 +645,7 @@
     const ORDER_ID = '{{ $order->order_id }}';
     const TRACKING_URL = '{{ route("order.tracking-data", $order->order_id) }}';
 
-    // Origin: PetMarkt-PH store — Libertad, Butuan City
+    // Origin: Pet Markt-PH store — Libertad, Butuan City
     const STORE = { lat: 8.9475, lng: 125.5406 };
 
     // Destination from server
@@ -705,7 +707,7 @@
 
     // Store and destination markers
     L.marker([STORE.lat, STORE.lng], { icon: storeIcon })
-        .addTo(map).bindPopup('<b>🏪 PetMarkt-PH Store</b><br>Libertad, Butuan City');
+        .addTo(map).bindPopup('<b>🏪 Pet Markt-PH Store</b><br>Libertad, Butuan City');
 
     let destMarker = L.marker([DEST.lat, DEST.lng], { icon: destIcon })
         .addTo(map).bindPopup('<b>📍 ' + RECIPIENT + '</b><br>' + FULL_ADDR);
@@ -920,7 +922,7 @@
                 if (isDelivered && pollInterval) {
                     clearInterval(pollInterval);
                     pollInterval = null;
-                    showNotif('success', '✅ Your order has been delivered! Thank you for shopping at PetMarkt-PH.');
+                    showNotif('success', '✅ Your order has been delivered! Thank you for shopping at Pet Markt-PH.');
                 }
             })
             .catch(() => { /* silent fail — retry next interval */ });
@@ -944,7 +946,7 @@
             showNotif('info', '🛵 A rider has been assigned to your order!');
         } else if (newStatus === 'delivered') {
             showNotif('success', '✅ Your order has been delivered!');
-            requestBrowserNotification('Order Delivered!', 'Your PetMarkt-PH order has arrived.');
+            requestBrowserNotification('Order Delivered!', 'Your Pet Markt-PH order has arrived.');
         }
     }
 
@@ -959,7 +961,7 @@
 
     function requestBrowserNotification(title, body) {
         if (!('Notification' in window)) return;
-        const send = () => new Notification('🐾 PetMarkt-PH — ' + title, { body, tag: 'order-' + ORDER_ID });
+        const send = () => new Notification('🐾 Pet Markt-PH — ' + title, { body, tag: 'order-' + ORDER_ID });
         if (Notification.permission === 'granted') send();
         else if (Notification.permission !== 'denied') Notification.requestPermission().then(p => { if (p === 'granted') send(); });
     }

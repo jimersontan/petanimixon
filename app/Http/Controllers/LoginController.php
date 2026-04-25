@@ -61,17 +61,20 @@ class LoginController extends Controller
             return redirect()->back()->withErrors(['password' => 'Invalid credentials'])->withInput();
         }
 
-        Auth::login($user, $request->has('remember'));
+        // Block rider accounts from using the customer login — they must use /rider/login
+        if ($user->isRider()) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Delivery riders must log in at the Rider Portal.'], 403);
+            }
+            return redirect()->route('rider.login')->with('error', 'This is a Rider account. Please log in here instead.');
+        }
+
+        Auth::login($user, $request->boolean('remember'));
 
         if ($request->wantsJson() || $request->ajax()) {
-            $redirect = $user->isRider() ? route('rider.dashboard') : route('home');
-            return response()->json(['success' => true, 'redirect' => $redirect]);
+            return response()->json(['success' => true, 'redirect' => route('home')]);
         }
 
-        if ($user->isRider()) {
-            return redirect()->route('rider.dashboard')->with('success', 'Welcome back, rider!');
-        }
-        
         return redirect()->route('home')->with('success', 'Logged in successfully.');
     }
 

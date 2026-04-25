@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log In - PetMarkt-PH</title>
+    <title>Log In - Pet Markt-PH</title>
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
     <link rel="stylesheet" href="{{ asset('css/animations.css') }}">
 </head>
@@ -14,7 +14,7 @@
         <div class="login-left gradient-orange">
             <div class="left-content">
                 <div class="brand-logo" style="display:flex; align-items:center; gap:0;">
-                    <img src="{{ asset('images/logo.png') }}" alt="PetMarkt-PH Logo"
+                    <img src="{{ asset('images/logo.png') }}" alt="Pet Markt-PH Logo"
                         style="max-height: 64px; margin-right: -10px;">
                     <h1 style="margin:0; font-size:30px;">Pet <span style="color: #e9f2ea;">Markt-PH</span></h1>
                 </div>
@@ -84,6 +84,7 @@
                     <div style="display: flex; gap: 16px;">
                         <a href="{{ route('password.request') }}" class="forgot-password">Forgot Password?</a>
                         <a href="{{ route('admin.login') }}" class="forgot-password">Log In As Admin</a>
+                        <a href="{{ route('rider.login') }}" class="forgot-password">Log In As Rider</a>
                     </div>
                 </div>
 

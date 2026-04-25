@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Free Trial - PetMarkt-PH')
+@section('title', 'Free Trial - Pet Markt-PH')
 
 @push('styles')
 <style>
@@ -168,7 +168,7 @@
             <div class="step-num">1</div>
             <span class="step-icon">📝</span>
             <h3>Sign Up</h3>
-            <p>Create your free PetMarkt-PH account and browse eligible trial products.</p>
+            <p>Create your free Pet Markt-PH account and browse eligible trial products.</p>
         </div>
         <div class="trial-step">
             <div class="step-num">2</div>

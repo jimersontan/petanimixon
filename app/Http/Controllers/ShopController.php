@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\AnimalType;
 use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Support\Facades\Schema;
 
 class ShopController extends Controller
 {
@@ -39,11 +41,15 @@ class ShopController extends Controller
             ->get();
 
         // Animal types for homepage categories icons
-        $animalTypes = \DB::table('animal_types')
-            ->where('status', 'Active')
+        $animalTypesQuery = AnimalType::query()
             ->orderBy('sort_order')
-            ->orderBy('id')
-            ->get();
+            ->orderBy('id');
+
+        if (Schema::hasColumn('animal_types', 'status')) {
+            $animalTypesQuery->where('status', 'Active');
+        }
+
+        $animalTypes = $animalTypesQuery->get();
 
         // Homepage promo coupons (linked to specific products)
         $promoCoupons = \App\Models\Coupon::where('show_on_homepage', true)
@@ -65,7 +71,7 @@ class ShopController extends Controller
         // Featured sale products for homepage right side (max 2)
         $featuredSaleProducts = Product::where('product_status', 'active')
             ->where('is_reduced', true)
-            ->where('is_featured', true)
+            // ->where('is_featured', true)
             ->orderByDesc('updated_at')
             ->limit(2)
             ->get();
@@ -88,6 +94,16 @@ class ShopController extends Controller
     public function shop(Request $request)
     {
         $query = Product::where('product_status', 'active');
+
+        // Text search
+        if ($request->has('q') && !empty(trim($request->input('q')))) {
+            $searchTerm = trim($request->input('q'));
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('product_name', 'like', "%{$searchTerm}%")
+                  ->orWhere('description', 'like', "%{$searchTerm}%")
+                  ->orWhere('brand_name', 'like', "%{$searchTerm}%");
+            });
+        }
 
         // Filter by brand
         if ($request->has('brand') && !empty($request->input('brand'))) {
@@ -170,7 +186,7 @@ class ShopController extends Controller
                 $query->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc');
         }
 
-        $products = $query->paginate(24);
+        $products = $query->paginate(24)->appends($request->query());
         
         $categories = Category::where('is_active', true)
             ->withCount(['products' => function($q) {
@@ -192,11 +208,29 @@ class ShopController extends Controller
             ->orderBy('animal_type')
             ->get();
 
+        // Featured / popular products for the hero section
+        $featuredProducts = Product::where('product_status', 'active')
+            ->where('is_featured', true)
+            ->orderBy('created_at', 'desc')
+            ->limit(6)
+            ->get();
+        // If fewer than 6 featured, fill with latest active products
+        if ($featuredProducts->count() < 6) {
+            $existingIds = $featuredProducts->pluck('id')->toArray();
+            $fillProducts = Product::where('product_status', 'active')
+                ->whereNotIn('id', $existingIds)
+                ->orderBy('created_at', 'desc')
+                ->limit(6 - $featuredProducts->count())
+                ->get();
+            $featuredProducts = $featuredProducts->merge($fillProducts);
+        }
+
         return view('frontend.shop', [
             'products' => $products,
             'categories' => $categories,
             'brands' => $brands,
             'petTypes' => $petTypes,
+            'featuredProducts' => $featuredProducts,
         ]);
     }
 

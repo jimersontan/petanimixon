@@ -49,6 +49,21 @@
 </div>
 <!-- ===== END PAGE HEADER SECTION ===== -->
 
+<!-- ===== ALERTS AND NOTIFICATIONS ===== -->
+@if(session('success'))
+    <div class="alert alert-success" style="padding: 16px; margin-bottom: 24px; border-radius: 8px; background-color: #dcfce3; color: #166534; border: 1px solid #bbf7d0; font-weight: 500; display: flex; align-items: center; gap: 10px;">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        {{ session('success') }}
+    </div>
+@endif
+@if(session('error'))
+    <div class="alert alert-danger" style="padding: 16px; margin-bottom: 24px; border-radius: 8px; background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; font-weight: 500; display: flex; align-items: center; gap: 10px;">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
+        {{ session('error') }}
+    </div>
+@endif
+<!-- ===== END ALERTS ===== -->
+
 <!-- ===== METRICS CARDS SECTION ===== -->
 <!-- Four summary cards: Total Products, Active, Low Stock, Out of Stock -->
 <div class="metrics-grid">
@@ -182,7 +197,7 @@
                     <!-- Product Name and SKU -->
                     <td>
                         <div class="product-cell">
-                            <img src="{{ $product->image_url }}" alt="Product Thumb" class="product-thumb-sm" style="object-fit: cover;">
+                            <img src="{{ $product->image_url }}" alt="Product Thumb" class="product-thumb-sm" style="object-fit: cover;" onerror="this.onerror=null; this.src='{{ asset('images/placeholder.png') }}';">
                             <span class="product-meta">
                                 <span class="product-name">{{ $product->product_name ?? '' }}</span>
                                 <span class="product-sku">SKU: {{ $product->sku ?? '' }}</span>
@@ -240,10 +255,27 @@
                                 "image_url" => $product->image_url,
                                 "animal_image_url" => $product->animal_image_url,
                                 "wet_or_dry" => $product->wet_or_dry,
+                                "weight_variants" => $product->variants
+                                    ->filter(fn($v) => $v->uom !== null)
+                                    ->map(function($v) {
+                                        $specs = json_decode($v->specifications, true);
+                                        $val = $specs['variant_value'] ?? $specs['weight_value'] ?? null;
+                                        if ($val === null) {
+                                            $val = preg_replace('/\s*(KG|G|Lbs|Oz|Size|Color|Flavor|Material|Type):?\s*/i', '', $v->variant_name);
+                                            $val = trim($val);
+                                        }
+                                        return [
+                                            'value' => $val, 
+                                            'unit' => $v->uom,
+                                            'price' => $v->variant_price,
+                                            'stock' => $v->variant_quantity,
+                                        ];
+                                    })->values()->toArray(),
                             ];
                         @endphp
                         <button type="button" class="action-btn" title="Edit" aria-label="Edit product"
-                            onclick='openProductModal("edit", {!! json_encode($prodData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!})'>
+                            data-product="{{ json_encode($prodData) }}"
+                            onclick="openProductModal('edit', JSON.parse(this.dataset.product))">
                             <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                         </button>
                         <!-- Draft Button: Only for non-draft products -->
@@ -311,7 +343,7 @@
 <div class="modal-backdrop {{ $errors->any() ? 'open' : '' }}" data-modal-id="product-modal"></div>
 
 <!-- Modal Container -->
-<div id="product-modal" class="modal {{ $errors->any() ? 'open' : '' }}" style="max-width: 800px; width: 95%;" role="dialog" aria-modal="true" aria-labelledby="productModalTitle" tabindex="-1">
+<div id="product-modal" class="modal {{ $errors->any() ? 'open' : '' }}" style="max-width: 1000px; width: 95%;" role="dialog" aria-modal="true" aria-labelledby="productModalTitle" tabindex="-1">
 
     <!-- Modal Header: Title and Close Button -->
     <div class="modal-header">
@@ -322,9 +354,16 @@
 
     <!-- Modal Body: Contains the product form -->
     <div class="modal-body">
-        <form id="productModalForm" action="{{ route('inventory.store') }}" method="POST" enctype="multipart/form-data">
+        <form id="productModalForm" action="{{ old('_method') === 'PUT' ? route('inventory.update', old('product_id')) : route('inventory.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
-            <div id="productMethodContainer"></div>
+            
+            <div id="productMethodContainer">
+                @if(old('_method') === 'PUT')
+                    <input type="hidden" name="_method" value="PUT">
+                @endif
+            </div>
+            <input type="hidden" name="product_id" id="product_id_input" value="{{ old('product_id', '') }}">
+            
             <!-- Include the reusable product form partial -->
             @include('products._form', ['product' => new \App\Models\Product()])
 
@@ -354,26 +393,26 @@
     document.addEventListener('DOMContentLoaded', function() {
         const categorySelect = document.getElementById('animal_category_id');
         const wetOrDryGroup = document.getElementById('wetOrDryGroup');
+        // variantGroup is always visible now
         
         // Function to check if "Food & Nutrition" is selected and show/hide field
         function toggleWetOrDryField() {
-            if (!categorySelect || !wetOrDryGroup) return;
+            if (!categorySelect) return;
             
             let selectedText = '';
             if (categorySelect.tagName === 'SELECT') {
                 const selectedOption = categorySelect.options[categorySelect.selectedIndex];
                 selectedText = selectedOption ? selectedOption.text : '';
-            } else {
-                // It's a hidden input, find the active chip
-                const activeChip = document.querySelector('.category-chip[data-id="' + categorySelect.value + '"]');
-                selectedText = activeChip ? activeChip.textContent : '';
             }
             
             // Show the field if "Food & Nutrition" is selected
             if (selectedText.includes('Food & Nutrition') || selectedText.includes('Food &') ) {
-                wetOrDryGroup.style.display = 'block';
+                if(wetOrDryGroup) wetOrDryGroup.style.display = 'block';
+                
             } else {
-                wetOrDryGroup.style.display = 'none';
+                if(wetOrDryGroup) wetOrDryGroup.style.display = 'none';
+                
+                
                 // Clear the value when hiding
                 const wetOrDrySelect = document.getElementById('wet_or_dry');
                 if (wetOrDrySelect) {
@@ -419,6 +458,7 @@
             submitBtn.textContent = 'Save Product';
             form.action = "{{ route('inventory.store') }}";
             methodContainer.innerHTML = '';
+            document.getElementById('product_id_input').value = '';
             
             // Set simple defaults
             const statusSelect = document.getElementById('status');
@@ -426,12 +466,15 @@
             
             // Trigger update for new form state
             if (window.updateChips) window.updateChips();
+            // Clear weight chips for new product
+            
             
         } else if (mode === 'edit' && data) {
             title.textContent = 'Edit Product';
             submitBtn.textContent = 'Save Changes';
             form.action = `/admin/inventory/${data.id}`;
             methodContainer.innerHTML = '<input type="hidden" name="_method" value="PUT">';
+            document.getElementById('product_id_input').value = data.id;
             
             // Set text and select inputs
             const fields = {
@@ -461,6 +504,13 @@
             
             // Update chips and life stage selectors
             if (window.updateChips) window.updateChips(data.animal_life_stages || {});
+            
+            // Pre-populate weight variant chips from existing data
+            if (window.setWeightChips && data.weight_variants && data.weight_variants.length > 0) {
+                window.setWeightChips(data.weight_variants);
+            } else if (window.clearWeightChips) {
+                window.clearWeightChips();
+            }
             
             // Handle image preview
             if (data.image_url) {

@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'FAQ - PetMarkt-PH')
+@section('title', 'FAQ - Pet Markt-PH')
 
 @push('styles')
 <style>
@@ -68,7 +68,7 @@
 <div class="faq-hero">
     <div class="faq-hero-wave"></div>
     <h1>🐾 Frequently Asked Questions</h1>
-    <p>Everything you need to know about shopping at PetMarkt-PH</p>
+    <p>Everything you need to know about shopping at Pet Markt-PH</p>
 </div>
 
 <div class="faq-container">

@@ -1,0 +1,23 @@
+=== ORDERS TABLE COLUMNS ===
+id, user_id, rider_id, order_id, order_number, order_status, order_amount, tax_amount, total_amount, discount_amount, shipping_fee, shipping_method, shipping_type, courier_id, voucher_code, payment_method, payment_status, shipping_address_id, billing_address_id, tracking_number, estimated_delivery_date, actual_delivery_date, rider_picked_up_at, rider_delivered_at, rider_notes, rider_lat, rider_lng, estimated_delivery_minutes, delivery_started_at, customer_notes, delivery_instructions, special_requests, item_status, cancellation_reason, created_at, updated_at
+
+=== ALL ORDERS ===
+ID:2 | Status:pending | ship_type:local | ship_method: | rider: | user:17
+ID:1 | Status:pending | ship_type:local | ship_method: | rider: | user:17
+Total orders: 2
+
+=== RIDER ACCOUNTS ===
+ID:19 | Jimerson Tan | type:rider | status:active | email:jimersontan@gmail.com
+Total riders: 1
+
+=== POOL QUERY (status=assigned_to_rider, type=local, rider_id=NULL) ===
+Pool count: 0
+
+=== POOL QUERY WITHOUT SHIPPING_TYPE FILTER ===
+Pool count (no type filter): 0
+
+=== DISTINCT shipping_type VALUES ===
+local
+
+=== DISTINCT shipping_method VALUES ===
+

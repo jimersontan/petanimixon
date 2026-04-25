@@ -23,16 +23,44 @@ class DashboardController extends Controller
         $totalRevenue = Order::where('payment_status', Order::PAYMENT_PAID)->sum('total_amount');
         $totalOrders = Order::count();
         $newCustomers = User::where('is_admin', false)->count();
+        $totalProducts = Product::count();
         $avgOrderValue = $totalOrders > 0 ? round($totalRevenue / $totalOrders, 2) : 0;
+        
+        $pendingOrdersCount = Order::where('order_status', 'pending')->count();
+        $pendingOrdersRevenue = Order::where('order_status', 'pending')->sum('total_amount');
+        
+        $processingCount = Order::whereIn('order_status', ['confirmed', 'preparing'])->count();
+        $processingRevenue = Order::whereIn('order_status', ['confirmed', 'preparing'])->sum('total_amount');
+        
+        $transitCount = Order::whereIn('order_status', ['out_for_delivery', 'shipped', 'in_transit', 'assigned_to_rider', 'rider_confirmed', 'handed_to_courier'])->count();
+        $transitRevenue = Order::whereIn('order_status', ['out_for_delivery', 'shipped', 'in_transit', 'assigned_to_rider', 'rider_confirmed', 'handed_to_courier'])->sum('total_amount');
+        
+        $completedCount = Order::where('order_status', 'delivered')->count();
+        $completedRevenue = Order::where('order_status', 'delivered')->sum('total_amount');
 
         // Top products (by quantity sold)
         $topProducts = DB::table('order_items')
             ->join('products', 'order_items.product_id', '=', 'products.id')
-            ->select('products.product_name', 'products.animal_image_url', DB::raw('SUM(order_items.quantity) as total_sold'))
-            ->groupBy('products.id', 'products.product_name', 'products.animal_image_url')
+            ->select('products.product_name', 'products.animal_image_url', 'products.price', DB::raw('SUM(order_items.quantity) as total_sold'))
+            ->groupBy('products.id', 'products.product_name', 'products.animal_image_url', 'products.price')
             ->orderByDesc('total_sold')
             ->limit(5)
-            ->get();
+            ->get()
+            ->map(function($product) {
+                $raw = $product->animal_image_url;
+                if (empty($raw)) {
+                    $product->image_url = asset('images/placeholder.png');
+                } elseif (strpos($raw, 'http') === 0) {
+                    $product->image_url = $raw;
+                } else {
+                    $raw = str_replace('\\', '/', trim((string) $raw));
+                    $raw = ltrim($raw, '/');
+                    if (strpos($raw, 'storage/') === 0) $raw = substr($raw, 8);
+                    elseif (strpos($raw, 'public/') === 0) $raw = substr($raw, 7);
+                    $product->image_url = asset('storage/' . ltrim($raw, '/'));
+                }
+                return $product;
+            });
 
         // Recent orders (last 5)
         $recentOrders = Order::with('user')
@@ -50,9 +78,62 @@ class DashboardController extends Controller
             ->sortBy('variants_sum_variant_quantity')
             ->take(5);
 
+        // Calculate weekly revenue data for the chart
+        $weeklyData = [];
+        $weeklyLabels = [];
+        $startOfMonth = $now->copy()->startOfMonth();
+        $endOfMonth = $now->copy()->endOfMonth();
+        $week = 1;
+        $cursor = $startOfMonth->copy();
+        while ($cursor->lte($endOfMonth)) {
+            $weekEnd = $cursor->copy()->addDays(6)->min($endOfMonth);
+            $rev = Order::where('payment_status', Order::PAYMENT_PAID)
+                ->whereBetween('created_at', [$cursor, $weekEnd->copy()->endOfDay()])
+                ->sum('total_amount');
+            
+            // Push the raw amount data for chart mapping
+            $weeklyData[] = round($rev, 2); 
+            $weeklyLabels[] = 'Week ' . $week;
+            
+            $cursor = $weekEnd->copy()->addDay();
+            $week++;
+        }
+        $weeklyRevenueData = json_encode(['labels' => $weeklyLabels, 'data' => $weeklyData]);
+
+        // Delivery Performance Metrics
+        $deliveredOrders = Order::whereNotNull('rider_delivered_at')->whereNotNull('delivery_started_at')->get();
+        $totalDeliveryTime = 0;
+        $onTimeDeliveries = 0;
+
+        foreach ($deliveredOrders as $order) {
+            $taken = $order->delivery_started_at->diffInMinutes($order->rider_delivered_at);
+            $totalDeliveryTime += $taken;
+            
+            $estimatedWait = (int) $order->estimated_delivery_minutes > 0 ? $order->estimated_delivery_minutes : 60;
+            if ($taken <= $estimatedWait + 5) { // 5 mins grace period
+                $onTimeDeliveries++;
+            }
+        }
+
+        $avgDeliveryTime = $deliveredOrders->count() > 0 ? round($totalDeliveryTime / $deliveredOrders->count()) : 0;
+        $onTimeRate = $deliveredOrders->count() > 0 ? round(($onTimeDeliveries / $deliveredOrders->count()) * 100) : 100;
+        
+        $activeRiders = Order::whereNotNull('rider_id')
+            ->whereIn('order_status', ['out_for_delivery', 'in_transit', 'assigned_to_rider', 'rider_confirmed'])
+            ->distinct('rider_id')
+            ->count('rider_id');
+
+        $totalCancelled = Order::where('order_status', 'cancelled')->count();
+        $successRate = ($completedCount + $totalCancelled) > 0 
+            ? round(($completedCount / ($completedCount + $totalCancelled)) * 100) 
+            : 100;
+
         return view('dashboard_admin', compact(
-            'totalRevenue', 'totalOrders', 'newCustomers', 'avgOrderValue',
-            'topProducts', 'recentOrders', 'lowStock'
+            'totalRevenue', 'totalOrders', 'newCustomers', 'totalProducts', 'avgOrderValue',
+            'pendingOrdersCount', 'pendingOrdersRevenue', 'processingCount', 'processingRevenue',
+            'transitCount', 'transitRevenue', 'completedCount', 'completedRevenue',
+            'topProducts', 'recentOrders', 'lowStock', 'weeklyRevenueData',
+            'avgDeliveryTime', 'onTimeRate', 'activeRiders', 'successRate'
         ));
     }
 
@@ -94,6 +175,18 @@ class DashboardController extends Controller
                 $labels[] = 'Week ' . $week;
                 $cursor = $weekEnd->copy()->addDay();
                 $week++;
+            }
+        } elseif ($type === '3days') {
+            // Revenue for last 3 days
+            $data = [];
+            $labels = [];
+            for ($d = 2; $d >= 0; $d--) {
+                $day = $now->copy()->subDays($d);
+                $rev = Order::where('payment_status', Order::PAYMENT_PAID)
+                    ->whereDate('created_at', $day->toDateString())
+                    ->sum('total_amount');
+                $data[] = round($rev / 1000, 1);
+                $labels[] = $day->format('D, M d');
             }
         } else {
             // Revenue per day for current week

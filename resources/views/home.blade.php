@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - PetMarkt-PH</title>
+    <title>Home - Pet Markt-PH</title>
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
     <style>
         .home-header {
@@ -107,7 +107,7 @@
 
 <body>
     <header class="home-header">
-        <span class="brand">PetMarkt-PH</span>
+        <span class="brand">Pet Markt-PH</span>
         <nav class="home-nav">
             <a href="{{ route('home') }}">Home</a>
             <a href="{{ route('orders') }}">My Orders</a>
@@ -124,7 +124,7 @@
         @if(session('message'))
             <div class="msg">{{ session('message') }}</div>
         @endif
-        <h1>Welcome to PetMarkt-PH!</h1>
+        <h1>Welcome to Pet Markt-PH!</h1>
         <p>Hi {{ Auth::user()->full_name ?? Auth::user()->email }}, browse pet products and shop for your furry friends.
         </p>
         <div class="home-actions">

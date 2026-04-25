@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('title', $product->product_name . ' - PetMarkt-PH')
+@section('title', $product->product_name . ' - Pet Markt-PH')
 
 @section('content')
 <div class="pd-page">

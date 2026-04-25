@@ -17,7 +17,7 @@ class CreateAdminSeeder extends Seeder
         $adminData = [
             'first_name' => 'Admin',
             'last_name' => 'User',
-            'password' => Hash::make('Admin@123456'),
+            'password' => Hash::make('password123'),
             'user_type' => 'admin',
             'is_admin' => true,
             'email_verified_at' => $now,
@@ -72,8 +72,32 @@ class CreateAdminSeeder extends Seeder
             User::create($userData);
         }
 
+        // Test rider data
+        $riderData = [
+            'first_name' => 'Test',
+            'last_name' => 'Rider',
+            'password' => Hash::make('Rider@123456'),
+            'user_type' => 'rider',
+            'is_admin' => false,
+            'email_verified_at' => $now,
+        ];
+        
+        if (\Schema::hasColumn('users', 'name')) {
+            $riderData['name'] = 'Test Rider';
+        }
+
+        // Update or create test rider
+        $rider = User::where('email', 'rider@petmarkt.com')->first();
+        if ($rider) {
+            $rider->update($riderData);
+        } else {
+            $riderData['email'] = 'rider@petmarkt.com';
+            User::create($riderData);
+        }
+
         echo "Admin user seeded successfully!" . PHP_EOL;
-        echo "Admin: admin@petmrkt.com | Password: Admin@123456" . PHP_EOL;
+        echo "Admin: admin@petmrkt.com | Password: password123" . PHP_EOL;
         echo "Test User: user@petmarkt.com | Password: User@123456" . PHP_EOL;
+        echo "Test Rider: rider@petmarkt.com | Password: Rider@123456" . PHP_EOL;
     }
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brands - PetMarkt-PH Admin</title>
+    <title>Brands - Pet Markt-PH Admin</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/orders.css') }}">
 </head>
@@ -13,7 +13,7 @@
         <div class="header-left">
             <div class="logo" style="display:flex; align-items:center; gap:8px;">
                 <img src="{{ asset('images/logo.png') }}" alt="Logo" style="max-height: 28px;">
-                <span class="logo-text" style="color:#1f2937;">Pet <span style="color: #ea580c;">Markt-PH</span></span>
+                <span class="logo-text" style="color:#1f2937;">Pet <span style="color: var(--ud-orange-dark);">Markt-PH</span></span>
             </div>
         </div>
         <div class="header-center">
@@ -28,9 +28,6 @@
             </button>
             <button type="button" class="icon-btn" aria-label="Profile">
                 <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            </button>
-            <button type="button" class="icon-btn" aria-label="Settings">
-                <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M11.4 24H0V12.6h2.4v9.4h9v2.4zm12-12H12.6V0H24v2.4h-9.6v9.6H24V12zM2.4 9.6V0h2.4v9.6H2.4zm19.2 0V0H24v9.6h-2.4zM9.6 2.4V0h4.8v2.4H9.6zm4.8 19.2v-2.4h4.8V24h-4.8z"/></svg>
             </button>
         </div>
     </header>
@@ -101,6 +98,7 @@
                         </thead>
                         <tbody>
                             @forelse(($brands ?? []) as $brand)
+                            @php /** @var \App\Models\Brand $brand */ @endphp
                             <tr>
                                 <td>{{ $brand->name ?? '—' }}</td>
                                 <td>{{ $brand->products_count ?? 0 }}</td>

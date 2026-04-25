@@ -23,4 +23,32 @@ class Brand extends Model
     {
         return $this->hasMany(Product::class, 'brand_name', 'name');
     }
+
+    /**
+     * Full public URL for the brand logo.
+     * Normalizes stored paths (e.g. "brands/abc.jpg", "/storage/brands/abc.jpg").
+     */
+    public function getLogoFullUrlAttribute(): string
+    {
+        $raw = $this->logo_path;
+
+        if (empty($raw)) {
+            return '';
+        }
+
+        $raw = str_replace('\\', '/', trim((string) $raw));
+
+        if (strpos($raw, 'http://') === 0 || strpos($raw, 'https://') === 0) {
+            return $raw;
+        }
+
+        $raw = ltrim($raw, '/');
+        if (strpos($raw, 'storage/') === 0) {
+            $raw = substr($raw, strlen('storage/'));
+        } elseif (strpos($raw, 'public/') === 0) {
+            $raw = substr($raw, strlen('public/'));
+        }
+
+        return asset('storage/' . ltrim($raw, '/'));
+    }
 }

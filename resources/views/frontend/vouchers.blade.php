@@ -1,12 +1,12 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Vouchers & Promos - PetMarkt-PH')
+@section('title', 'Vouchers & Promos - Pet Markt-PH')
 
 @section('content')
-<div class="vouchers-container" style="max-width: 1000px; margin: 40px auto; padding: 0 20px;">
+<div class="vouchers-container" style="width: 100%; margin: 40px 0; padding: 0 2rem;">
     {{-- Header Section --}}
     <div class="vouchers-header" style="text-align: center; margin-bottom: 50px;">
-        <h1 style="font-size: 36px; color: #1a1a2e; margin-bottom: 12px; font-weight: 800;">Activate Your <span style="color: #ea580c;">Voucher</span></h1>
+        <h1 style="font-size: 36px; color: #1a1a2e; margin-bottom: 12px; font-weight: 800;">Activate Your <span style="color: var(--ud-orange-dark);">Voucher</span></h1>
         <p style="font-size: 16px; color: #666; max-width: 600px; margin: 0 auto;">Enter your promo code below to unlock exclusive discounts on your next order. Activated vouchers are automatically applied at checkout! 🐾</p>
     </div>
 
@@ -23,7 +23,7 @@
                 <input type="text" id="voucherInput" placeholder="PASTE CODE HERE (e.g. PETLOVE15)" 
                     value="{{ session('active_voucher') }}"
                     style="width: 100%; padding: 18px 24px; font-size: 18px; font-weight: 700; text-transform: uppercase; border: 2px solid #e5e7eb; border-radius: 16px; outline: none; transition: all 0.3s; text-align: center; letter-spacing: 1px;">
-                <div id="vInputFocus" style="position: absolute; inset: -4px; border-radius: 20px; border: 2px solid #ea580c; opacity: 0; pointer-events: none; transition: all 0.3s;"></div>
+                <div id="vInputFocus" style="position: absolute; inset: -4px; border-radius: 20px; border: 2px solid var(--ud-orange-dark); opacity: 0; pointer-events: none; transition: all 0.3s;"></div>
             </div>
 
             <button type="submit" id="submitBtn" class="ud-btn ud-btn-primary" style="width: 100%; padding: 16px; font-size: 18px; font-weight: 700; border-radius: 16px; box-shadow: 0 6px 20px rgba(234, 88, 12, 0.3); transition: all 0.3s;">
@@ -56,11 +56,11 @@
         </h2>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;">
             @foreach($availableCoupons as $coupon)
-            <div class="voucher-card" style="background: #fff; border: 1px dashed #ea580c; border-radius: 16px; padding: 20px; transition: all 0.3s; position: relative; overflow: hidden; cursor: pointer;" onclick="copyCode('{{ $coupon->coupon_code }}')">
+            <div class="voucher-card" style="background: #fff; border: 1px dashed var(--ud-orange-dark); border-radius: 16px; padding: 20px; transition: all 0.3s; position: relative; overflow: hidden; cursor: pointer;" onclick="copyCode('{{ $coupon->coupon_code }}')">
                 <div style="background: #fff7ed; position: absolute; top: -10px; right: -10px; width: 40px; height: 40px; border-radius: 50%;"></div>
                 <div style="background: #fff7ed; position: absolute; bottom: -10px; left: -10px; width: 40px; height: 40px; border-radius: 50%;"></div>
                 
-                <div style="font-size: 13px; color: #ea580c; font-weight: 700; margin-bottom: 4px;">{{ $coupon->coupon_name }}</div>
+                <div style="font-size: 13px; color: var(--ud-orange-dark); font-weight: 700; margin-bottom: 4px;">{{ $coupon->coupon_name }}</div>
                 <div style="font-size: 22px; font-weight: 800; color: #1a1a2e; margin-bottom: 12px;">
                     @if($coupon->discount_type === 'percent')
                         {{ (int)$coupon->discount_amount }}% OFF
@@ -68,7 +68,7 @@
                         ₱{{ number_format($coupon->discount_amount) }} OFF
                     @endif
                 </div>
-                <div style="background: #fdf2f8; color: #ea580c; border: 1px solid #ffedd5; padding: 8px 12px; border-radius: 8px; font-family: monospace; font-size: 16px; font-weight: 700; text-align: center;">
+                <div style="background: #fdf2f8; color: var(--ud-orange-dark); border: 1px solid #ffedd5; padding: 8px 12px; border-radius: 8px; font-family: monospace; font-size: 16px; font-weight: 700; text-align: center;">
                     {{ $coupon->coupon_code }}
                 </div>
                 <p style="font-size: 11px; color: #888; margin-top: 10px; text-align: center;">Click to copy and paste above!</p>
@@ -81,7 +81,7 @@
 
 <style>
     .voucher-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); background: #fffcf8; }
-    #voucherInput:focus { border-color: #ea580c; box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.1); }
+    #voucherInput:focus { border-color: var(--ud-orange-dark); box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.1); }
     .animate-spin { animation: spin 1s linear infinite; }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 </style>

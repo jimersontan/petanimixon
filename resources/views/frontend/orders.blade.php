@@ -1,16 +1,16 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'My Orders - PetMarkt-PH')
+@section('title', 'My Orders - Pet Markt-PH')
 
 @push('styles')
 <style>
 /* ── Orders Page ── */
-.mo-page { max-width: 1100px; margin: 0 auto; padding: 32px 20px 60px; }
+.mo-page { width: 100%; padding: 32px 2rem 60px; }
 
 /* Header */
 .mo-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
 .mo-heading { font-size: 28px; font-weight: 800; color: #1a1a2e; }
-.mo-heading span { color: #E85D04; }
+.mo-heading span { color: var(--ud-orange); }
 .mo-subtitle { font-size: 14px; color: #888; margin-top: 4px; }
 
 /* Stats Cards */
@@ -19,12 +19,12 @@
     background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 18px 16px;
     display: flex; align-items: center; gap: 12px; transition: all 0.2s;
 }
-.mo-stat-card:hover { border-color: #E85D04; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(232,93,4,0.08); }
+.mo-stat-card:hover { border-color: var(--ud-orange); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(232,93,4,0.08); }
 .mo-stat-icon {
     width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
     font-size: 18px; flex-shrink: 0;
 }
-.mo-stat-icon.total { background: #e9f2ea; color: #E85D04; }
+.mo-stat-icon.total { background: #e9f2ea; color: var(--ud-orange); }
 .mo-stat-icon.pending { background: #fff8e1; color: #ff9800; }
 .mo-stat-icon.out_for_delivery { background: #e3f2fd; color: #1e88e5; }
 .mo-stat-icon.shipped { background: #f3e5f5; color: #9c27b0; }
@@ -40,8 +40,8 @@
     font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.2s;
     border: 1px solid transparent;
 }
-.mo-tab:hover { background: #fdf3ed; color: #E85D04; border-color: #fce0cc; }
-.mo-tab.active { background: #E85D04; color: #fff; border-color: #E85D04; }
+.mo-tab:hover { background: #fdf3ed; color: var(--ud-orange); border-color: #fce0cc; }
+.mo-tab.active { background: var(--ud-orange); color: #fff; border-color: var(--ud-orange); }
 .mo-tab .mo-tab-count {
     background: rgba(255,255,255,0.3); padding: 2px 8px; border-radius: 10px;
     font-size: 11px; margin-left: 0; line-height: 1; display: inline-flex; align-items: center; justify-content: center;
@@ -55,9 +55,9 @@
     background: #fff; border: 1px solid #eee; border-radius: 14px; padding: 20px 24px;
     transition: all 0.2s; position: relative; overflow: hidden;
 }
-.mo-order-card:hover { border-color: #E85D04; box-shadow: 0 6px 20px rgba(232,93,4,0.07); }
+.mo-order-card:hover { border-color: var(--ud-orange); box-shadow: 0 6px 20px rgba(232,93,4,0.07); }
 .mo-order-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
-.mo-order-id { font-weight: 700; font-size: 15px; color: #E85D04; text-decoration: none; }
+.mo-order-id { font-weight: 700; font-size: 15px; color: var(--ud-orange); text-decoration: none; }
 .mo-order-id:hover { text-decoration: underline; }
 .mo-order-date { font-size: 13px; color: #999; }
 .mo-badge {
@@ -92,8 +92,8 @@
     text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
 }
 .mo-btn-outline { background: #fff; color: #333; border: 1px solid #ddd; }
-.mo-btn-outline:hover { border-color: #E85D04; color: #E85D04; }
-.mo-btn-primary { background: #E85D04; color: #fff; }
+.mo-btn-outline:hover { border-color: var(--ud-orange); color: var(--ud-orange); }
+.mo-btn-primary { background: var(--ud-orange); color: #fff; }
 .mo-btn-primary:hover { background: #d14f00; }
 
 /* Empty state */
@@ -111,18 +111,18 @@
 /* Recommended Section */
 .mo-rec-section { margin-top: 56px; }
 .mo-rec-title { font-size: 22px; font-weight: 800; color: #1a1a2e; margin-bottom: 20px; }
-.mo-rec-title span { color: #E85D04; }
+.mo-rec-title span { color: var(--ud-orange); }
 .mo-rec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; }
 .mo-rec-card {
     background: #fff; border: 1px solid #eee; border-radius: 14px; overflow: hidden;
     text-decoration: none; color: inherit; transition: all 0.25s; display: block;
 }
-.mo-rec-card:hover { border-color: #E85D04; transform: translateY(-4px); box-shadow: 0 10px 24px rgba(232,93,4,0.1); }
+.mo-rec-card:hover { border-color: var(--ud-orange); transform: translateY(-4px); box-shadow: 0 10px 24px rgba(232,93,4,0.1); }
 .mo-rec-img-wrap { width: 100%; aspect-ratio: 1; overflow: hidden; background: #f9f9f9; position: relative; }
 .mo-rec-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
 .mo-rec-card:hover .mo-rec-img { transform: scale(1.06); }
 .mo-rec-body { padding: 14px 16px 18px; }
-.mo-rec-brand { font-size: 11px; color: #E85D04; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.mo-rec-brand { font-size: 11px; color: var(--ud-orange); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
 .mo-rec-name {
     font-size: 14px; font-weight: 600; color: #222; margin-bottom: 8px;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
@@ -131,7 +131,7 @@
 .mo-rec-rating { display: flex; align-items: center; gap: 4px; margin-bottom: 8px; font-size: 13px; }
 .mo-rec-stars { color: #facc15; }
 .mo-rec-count { color: #999; }
-.mo-rec-price { font-size: 18px; font-weight: 800; color: #E85D04; }
+.mo-rec-price { font-size: 18px; font-weight: 800; color: var(--ud-orange); }
 
 @media (max-width: 768px) {
     .mo-page { padding: 20px 14px 40px; }
@@ -237,9 +237,16 @@
                             </a>
                             <span class="mo-order-date">{{ $order->created_at->format('M j, Y · g:i A') }}</span>
                         </div>
-                        <span class="mo-badge {{ $order->order_status }}">
-                            {{ str_replace('_', ' ', $order->order_status) }}
-                        </span>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            @if($order->isLocal())
+                                <span class="mo-badge" style="background:#fef3c7; color:#d97706;">🛵 Local</span>
+                            @else
+                                <span class="mo-badge" style="background:#fce7f3; color:#be185d;">📦 Courier</span>
+                            @endif
+                            <span class="mo-badge {{ $order->order_status }}">
+                                {{ $order->status_label }}
+                            </span>
+                        </div>
                     </div>
 
                     {{-- Products Row --}}
@@ -249,7 +256,7 @@
                                 <img src="{{ optional($item->product)->image_url ?? asset('images/placeholder.png') }}" alt="" class="mo-product-img">
                                 <div>
                                     <div class="mo-product-name">{{ optional($item->product)->product_name ?? 'Product' }}</div>
-                                    <div class="mo-product-qty">x{{ $item->quantity }} · ₱{{ number_format($item->price ?? 0, 0) }}</div>
+                                    <div class="mo-product-qty">x{{ $item->quantity }} · ₱{{ number_format((float)($item->price ?? 0), 2) }}</div>
                                 </div>
                             </div>
                         @endforeach
@@ -262,7 +269,7 @@
                     <div class="mo-order-bottom">
                         <div>
                             <div class="mo-total-label">{{ $order->orderItems->count() }} {{ Str::plural('item', $order->orderItems->count()) }} · Order Total</div>
-                            <div class="mo-total-value">₱{{ number_format($order->total_amount, 2) }}</div>
+                            <div class="mo-total-value">₱{{ number_format((float)$order->total_amount, 2) }}</div>
                         </div>
                         <div class="mo-actions">
                             <a href="{{ route('order.track', $order->order_id) }}" class="mo-btn mo-btn-outline">📋 View Details</a>
@@ -299,7 +306,7 @@
                             <img src="{{ $product->image_url }}" alt="{{ $product->product_name }}" class="mo-rec-img">
                         </div>
                         <div class="mo-rec-body">
-                            <div class="mo-rec-brand">{{ $product->brand_name ?: 'PetMarkt-PH' }}</div>
+                            <div class="mo-rec-brand">{{ $product->brand_name ?: 'Pet Markt-PH' }}</div>
                             <h4 class="mo-rec-name">{{ $product->product_name }}</h4>
                             <div class="mo-rec-rating">
                                 <span class="mo-rec-stars">
@@ -309,7 +316,7 @@
                                 </span>
                                 <span class="mo-rec-count">({{ $product->reviews_count }})</span>
                             </div>
-                            <div class="mo-rec-price">₱{{ number_format($product->price, 0) }}</div>
+                            <div class="mo-rec-price">₱{{ number_format((float)$product->price, 2) }}</div>
                         </div>
                     </a>
                 @endforeach

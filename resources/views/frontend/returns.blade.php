@@ -1,21 +1,21 @@
 @extends('frontend.layouts.app')
-@section('title', 'My Returns - PetMarkt-PH')
+@section('title', 'My Returns - Pet Markt-PH')
 
 @push('styles')
 <style>
-.rt-page { max-width: 1100px; margin: 0 auto; padding: 32px 20px 60px; }
+.rt-page { width: 100%; padding: 32px 2rem 60px; }
 .rt-header { margin-bottom: 28px; }
 .rt-heading { font-size: 28px; font-weight: 800; color: #1a1a2e; }
-.rt-heading span { color: #E85D04; }
+.rt-heading span { color: var(--ud-orange); }
 .rt-subtitle { font-size: 14px; color: #888; margin-top: 4px; }
 .rt-list { display: flex; flex-direction: column; gap: 16px; }
 .rt-card {
     background: #fff; border: 1px solid #eee; border-radius: 14px; padding: 20px 24px;
     transition: all 0.2s;
 }
-.rt-card:hover { border-color: #E85D04; box-shadow: 0 6px 20px rgba(232,93,4,0.07); }
+.rt-card:hover { border-color: var(--ud-orange); box-shadow: 0 6px 20px rgba(232,93,4,0.07); }
 .rt-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
-.rt-id { font-weight: 700; font-size: 14px; color: #E85D04; font-family: monospace; }
+.rt-id { font-weight: 700; font-size: 14px; color: var(--ud-orange); font-family: monospace; }
 .rt-date { font-size: 13px; color: #999; }
 .rt-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
 .rt-badge.pending { background: #fef3c7; color: #d97706; }

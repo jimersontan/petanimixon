@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Shipping Info - PetMarkt-PH')
+@section('title', 'Shipping Info - Pet Markt-PH')
 
 @push('styles')
 <style>

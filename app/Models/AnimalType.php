@@ -23,4 +23,28 @@ class AnimalType extends Model
                     ->withPivot('life_stage')
                     ->withTimestamps();
     }
+
+    public function getImageFullUrlAttribute(): string
+    {
+        $raw = $this->getRawOriginal('image_url') ?? $this->attributes['image_url'] ?? null;
+
+        if (empty($raw)) {
+            return asset('images/placeholder.png');
+        }
+
+        $raw = str_replace('\\', '/', trim((string) $raw));
+
+        if (strpos($raw, 'http://') === 0 || strpos($raw, 'https://') === 0) {
+            return $raw;
+        }
+
+        $raw = ltrim($raw, '/');
+        if (strpos($raw, 'storage/') === 0) {
+            $raw = substr($raw, strlen('storage/'));
+        } elseif (strpos($raw, 'public/') === 0) {
+            $raw = substr($raw, strlen('public/'));
+        }
+
+        return asset('storage/' . ltrim($raw, '/'));
+    }
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account - PetMarkt-PH</title>
+    <title>Create Account - Pet Markt-PH</title>
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
     <link rel="stylesheet" href="{{ asset('css/themes.css') }}">
     <link rel="stylesheet" href="{{ asset('css/animations.css') }}">
@@ -12,7 +12,7 @@
     <div class="register-container">
         <div class="register-header-top">
             <div class="register-logo" style="display:flex; align-items:center; gap:0;">
-                <img src="{{ asset('images/logo.png') }}" alt="PetMarkt-PH Logo" style="max-height: 44px; margin-right: -10px;">
+                <img src="{{ asset('images/logo.png') }}" alt="Pet Markt-PH Logo" style="max-height: 44px; margin-right: -10px;">
                 <h1 style="margin:0; font-size:24px; color:#1f2937;">Pet <span style="color:#ff8a00;">Markt-PH</span></h1>
             </div>
             <a href="#" class="need-help">Need help?</a>

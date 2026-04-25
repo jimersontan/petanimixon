@@ -1,20 +1,23 @@
-/* PetMarkt-PH Admin Dashboard - Styles */
+/* Pet Markt-PH Admin Dashboard - Styles */
 
 :root {
-    --sidebar-bg: #1c2536;
-    /* Darker blue-grey to contrast with white header */
-    --header-bg: #ffffff;
+    --sidebar-bg: #111827;
+    --header-bg: rgba(255, 255, 255, 0.9);
     --accent: #FF8C00;
     --accent-hover: #e85a2e;
-    --text-dark: #1f2937;
+    --text-dark: #111827;
     --text-muted: #6b7280;
     --bg-card: #ffffff;
-    --bg-page: #f3f4f6;
-    --border: #e5e7eb;
-    --icon-circle-blue: #dbeafe;
-    --icon-circle-orange: #ffedd5;
-    --icon-circle-green: #d1fae5;
+    --bg-page: #f8fafc;
+    --border: #e2e8f0;
+    --icon-circle-blue: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    --icon-circle-orange: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    --icon-circle-green: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
     --success: #059669;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+    --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.03);
 }
 
 * {
@@ -23,10 +26,11 @@
 
 .dashboard-body {
     margin: 0;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, blinkmacsystemfont, "Segoe UI", roboto, sans-serif;
     color: var(--text-dark);
     background: var(--bg-page);
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
 }
 
 /* ========== Header ========== */
@@ -325,28 +329,46 @@
 
 .metric-card {
     background: var(--bg-card);
-    border-radius: 12px;
-    padding: 20px;
+    border-radius: 16px;
+    padding: 24px;
     display: flex;
-    align-items: flex-start;
-    gap: 16px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    border: 1px solid var(--border);
+    align-items: center;
+    gap: 20px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
+    pointer-events: none;
+}
+
+.metric-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
 }
 
 .metric-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.5), 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .metric-icon svg {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
+    filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.1));
 }
 
 .metric-icon-revenue {
@@ -371,17 +393,21 @@
 
 .metric-content {
     min-width: 0;
+    position: relative;
+    z-index: 1;
 }
 
 .metric-value {
-    font-size: 22px;
-    font-weight: 700;
+    font-size: 26px;
+    font-weight: 800;
     color: var(--text-dark);
     line-height: 1.2;
+    letter-spacing: -0.5px;
 }
 
 .metric-label {
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 500;
     color: var(--text-muted);
     margin-top: 4px;
 }
@@ -389,10 +415,15 @@
 /* ========== Cards generic ========== */
 .card {
     background: var(--bg-card);
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-hover);
 }
 
 .card-body {
@@ -486,13 +517,22 @@
 .top-product-item {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 12px 0;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 12px;
     border-bottom: 1px solid var(--border);
+    transition: all 0.2s ease;
+    margin: 0 -16px;
 }
 
 .top-product-item:last-child {
     border-bottom: none;
+}
+
+.top-product-item:hover {
+    background: var(--bg-page);
+    transform: translateX(4px);
+    border-bottom-color: transparent;
 }
 
 .product-thumb {
@@ -525,9 +565,8 @@
     left: 50%;
     transform: translate(-50%, -50%) scale(0.96);
     width: min(95vw, 1000px);
-    /* Expanded width from 700px to 1000px */
-    max-height: 95vh;
-    /* Expanded height from 90vh to 95vh */
+    max-height: calc(100vh - 100px);
+    /* Leave 100px total gap (navbar 56px + breathing room) */
     background: #fff;
     border-radius: 14px;
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
@@ -1307,3 +1346,123 @@
     }
 }
 
+
+/* ========== Premium Data Tables ========== */
+.data-table th {
+    background: transparent;
+    color: var(--text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 16px 20px;
+    border-bottom: 2px solid var(--border);
+}
+
+.data-table td {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text-dark);
+    font-size: 14px;
+}
+
+.data-table tbody tr {
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.data-table tbody tr:hover {
+    background: var(--bg-page);
+    transform: scale(1.001);
+}
+
+/* ========== Premium Status Badges ========== */
+.status-badge {
+    padding: 6px 14px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.status-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.status-paid, .status-delivered {
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #d1fae5;
+}
+.status-paid::before, .status-delivered::before {
+    background: #059669;
+    box-shadow: 0 0 6px #059669;
+}
+
+.status-pending {
+    background: #fffbeb;
+    color: #d97706;
+    border: 1px solid #fef3c7;
+}
+.status-pending::before {
+    background: #d97706;
+    box-shadow: 0 0 6px #d97706;
+}
+
+.status-shipped, .status-out_for_delivery {
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #dbeafe;
+}
+.status-shipped::before, .status-out_for_delivery::before {
+    background: #2563eb;
+    box-shadow: 0 0 6px #2563eb;
+}
+
+.status-cancelled, .status-failed {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fee2e2;
+}
+.status-cancelled::before, .status-failed::before {
+    background: #dc2626;
+    box-shadow: 0 0 6px #dc2626;
+}
+
+.low-stock-card {
+    background: linear-gradient(135deg, #fffcfb 0%, #fff5f5 100%);
+    border: 1px solid #fee2e2;
+}
+
+.low-stock-card .warning-icon {
+    color: #ef4444;
+    text-shadow: 0 2px 4px rgba(239,68,68,0.2);
+}
+
+.low-stock-item {
+    padding: 16px;
+    background: #ffffff;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid #fee2e2;
+    transition: transform 0.2s ease;
+}
+
+.low-stock-item:hover {
+    transform: translateX(4px);
+}
+
+.product-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    background: #e5e7eb;
+    flex-shrink: 0;
+}

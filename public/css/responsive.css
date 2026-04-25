@@ -1,5 +1,5 @@
 /* ╔════════════════════════════════════════════════════════════════════╗
-   ║  PETMARKT-PH — GLOBAL RESPONSIVE STYLESHEET                        ║
+   ║  PET MARKT-PH — GLOBAL RESPONSIVE STYLESHEET                        ║
    ║  Breakpoints: 480px · 768px · 1024px · 1440px                   ║
    ╚════════════════════════════════════════════════════════════════════╝ */
 
@@ -946,28 +946,6 @@ input[type="button"],
    6) LARGE DESKTOP — min-width: 1440px
    ═══════════════════════════════════════════════ */
 @media (min-width: 1440px) {
-    .ud-main {
-        max-width: 1400px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .co-page {
-        max-width: 1000px;
-    }
-
-    .cart-page {
-        max-width: 1200px;
-    }
-
-    .track-page {
-        max-width: 960px;
-    }
-
-    .success-page {
-        max-width: 640px;
-    }
-
     #trackingMap {
         height: 60vh;
     }

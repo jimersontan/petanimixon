@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Log in - PetMarkt-PH</title>
+    <title>Admin Log in - Pet Markt-PH</title>
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
 </head>
 <body>
     <div class="admin-page">
         <div class="admin-header">
             <div class="admin-logo" style="display:flex; align-items:center; gap:0;">
-                <img src="{{ asset('images/logo.png') }}" alt="PetMarkt-PH Logo" style="max-height: 38px; margin-right: -8px;">
+                <img src="{{ asset('images/logo.png') }}" alt="Pet Markt-PH Logo" style="max-height: 38px; margin-right: -8px;">
                 <h1 style="margin:0; font-size:24px; color:#1f2937;">Pet <span style="color:#2E6C34;">Markt-PH</span></h1>
             </div>
             <a href="{{ route('login') }}" class="back-link">← Back to Log In</a>

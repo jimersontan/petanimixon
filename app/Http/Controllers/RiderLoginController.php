@@ -51,7 +51,7 @@ class RiderLoginController extends Controller
             return redirect()->back()->withErrors(['password' => 'Invalid credentials'])->withInput();
         }
 
-        Auth::login($user, $request->has('remember'));
+        Auth::login($user, $request->boolean('remember'));
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json(['success' => true, 'redirect' => route('rider.dashboard')]);

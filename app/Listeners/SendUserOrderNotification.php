@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\OrderNotificationEvent;
+use App\Models\UserNotification;
 use App\Services\NotificationService;
 
 class SendUserOrderNotification
@@ -24,6 +25,22 @@ class SendUserOrderNotification
         switch ($event->type) {
             case 'order_placed':
                 NotificationService::notifyOrderPlaced($userId, $order->id, $order->display_id);
+
+                // Notify all admins of the new order with a direct link target.
+                $adminIds = \App\Models\User::where('is_admin', true)->pluck('id')->toArray();
+                foreach ($adminIds as $adminId) {
+                    UserNotification::createNotification(
+                        $adminId,
+                        'system',
+                        'New Order Received',
+                        "Order {$order->display_id} was just placed.",
+                        '🛒',
+                        '#10b981',
+                        $order->id,
+                        'Order',
+                        ['source' => 'customer_checkout']
+                    );
+                }
                 break;
 
             case 'order_confirmed':

@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Available Orders - PetMarkt-PH Rider</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Available Orders - Pet Markt-PH Rider</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/rider.css') }}">
 </head>
@@ -13,22 +14,11 @@
         <div class="rider-toast">{{ session('success') }}</div>
     @endif
 
-    <header class="rider-header">
-        <div class="logo">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo">
-            <span>Pet <span style="color: #059669;">Markt-PH</span></span>
-            <span class="rider-badge">🛵 Rider</span>
-        </div>
-        <div class="header-right">
-            <span class="rider-name">{{ Auth::user()->full_name }}</span>
-            <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-                @csrf
-                <button type="submit" class="icon-btn" aria-label="Logout" title="Logout">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
-                </button>
-            </form>
-        </div>
-    </header>
+    @if(session('error'))
+        <div class="rider-toast" style="background:#dc2626;">{{ session('error') }}</div>
+    @endif
+
+    @include('partials.rider_header')
 
     <div class="rider-layout">
         <aside class="rider-sidebar">
@@ -74,6 +64,15 @@
                 </div>
             </div>
 
+            @if($hasCurrentAssignment)
+            <div class="rider-card" style="border-color:#fde68a; background:#fffbeb;">
+                <div class="rider-card-body" style="padding:16px 22px; color:#92400e;">
+                    <strong>Current assignment in progress.</strong> Finish your pickup or delivery first before accepting another order.
+                    <a href="{{ route('rider.active') }}" style="margin-left:8px; font-weight:700; color:#166534; text-decoration:none;">Go to Current Assignment →</a>
+                </div>
+            </div>
+            @endif
+
             <div class="rider-card">
                 <div class="rider-card-header">
                     <h2>📦 Ready for Pickup ({{ $orders->total() }})</h2>
@@ -95,10 +94,14 @@
                                 </div>
                                 <div class="order-queue-actions">
                                     <div class="order-queue-total">{{ $order->formatted_total }}</div>
-                                    <form action="{{ route('rider.accept', $order->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="btn-rider-primary btn-rider-sm" onclick="return confirm('Accept this order for delivery?')">🛵 Accept Order</button>
-                                    </form>
+                                    @if(!$hasCurrentAssignment)
+                                        <form action="{{ route('rider.accept', $order->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="btn-rider-primary btn-rider-sm" onclick="return confirm('Accept this order for delivery?')">🛵 Accept Order</button>
+                                        </form>
+                                    @else
+                                        <button type="button" class="btn-rider-secondary btn-rider-sm" disabled title="Finish your current assignment first">Finish Current Assignment</button>
+                                    @endif
                                 </div>
                             </div>
                             @endforeach

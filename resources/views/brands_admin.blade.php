@@ -130,7 +130,7 @@
                     <!-- Brand Logo: Shows image if uploaded, dash if not -->
                     <td>
                         @if(!empty($brand->logo_path))
-                            <img src="{{ asset('storage/'.$brand->logo_path) }}" alt="{{ $brand->name }} logo" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                            <img src="{{ $brand->logo_full_url }}" alt="{{ $brand->name }} logo" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                         @else
                             —
                         @endif
@@ -149,7 +149,7 @@
                                 description: '{{ addslashes($brand->description ?? '') }}',
                                 is_featured: {{ $brand->is_featured ? 'true' : 'false' }},
                                 is_active: {{ $brand->is_active ? '1' : '0' }},
-                                logo_path: '{{ $brand->logo_path ? asset('storage/'.$brand->logo_path) : '' }}'
+                                logo_path: '{{ $brand->logo_path ? $brand->logo_full_url : '' }}'
                             })">
                             <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                         </button>

@@ -1,6 +1,6 @@
 /**
  * ════════════════════════════════════════════════════════════
- * PETMARKT-PH — GLOBAL ANIMATIONS ENGINE
+ * PET MARKT-PH — GLOBAL ANIMATIONS ENGINE
  * Scroll-triggered reveals using IntersectionObserver
  * ════════════════════════════════════════════════════════════
  */

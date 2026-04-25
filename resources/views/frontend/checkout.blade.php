@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Checkout - PetMarkt-PH')
+@section('title', 'Checkout - Pet Markt-PH')
 
 @push('styles')
 <style>
@@ -29,7 +29,7 @@
 /* ═══ Step 1: Order Summary ═══ */
 .co-item { display:flex; gap:14px; padding:14px 0; border-bottom:1px solid #f0f0f0; }
 .co-item:last-child { border-bottom:none; }
-.co-item-img { width:70px; height:70px; border-radius:8px; object-fit:cover; flex-shrink:0; background:#f5f5f5; }
+.co-item-img { width:70px; height:70px; border-radius:8px; object-fit:contain; flex-shrink:0; background:#f9f9f9; padding: 4px; box-sizing: border-box; }
 .co-item-info { flex:1; }
 .co-item-name { font-size:14px; font-weight:600; color:#222; margin-bottom:2px; }
 .co-item-meta { font-size:12px; color:#888; }
@@ -187,7 +187,7 @@
     <form id="checkoutForm" action="{{ route('checkout.process') }}" method="POST">
         @csrf
         <input type="hidden" name="shipping_address_id" id="hAddr">
-        <input type="hidden" name="shipping_method" id="hShip" value="standard">
+        <input type="hidden" name="shipping_type" id="hShip" value="local">
         <input type="hidden" name="payment_method" id="hPay" value="cod">
         <input type="hidden" name="voucher_code" id="hVoucher">
 
@@ -293,36 +293,23 @@
         <div class="co-panel" id="step3">
             <div class="co-card">
                 <h2>🚚 Shipping Option</h2>
-                <div class="co-ship-option selected" onclick="selectShip(this,'standard')">
-                    <input type="radio" name="_ship_radio" value="standard" checked>
+                <div class="co-ship-option selected" onclick="selectShip(this,'local')">
+                    <input type="radio" name="_ship_radio" value="local" checked>
+                    <span class="co-ship-icon">🛵</span>
+                    <div class="co-ship-info">
+                        <div class="co-ship-name">Local Delivery</div>
+                        <div class="co-ship-desc">Delivered by our own rider. Same/Next day.</div>
+                    </div>
+                    <div class="co-ship-price" id="priceLocal">₱50.00</div>
+                </div>
+                <div class="co-ship-option" onclick="selectShip(this,'courier')">
+                    <input type="radio" name="_ship_radio" value="courier">
                     <span class="co-ship-icon">📦</span>
                     <div class="co-ship-info">
-                        <div class="co-ship-name">Standard Delivery</div>
-                        <div class="co-ship-desc">Estimated 3–5 business days</div>
+                        <div class="co-ship-name">Courier Shipping (J&T Express)</div>
+                        <div class="co-ship-desc">Shipped nationwide. Estimated 3–7 days.</div>
                     </div>
-                    <div class="co-ship-price" id="priceStandard">
-                        @if($subtotal >= 1500) <span class="co-ship-free">FREE</span> @elseif($subtotal >= 500) ₱59 @else ₱99 @endif
-                    </div>
-                </div>
-                <div class="co-ship-option" onclick="selectShip(this,'express')">
-                    <input type="radio" name="_ship_radio" value="express">
-                    <span class="co-ship-icon">⚡</span>
-                    <div class="co-ship-info">
-                        <div class="co-ship-name">Express Delivery</div>
-                        <div class="co-ship-desc">Estimated 1–2 business days</div>
-                    </div>
-                    <div class="co-ship-price" id="priceExpress">
-                        @if($subtotal >= 1500) ₱99 @else ₱199 @endif
-                    </div>
-                </div>
-                <div class="co-ship-option" onclick="selectShip(this,'pickup')">
-                    <input type="radio" name="_ship_radio" value="pickup">
-                    <span class="co-ship-icon">🏪</span>
-                    <div class="co-ship-info">
-                        <div class="co-ship-name">Store Pickup</div>
-                        <div class="co-ship-desc">Pick up at our Butuan, Libertad store (same day)</div>
-                    </div>
-                    <div class="co-ship-price co-ship-free">FREE</div>
+                    <div class="co-ship-price" id="priceCourier">₱150.00</div>
                 </div>
             </div>
             <div class="co-nav">
@@ -388,7 +375,7 @@
 
                 <div class="co-review-section">
                     <div class="co-review-label">Shipping Method</div>
-                    <div class="co-review-value" id="reviewShip">Standard Delivery</div>
+                    <div class="co-review-value" id="reviewShip">Local Delivery</div>
                 </div>
 
                 <div class="co-review-section">
@@ -483,14 +470,12 @@ function selectShip(el, method) {
 }
 
 function calcShipFee(method) {
-    if (freeShipping || method === 'pickup') { shipFee = 0; return; }
-    if (method === 'express') { shipFee = SUBTOTAL >= 1500 ? 99 : 199; return; }
-    // standard
-    if (SUBTOTAL >= 1500) shipFee = 0;
-    else if (SUBTOTAL >= 500) shipFee = 59;
-    else shipFee = 99;
+    if (freeShipping) { shipFee = 0; return; }
+    if (method === 'courier') { shipFee = 150.00; return; }
+    // local
+    shipFee = 50.00;
 }
-calcShipFee('standard');
+calcShipFee('local');
 
 // Payment selection
 function selectPay(el, method) {
@@ -553,7 +538,7 @@ function buildReview() {
     document.getElementById('reviewAddr').innerHTML = addrHtml || '—';
 
     // Shipping
-    const shipMap = { standard: 'Standard Delivery (3–5 days)', express: 'Express Delivery (1–2 days)', pickup: 'Store Pickup (same day)' };
+    const shipMap = { local: '🛵 Local Delivery (₱50)', courier: '📦 J&T Express (₱150)' };
     const sm = document.getElementById('hShip').value;
     document.getElementById('reviewShip').textContent = shipMap[sm] || sm;
     calcShipFee(sm);
@@ -601,7 +586,7 @@ function useMyLocation() {
 
             // Reverse geocode using free Nominatim API (OpenStreetMap)
             fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&zoom=18&accept-language=en`, {
-                headers: { 'User-Agent': 'PetMarkt-PH/1.0' }
+                headers: { 'User-Agent': 'Pet Markt-PH/1.0' }
             })
             .then(r => r.json())
             .then(data => {

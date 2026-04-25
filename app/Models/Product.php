@@ -37,6 +37,7 @@ class Product extends Model
         'weight_in_grams',
         'low_stock_threshold',
         'product_status',
+        'expiry_date',
     ];
 
     protected $casts = [
@@ -44,11 +45,22 @@ class Product extends Model
         'discount_amount' => 'decimal:2',
         'sale_valid_from' => 'datetime',
         'sale_valid_until' => 'datetime',
+        'expiry_date' => 'date',
     ];
 
     public function category()
     {
         return $this->belongsTo(Category::class, 'animal_category_id');
+    }
+
+    /**
+     * Animal types this product applies to (many-to-many via product_animal_types pivot).
+     */
+    public function animalTypes()
+    {
+        return $this->belongsToMany(AnimalType::class, 'product_animal_types')
+                    ->withPivot('life_stage')
+                    ->withTimestamps();
     }
 
     public function orderItems()
@@ -105,8 +117,17 @@ class Product extends Model
             return $raw;
         }
 
-        // Local storage path
-        return asset('storage/' . $raw);
+        // Normalize legacy values like "/storage/products/x.jpg" or "public/products/x.jpg"
+        $raw = str_replace('\\', '/', trim((string) $raw));
+        $raw = ltrim($raw, '/');
+
+        if (strpos($raw, 'storage/') === 0) {
+            $raw = substr($raw, strlen('storage/'));
+        } elseif (strpos($raw, 'public/') === 0) {
+            $raw = substr($raw, strlen('public/'));
+        }
+
+        return asset('storage/' . ltrim($raw, '/'));
     }
 
     /**

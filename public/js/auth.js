@@ -193,6 +193,12 @@ if (adminForm) {
             }
 
             if (res.ok) {
+                const keepSigned = document.getElementById('keep_signed') && document.getElementById('keep_signed').checked;
+                if (keepSigned) {
+                    localStorage.setItem('petMarkt_adminEmail', email);
+                } else {
+                    localStorage.removeItem('petMarkt_adminEmail');
+                }
                 showNotification('Welcome back, admin');
                 setTimeout(() => window.location.href = j.redirect || '/admin/dashboard', 700);
             } else {
@@ -204,4 +210,13 @@ if (adminForm) {
 }
 
 // LOGIN page uses existing public/js/login.js — it will read window.routes.loginSubmit
-document.addEventListener('DOMContentLoaded', () => console.log('Auth scripts initialized'));
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Auth scripts initialized');
+    const rememberedAdmin = localStorage.getItem('petMarkt_adminEmail');
+    const adminEmail = document.getElementById('admin_email');
+    if (rememberedAdmin && adminEmail) {
+        adminEmail.value = rememberedAdmin;
+        const keepSigned = document.getElementById('keep_signed');
+        if (keepSigned) keepSigned.checked = true;
+    }
+});

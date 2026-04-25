@@ -1,12 +1,12 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Shopping Cart - PetMarkt-PH')
+@section('title', 'Shopping Cart - Pet Markt-PH')
 
 @push('styles')
 <style>
     body.user-dashboard { background: #fdf5ec; }
     /* ========== PAGE WRAPPER ========== */
-    .cart-page { max-width: 1100px; margin: 0 auto; padding: 32px 20px 60px; }
+    .cart-page { width: 100%; padding: 32px 2rem 60px; }
     .cart-heading { font-size: 26px; font-weight: 800; color: #222; margin: 0 0 4px; }
     .cart-sub     { font-size: 13px; color: #888; margin: 0 0 24px; }
 
@@ -24,7 +24,9 @@
     }
     .cart-item-img {
         width: 160px; height: 160px; flex-shrink: 0;
-        object-fit: cover;
+        object-fit: contain;
+        background-color: #f9f9f9;
+        padding: 10px; box-sizing: border-box;
     }
     .cart-item-body { flex: 1; padding: 18px 16px 14px; }
     .cart-item-name {
@@ -199,15 +201,48 @@
         .item-total { font-size: 14px; }
         .delete-btn { width: 34px; height: 34px; border-radius: 8px; }
 
-        /* Order summary compact */
-        .order-summary-card { padding: 16px; border-radius: 10px; }
-        .summary-title { font-size: 14px; margin-bottom: 14px; }
-        .summary-row { font-size: 12.5px; margin-bottom: 8px; }
-        .summary-row.total { font-size: 14px; }
-        .summary-row.total .total-val { font-size: 18px; }
-        .btn-checkout { font-size: 14px; padding: 12px; border-radius: 8px; }
-        .trust-badges { gap: 4px; margin-top: 10px; }
-        .trust-badge { font-size: 9px; }
+        /* Order summary compact STICKY FOOTER */
+        .order-summary-card { 
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: #fff;
+            padding: 12px 16px; 
+            border-radius: 0; 
+            z-index: 1000;
+            box-shadow: 0 -4px 16px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .summary-title { display: none; }
+        .summary-row:not(.total) { display: none; }
+        .summary-row.total { 
+            margin: 0; 
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+        }
+        .summary-row.total > span:first-child { font-size: 11px; color: #555; }
+        .summary-row.total .total-val { font-size: 18px; color: var(--ud-orange); }
+        
+        .btn-checkout { 
+            width: auto; 
+            margin: 0; 
+            padding: 12px 20px; 
+            border-radius: 6px; 
+            font-size: 13px;
+            background: var(--ud-orange);
+            color: white;
+            font-weight: 700;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .trust-badges { display: none; }
 
         /* You might also like */
         .ymal-section { margin-top: 28px; }
@@ -251,16 +286,35 @@
     <div class="cart-layout">
         {{-- ══════════════════ ITEMS ══════════════════ --}}
         <div class="cart-items-col">
+            @if($cart->items->isNotEmpty())
+            <div class="cart-select-all-row" style="background: white; padding: 12px 16px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                <input type="checkbox" id="selectAllCheckbox" style="width: 18px; height: 18px; accent-color: var(--ud-orange); cursor: pointer;">
+                <label for="selectAllCheckbox" style="font-weight: 700; color: #333; cursor: pointer; user-select: none;">Select All Items</label>
+            </div>
+            @endif
+            
+            <form id="checkoutForm" action="{{ route('checkout.init') }}" method="POST" style="display:none;">
+                @csrf
+                <div id="checkoutItemsContainer"></div>
+            </form>
             @forelse($cart->items as $item)
-                <div class="cart-item-card">
+                <div class="cart-item-card item-card-row" id="cart-item-{{ $item->id }}" data-price="{{ $item->unit_price }}" data-subtotal="{{ $item->subtotal }}" data-id="{{ $item->id }}">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 48px; background: #fff; border-right: 1px solid #f0f0f0;">
+                        <input type="checkbox" class="item-checkbox" value="{{ $item->id }}" style="width: 18px; height: 18px; accent-color: var(--ud-orange); cursor: pointer;">
+                    </div>
                     <img class="cart-item-img"
                         src="{{ $item->product->image_url }}"
                         alt="{{ $item->product->product_name }}">
                     <div class="cart-item-body">
-                        <h3 class="cart-item-name">{{ $item->product->product_name }}</h3>
+                        <h3 class="cart-item-name">
+                            {{ $item->product->product_name }}
+                            @if($item->variant)
+                                <span style="font-weight: 500; color: #555;"> - {{ $item->variant->variant_name }}</span>
+                            @endif
+                        </h3>
                         <span class="cart-item-tag">🐕 {{ $item->product->category->category_name ?? 'Pet' }}</span>
                         <div class="cart-item-details">{{ $item->product->short_description }}</div>
-                        @php $itemStock = $item->product->stock; @endphp
+                        @php $itemStock = $item->variant ? $item->variant->variant_quantity : $item->product->stock; @endphp
                         @if($itemStock > 4)
                             <div class="cart-item-status-in">✓ In Stock ({{ $itemStock }} available)</div>
                         @elseif($itemStock > 0)
@@ -282,7 +336,12 @@
                                 </div>
                             </div>
                             <div class="cart-item-price-col">
-                                <div class="each-label">₱{{ number_format($item->unit_price, 2) }} each</div>
+                                <div class="each-label">
+                                    ₱{{ number_format($item->unit_price, 2) }} each
+                                    @if($item->product->is_sale_active && $item->unit_price < $item->product->price)
+                                        <span style="text-decoration: line-through; color: #bbb; margin-left: 4px;">₱{{ number_format($item->product->price, 2) }}</span>
+                                    @endif
+                                </div>
                                 <div class="item-total">₱{{ number_format($item->subtotal, 2) }}</div>
                             </div>
                             <a href="{{ route('cart.remove', $item->id) }}" class="delete-btn" title="Remove">
@@ -306,20 +365,20 @@
                 <h2 class="summary-title">Order Summary</h2>
                 <div class="summary-row">
                     <span>Subtotal</span>
-                    <span>₱{{ number_format($cart->items->sum('subtotal'), 2) }}</span>
+                    <span id="summarySubtotal">₱0.00</span>
                 </div>
                 <div class="summary-row">
                     <span>Shipping</span>
                     <span class="free-ship">FREE</span>
                 </div>
                 <div class="summary-row total">
-                    <span>Total</span>
-                    <span class="total-val">₱{{ number_format($cart->items->sum('subtotal'), 2) }}</span>
+                    <span>Selected Total</span>
+                    <span class="total-val" id="summaryTotal">₱0.00</span>
                 </div>
 
-                <a href="{{ route('checkout') }}" class="btn-checkout" style="text-decoration: none;">
-                    Proceed to Checkout
-                </a>
+                <button type="button" class="btn-checkout" onclick="submitCheckout()">
+                    Proceed to Checkout (<span id="checkoutCount">0</span>)
+                </button>
 
                 <div class="trust-badges">
                     <div class="trust-badge">
@@ -346,5 +405,104 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    function updateCartTotals() {
+        let total = 0;
+        let count = 0;
+        const boxes = document.querySelectorAll('.item-checkbox');
+        let allChecked = true;
+        let anyUnchecked = false;
+
+        boxes.forEach(box => {
+            const row = box.closest('.item-card-row');
+            if (box.checked) {
+                total += parseFloat(row.getAttribute('data-subtotal'));
+                count++;
+                row.style.border = '1px solid var(--ud-orange)';
+                row.style.boxShadow = '0 4px 12px rgba(255,140,66,0.15)';
+            } else {
+                row.style.border = '1px solid transparent';
+                row.style.boxShadow = '0 2px 10px rgba(0,0,0,0.03)';
+                allChecked = false;
+                anyUnchecked = true;
+            }
+        });
+
+        // Update select all checkbox state
+        const selectAllBox = document.getElementById('selectAllCheckbox');
+        if (selectAllBox) {
+            selectAllBox.checked = (boxes.length > 0 && allChecked);
+        }
+
+        const formatted = '₱' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        document.getElementById('summarySubtotal').innerText = formatted;
+        document.getElementById('summaryTotal').innerText = formatted;
+        document.getElementById('checkoutCount').innerText = count;
+    }
+
+    function toggleSelectAll(source) {
+        const boxes = document.querySelectorAll('.item-checkbox');
+        boxes.forEach(box => {
+            box.checked = source.checked;
+        });
+        updateCartTotals();
+    }
+
+    function submitCheckout() {
+        const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
+        if (checkedBoxes.length === 0) {
+            alert('Please select at least one item to checkout.');
+            return;
+        }
+
+        const container = document.getElementById('checkoutItemsContainer');
+        container.innerHTML = '';
+        
+        checkedBoxes.forEach(box => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'selected_items[]';
+            input.value = box.value;
+            container.appendChild(input);
+        });
+
+        document.getElementById('checkoutForm').submit();
+    }
+
+    function saveChecks() {
+        const checkedValues = [];
+        const boxes = document.querySelectorAll('.item-checkbox:checked');
+        boxes.forEach(box => checkedValues.push(box.value));
+        localStorage.setItem('cart_checked_items', JSON.stringify(checkedValues));
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        const saved = JSON.parse(localStorage.getItem('cart_checked_items') || '[]');
+        const boxes = document.querySelectorAll('.item-checkbox');
+        
+        boxes.forEach(box => {
+            box.checked = saved.includes(box.value);
+            box.addEventListener('change', () => {
+                updateCartTotals();
+                saveChecks();
+            });
+        });
+
+        // Trigger the visual update + total calculation
+        updateCartTotals();
+    });
+
+    const selectAllBox = document.getElementById('selectAllCheckbox');
+    if (selectAllBox) {
+        selectAllBox.addEventListener('change', function() {
+            toggleSelectAll(this);
+            saveChecks();
+        });
+    }
+</script>
+@endpush
 
 

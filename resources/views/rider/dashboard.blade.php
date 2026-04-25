@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rider Dashboard - PetMarkt-PH</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Rider Dashboard - Pet Markt-PH</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/rider.css') }}">
 </head>
@@ -13,23 +14,11 @@
         <div class="rider-toast">{{ session('success') }}</div>
     @endif
 
-    <!-- ===== HEADER ===== -->
-    <header class="rider-header">
-        <div class="logo">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo">
-            <span>Pet <span style="color: #059669;">Markt-PH</span></span>
-            <span class="rider-badge">🛵 Rider</span>
-        </div>
-        <div class="header-right">
-            <span class="rider-name">{{ Auth::user()->full_name }}</span>
-            <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-                @csrf
-                <button type="submit" class="icon-btn" aria-label="Logout" title="Logout">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
-                </button>
-            </form>
-        </div>
-    </header>
+    @if(session('error'))
+        <div class="rider-toast" style="background:#dc2626;">{{ session('error') }}</div>
+    @endif
+
+    @include('partials.rider_header')
 
     <div class="rider-layout">
         <!-- ===== SIDEBAR ===== -->
@@ -122,8 +111,13 @@
 
             <!-- Active Delivery Banner -->
             @if($activeDelivery)
+            @php
+                $isAwaitingPickup = $activeDelivery->order_status === \App\Models\Order::STATUS_RIDER_CONFIRMED;
+            @endphp
             <div class="active-delivery-banner">
-                <div class="banner-title">🚀 Active Delivery — {{ $activeDelivery->display_id }}</div>
+                <div class="banner-title">
+                    {{ $isAwaitingPickup ? '📦 Pickup Needed' : '🚀 Active Delivery' }} — {{ $activeDelivery->display_id }}
+                </div>
                 <div class="banner-details">
                     <div class="detail-item">
                         <div class="detail-label">Customer</div>
@@ -143,8 +137,10 @@
                     </div>
                 </div>
                 <div class="banner-actions">
-                    <a href="{{ route('rider.active') }}" class="btn-rider-white">View Details →</a>
-                    @if(!$activeDelivery->rider_picked_up_at)
+                    <a href="{{ route('rider.active') }}" class="btn-rider-white">
+                        {{ $isAwaitingPickup ? 'View Assignment →' : 'View Details →' }}
+                    </a>
+                    @if($isAwaitingPickup)
                         <form action="{{ route('rider.pickup', $activeDelivery->id) }}" method="POST" style="display:inline;">
                             @csrf
                             <button type="submit" class="btn-rider-white">📦 Mark Picked Up</button>
@@ -181,6 +177,8 @@
                                         @csrf
                                         <button type="submit" class="btn-rider-primary btn-rider-sm">Accept</button>
                                     </form>
+                                    @else
+                                        <button type="button" class="btn-rider-secondary btn-rider-sm" disabled title="Finish your current assignment first">Current Assignment Ongoing</button>
                                     @endif
                                 </div>
                             </div>

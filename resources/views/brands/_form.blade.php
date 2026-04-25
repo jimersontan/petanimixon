@@ -65,7 +65,7 @@
                 <input type="file" name="logo" id="logo" accept="image/*" style="display:none;">
                 <div class="upload-preview">
                     @if(!empty($brand->logo_path))
-                        <img src="{{ asset('storage/'.$brand->logo_path) }}" alt="{{ $brand->name }} logo">
+                        <img src="{{ $brand->logo_full_url }}" alt="{{ $brand->name }} logo">
                     @endif
                 </div>
             </div>

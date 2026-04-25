@@ -40,7 +40,7 @@ class AnalyticsAdminController extends Controller
         ];
 
         // Top Selling Products
-        $topProducts = OrderItem::select('product_id', \DB::raw('SUM(quantity) as total_sold'), \DB::raw('SUM(price * quantity) as total_revenue'))
+        $topProducts = OrderItem::select('product_id', \DB::raw('SUM(quantity) as total_sold'), \DB::raw('SUM(unit_price * quantity) as total_revenue'))
             ->whereHas('order', function($q) use ($from, $request) {
                 $q->where('payment_status', Order::PAYMENT_PAID);
                 if ($request->has('days')) {
@@ -56,7 +56,7 @@ class AnalyticsAdminController extends Controller
             ->get();
             
         // Sales By Category
-        $salesByCategory = OrderItem::select('categories.category_name', \DB::raw('SUM(order_items.quantity) as total_sold'), \DB::raw('SUM(order_items.price * order_items.quantity) as total_revenue'))
+        $salesByCategory = OrderItem::select('categories.category_name', \DB::raw('SUM(order_items.quantity) as total_sold'), \DB::raw('SUM(order_items.unit_price * order_items.quantity) as total_revenue'))
             ->join('products', 'order_items.product_id', '=', 'products.id')
             ->join('categories', 'products.animal_category_id', '=', 'categories.id')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')

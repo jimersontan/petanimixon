@@ -34,7 +34,7 @@
     }
     
     .btn-global-save {
-        background-color: #ea580c;
+        background-color: var(--ud-orange-dark);
         color: #ffffff;
         border: none;
         padding: 10px 20px;
@@ -130,13 +130,13 @@
     
     .settings-nav-item.active {
         background-color: #fff7ed;
-        color: #ea580c;
-        border-left: 3px solid #ea580c;
+        color: var(--ud-orange-dark);
+        border-left: 3px solid var(--ud-orange-dark);
         font-weight: 600;
     }
     
     .settings-nav-item.active svg {
-        color: #ea580c;
+        color: var(--ud-orange-dark);
     }
     
     /* ===== MAIN CONTENT PANEL: Right side form panels ===== */
@@ -170,7 +170,7 @@
         height: 40px;
         border-radius: 50%;
         background-color: #fff7ed;
-        color: #ea580c;
+        color: var(--ud-orange-dark);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -222,7 +222,7 @@
     
     .settings-input:focus {
         outline: none;
-        border-color: #ea580c;
+        border-color: var(--ud-orange-dark);
         box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
     }
     
@@ -317,7 +317,7 @@
         margin-bottom: 16px; /* slightly smaller to fit screen */
     }
     .btn-save-changes {
-        background-color: #ea580c;
+        background-color: var(--ud-orange-dark);
         color: #ffffff;
         border: none;
         padding: 10px 20px;
@@ -475,7 +475,7 @@
                     <div class="grid-column">
                         <div class="form-group">
                             <label for="store_name">Store Name</label>
-                            <input type="text" id="store_name" name="store_name" class="settings-input" value="{{ old('store_name', $s->store_name ?? '') }}" placeholder="e.g. PetMarkt-PH">
+                            <input type="text" id="store_name" name="store_name" class="settings-input" value="{{ old('store_name', $s->store_name ?? '') }}" placeholder="e.g. Pet Markt-PH">
                         </div>
                         
                         <div class="form-group">
@@ -511,7 +511,7 @@
                             <input type="file" id="store_logo" name="store_logo" accept="image/png, image/jpeg, image/jpg" style="display:none;">
                             
                             <div class="image-preview-wrapper" id="logo-preview-wrapper" style="{{ !empty($s->store_logo_path) ? 'display:flex;' : 'margin-top:0;' }}">
-                                <img id="logo-preview-img" src="{{ !empty($s->store_logo_path) ? asset('storage/'.$s->store_logo_path) : '' }}" alt="Logo Preview">
+                                <img id="logo-preview-img" src="{{ !empty($s->store_logo_path) ? $s->logo_full_url : '' }}" alt="Logo Preview">
                                 <span class="remove-image-btn" id="remove-logo-btn">Remove</span>
                             </div>
                         </div>
@@ -685,12 +685,6 @@
                     <label><input type="checkbox" name="gateway_cod" value="1" {{ ($extra['gateway_cod'] ?? '1') == '1' ? 'checked' : '' }}> Cash on Delivery (COD)</label>
                 </div>
                 <div class="form-group">
-                    <label><input type="checkbox" name="gateway_bank" value="1" {{ ($extra['gateway_bank'] ?? '0') == '1' ? 'checked' : '' }}> Bank Transfer</label>
-                </div>
-                <div class="form-group">
-                    <label><input type="checkbox" name="gateway_online" value="1" {{ ($extra['gateway_online'] ?? '0') == '1' ? 'checked' : '' }}> Online Payment (Card/GCash)</label>
-                </div>
-                <div class="form-group">
                     <label for="gateway_instructions">Payment Instructions</label>
                     <textarea name="gateway_instructions" class="settings-input" rows="3" placeholder="Instructions for customers">{{ $extra['gateway_instructions'] ?? '' }}</textarea>
                 </div>
@@ -797,7 +791,7 @@
                 </div>
                 <div class="form-group">
                     <label for="email_from_name">From Name</label>
-                    <input type="text" name="email_from_name" class="settings-input" value="{{ $extra['email_from_name'] ?? ($s->store_name ?? 'PetMarkt-PH') }}">
+                    <input type="text" name="email_from_name" class="settings-input" value="{{ $extra['email_from_name'] ?? ($s->store_name ?? 'Pet Markt-PH') }}">
                 </div>
 
                 <div class="panel-footer">
@@ -919,8 +913,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-    // ===== URL-BASED PANEL RESTORE =====
-    // If URL has ?section=xxx, auto-switch to that panel on load
     const urlParams = new URLSearchParams(window.location.search);
     const activeSection = urlParams.get('section');
         if (activeSection) {
@@ -944,7 +936,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             dragDropBox.addEventListener('dragover', (e) => {
                 e.preventDefault();
-                dragDropBox.style.borderColor = '#ea580c';
+                dragDropBox.style.borderColor = 'var(--ud-orange-dark)';
                 dragDropBox.style.backgroundColor = '#fff7ed';
             });
             
@@ -970,9 +962,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     updateImagePreview(this.files[0]);
                 }
             });
-            
-        // Show preview thumbnail after file is selected or dropped
-        function updateImagePreview(file) {
+
+            function updateImagePreview(file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     previewImg.src = e.target.result;
@@ -981,11 +972,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 reader.readAsDataURL(file);
             }
             
-        // Remove button: Clear the file and hide the preview
-        removeBtn.addEventListener('click', function() {
-                fileInput.value = '';
-                previewWrapper.style.display = 'none';
-            });
+            if (removeBtn) {
+                removeBtn.addEventListener('click', function() {
+                    fileInput.value = '';
+                    previewWrapper.style.display = 'none';
+                });
+            }
         }
     });
 </script>

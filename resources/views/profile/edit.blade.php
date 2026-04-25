@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Edit Account - PetMarkt-PH')
+@section('title', 'Edit Account - Pet Markt-PH')
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/themes.css') }}">
@@ -33,7 +33,7 @@
 
         <!-- Profile Picture Section -->
         <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 10px;">
-            <div style="position: relative; width: 120px; height: 120px; margin-bottom: 10px; border-radius: 50%; overflow: hidden; border: 3px solid var(--ud-orange, #ea580c); background-color: #ffedd5;">
+            <div style="position: relative; width: 120px; height: 120px; margin-bottom: 10px; border-radius: 50%; overflow: hidden; border: 3px solid var(--ud-orange, var(--ud-orange-dark)); background-color: #ffedd5;">
                 <img id="profile_image_preview" src="{{ $user->profile_picture_url }}" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover;">
                 <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6); padding: 5px; text-align: center;">
                     <label for="profile_picture" style="cursor: pointer; color: white; font-size: 13px; font-weight: bold; width: 100%; display: block; margin:0;">Change</label>
@@ -138,7 +138,7 @@
         @php $currentTheme = old('color_theme', $user->color_theme ?? 'citrus_tail'); @endphp
         <div class="theme-picker-section">
             <label class="theme-picker-label">🎨 Color Theme</label>
-            <p class="theme-picker-subtitle">Change how PetMarkt-PH looks for you — takes effect immediately!</p>
+            <p class="theme-picker-subtitle">Change how Pet Markt-PH looks for you — takes effect immediately!</p>
             <div class="theme-picker-grid">
                 <!-- 1. Meadow & Honey -->
                 <label class="theme-swatch {{ $currentTheme === 'meadow_honey' ? 'selected' : '' }}" style="--swatch-primary: #10B981; --swatch-glow: rgba(16,185,129,0.2);" onclick="selectTheme(this, 'meadow_honey')">

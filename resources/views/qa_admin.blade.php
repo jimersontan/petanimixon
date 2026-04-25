@@ -37,7 +37,7 @@
                     <div style="font-weight: 700; color: #1a1a2e; margin-bottom: 4px;">
                         {{ $question->user->full_name ?? 'Customer' }}
                         <span style="color: #999; font-weight: 400; font-size: 13px;">asked about</span>
-                        <a href="{{ route('product.show', $question->product_id) }}" style="color: #ea580c; text-decoration: none; font-weight: 600;">{{ $question->product->product_name ?? 'Product #'.$question->product_id }}</a>
+                        <a href="{{ route('product.show', $question->product_id) }}" style="color: var(--ud-orange-dark); text-decoration: none; font-weight: 600;">{{ $question->product->product_name ?? 'Product #'.$question->product_id }}</a>
                     </div>
                     <div style="font-size: 12px; color: #999;">{{ $question->created_at->diffForHumans() }}</div>
                 </div>

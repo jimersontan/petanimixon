@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Support Chat — PetMarkt-PH Admin')
+@section('title', 'Support Chat — Pet Markt-PH Admin')
 
 @section('content')
 <style>
@@ -17,7 +17,7 @@
 .sc-conv-item:hover, .sc-conv-item.active { background: #FFF4EC; }
 .sc-conv-avatar {
     width: 42px; height: 42px; border-radius: 50%;
-    background: linear-gradient(135deg, #FF8C42, #ea580c);
+    background: linear-gradient(135deg, var(--ud-orange), var(--ud-orange-dark));
     color: #fff; display: flex; align-items: center; justify-content: center;
     font-size: 16px; font-weight: 700; flex-shrink: 0;
 }
@@ -52,7 +52,7 @@
 .sc-msg.from-admin { flex-direction: row-reverse; }
 .sc-msg-bubble { max-width: 65%; padding: 10px 14px; border-radius: 16px; font-size: 13px; line-height: 1.5; word-wrap: break-word; }
 .sc-msg.from-user .sc-msg-bubble { background: #fff; color: #1f2937; border: 1px solid #e5e7eb; border-bottom-left-radius: 4px; }
-.sc-msg.from-admin .sc-msg-bubble { background: linear-gradient(135deg, #FF8C42, #ea580c); color: #fff; border-bottom-right-radius: 4px; }
+.sc-msg.from-admin .sc-msg-bubble { background: linear-gradient(135deg, var(--ud-orange), var(--ud-orange-dark)); color: #fff; border-bottom-right-radius: 4px; }
 .sc-msg-time { font-size: 10px; color: #9ca3af; margin-top: 4px; }
 .sc-msg.from-admin .sc-msg-time { text-align: right; }
 .sc-msg-image { max-width: 200px; border-radius: 10px; margin-top: 6px; cursor: pointer; }
@@ -71,7 +71,7 @@
     background: #fff; border: 1px solid #e5e7eb; border-radius: 16px;
     padding: 5px 12px; font-size: 11px; color: #374151; cursor: pointer; transition: all 0.2s;
 }
-.sc-canned-btn:hover { background: #FFF4EC; border-color: #ea580c; color: #ea580c; }
+.sc-canned-btn:hover { background: #FFF4EC; border-color: var(--ud-orange-dark); color: var(--ud-orange-dark); }
 
 /* Input */
 .sc-input-area {
@@ -82,15 +82,15 @@
     flex: 1; border: 1px solid #e5e7eb; border-radius: 20px;
     padding: 10px 16px; font-size: 13px; outline: none; transition: border-color 0.2s;
 }
-.sc-input:focus { border-color: #ea580c; }
+.sc-input:focus { border-color: var(--ud-orange-dark); }
 .sc-send-btn {
     width: 40px; height: 40px; border-radius: 50%;
-    background: linear-gradient(135deg, #FF8C42, #ea580c);
+    background: linear-gradient(135deg, var(--ud-orange), var(--ud-orange-dark));
     color: #fff; border: none; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
 }
 .sc-attach-btn { color: #9ca3af; cursor: pointer; display: flex; align-items: center; }
-.sc-attach-btn:hover { color: #ea580c; }
+.sc-attach-btn:hover { color: var(--ud-orange-dark); }
 
 @media (max-width: 768px) {
     .sc-sidebar { width: 100%; max-width: 280px; }

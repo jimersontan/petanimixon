@@ -1,12 +1,26 @@
-{{-- Product Layout --}}
+{{-- ═══ POLISHED PRODUCT DETAIL MODAL ═══ --}}
+{{-- Inspired by Shopee / Lazada / Amazon product detail pages --}}
+
 <div class="pd-layout">
+    {{-- ═══ LEFT: Product Gallery ═══ --}}
     <div class="pd-gallery">
         <img class="pd-main-img" src="{{ $product->image_url }}" alt="{{ $product->product_name }}">
+        @if($product->is_sale_active)
+        <div class="pd-badge-sale">
+            {{ $product->discount_type === 'percent' ? $product->discount_amount . '% OFF' : '₱' . number_format($product->discount_amount) . ' OFF' }}
+        </div>
+        @endif
     </div>
+
+    {{-- ═══ RIGHT: Product Info ═══ --}}
     <div class="pd-info">
+        {{-- Category Label --}}
         <div class="pd-category">{{ $product->category->category_name ?? 'General' }}</div>
+
+        {{-- Product Name --}}
         <h1 class="pd-name">{{ $product->product_name }}</h1>
 
+        {{-- Rating Row --}}
         <div class="pd-rating-row">
             <span class="pd-stars" style="{{ $reviewStats['count'] == 0 ? 'color: #d1d5db;' : '' }}">
                 @for($i = 1; $i <= 5; $i++)
@@ -14,89 +28,211 @@
                 @endfor
             </span>
             <span class="pd-rating-num">{{ $reviewStats['average'] }}</span>
-            <span class="pd-rating-count">({{ $reviewStats['count'] }} {{ Str::plural('review', $reviewStats['count']) }})</span>
-            <span class="pd-sold">{{ $product->total_sold }} sold</span>
+            <span class="pd-divider">|</span>
+            <span class="pd-rating-count">{{ $reviewStats['count'] }} {{ Str::plural('Rating', $reviewStats['count']) }}</span>
+            <span class="pd-divider">|</span>
+            <span class="pd-sold">{{ $product->total_sold }} Sold</span>
         </div>
 
-        <div class="pd-price">
+        {{-- Price Block --}}
+        <div class="pd-price-block">
             @if($product->is_sale_active)
-                ₱{{ number_format($product->sale_price, 2) }}
-                <span style="font-size:14px; color:#9ca3af; text-decoration:line-through; margin-left:8px;">₱{{ number_format($product->price, 2) }}</span>
+                <span class="pd-price-current">₱{{ number_format($product->sale_price, 2) }}</span>
+                <span class="pd-price-original">₱{{ number_format($product->price, 2) }}</span>
+                <span class="pd-price-discount">
+                    -{{ $product->discount_type === 'percent' ? $product->discount_amount . '%' : '₱' . number_format($product->discount_amount) }}
+                </span>
             @else
-                ₱{{ number_format($product->price, 2) }}
+                <span class="pd-price-current">₱{{ number_format($product->price, 2) }}</span>
             @endif
         </div>
 
+        {{-- Short Description --}}
+        @if($product->short_description || $product->animal_description)
         <p class="pd-desc">{{ $product->short_description ?? $product->animal_description }}</p>
-
-        @if($product->stock > 4)
-            <div class="pd-stock">✓ In Stock ({{ $product->stock }} available)</div>
-        @elseif($product->stock > 0)
-            <div class="pd-stock" style="color: #e67e22;">🔥 Only {{ $product->stock }} left — order soon!</div>
-        @else
-            <div class="pd-stock out">✕ Out of Stock</div>
         @endif
 
-        @auth
-            <div style="display: flex; gap: 10px; margin-top: 15px; align-items: center; flex-wrap: wrap;">
-                <form action="{{ route('cart.add') }}" method="POST" class="pd-add-form pd-add-cart-form" style="margin: 0; flex: 1; display:flex;">
-                    @csrf
-                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                    <div style="display: flex; gap: 10px; width: 100%;">
-                        <div class="pd-qty-wrap" style="height: 48px;">
-                            <button type="button" class="pd-qty-btn" style="height: 100%; border-radius: 0;" onclick="let v=this.nextElementSibling;v.value=Math.max(1,+v.value-1)">−</button>
-                            <input type="number" name="quantity" value="1" min="1" max="{{ $product->stock }}" class="pd-qty-input" style="height: 100%;" readonly>
-                            <button type="button" class="pd-qty-btn" style="height: 100%; border-radius: 0;" onclick="let v=this.previousElementSibling;let mx=+(v.getAttribute('max')||999);v.value=Math.min(mx,+v.value+1)">+</button>
-                        </div>
-                        <button type="submit" class="pd-add-btn" style="height: 48px; border-radius: 10px;" {{ $product->stock < 1 ? 'disabled style="opacity:.5;cursor:not-allowed;"' : '' }}>🛒 {{ $product->stock < 1 ? 'Out of Stock' : 'Add to Cart' }}</button>
-                    </div>
-                </form>
+        {{-- Product Details Chips --}}
+        <div class="pd-details-row">
+            @if($product->brand_name)
+            <div class="pd-detail-chip">
+                <span class="pd-detail-label">Brand</span>
+                <span class="pd-detail-value">{{ $product->brand_name }}</span>
+            </div>
+            @endif
+            @if($product->animal_type)
+            <div class="pd-detail-chip">
+                <span class="pd-detail-label">For</span>
+                <span class="pd-detail-value">{{ $product->animal_type }}</span>
+            </div>
+            @endif
+            @if($product->life_stage)
+            <div class="pd-detail-chip">
+                <span class="pd-detail-label">Life Stage</span>
+                <span class="pd-detail-value">{{ $product->life_stage }}</span>
+            </div>
+            @endif
+            @if($product->wet_or_dry)
+            <div class="pd-detail-chip">
+                <span class="pd-detail-label">Type</span>
+                <span class="pd-detail-value">{{ ucfirst($product->wet_or_dry) }}</span>
+            </div>
+            @endif
+            @if($product->weight_in_grams)
+            <div class="pd-detail-chip">
+                <span class="pd-detail-label">Weight</span>
+                <span class="pd-detail-value">{{ $product->weight_in_grams >= 1000 ? ($product->weight_in_grams / 1000) . ' KG' : $product->weight_in_grams . ' g' }}</span>
+            </div>
+            @endif
+        </div>
 
-                @if($product->stock > 0)
-                    <form action="{{ route('cart.buy-now') }}" method="POST" class="pd-add-form pd-buy-now-form" style="margin: 0; flex: 1;">
-                        @csrf
-                        <input type="hidden" name="product_id" value="{{ $product->id }}">
-                        <input type="hidden" name="quantity" value="1" class="pd-buy-now-qty">
-                        <button type="submit" class="pd-add-btn" style="background:#3b82f6; width: 100%; height: 48px; border-radius: 10px;">⚡ Buy Now</button>
-                    </form>
-                    <script>
-                        (function() {
-                            var qtyInput = document.querySelector('.pd-add-cart-form input[name="quantity"]');
-                            var buyNowQty = document.querySelector('.pd-buy-now-form .pd-buy-now-qty');
-                            if (!qtyInput || !buyNowQty) return;
-                            var syncQty = function() { buyNowQty.value = qtyInput.value || 1; };
-                            qtyInput.addEventListener('change', syncQty);
-                            qtyInput.addEventListener('input', syncQty);
-                        })();
-                    </script>
-                @endif
-                
-                {{-- Wishlist Button --}}
-                <form action="{{ route('wishlist.toggle') }}" method="POST" style="margin: 0; height: 48px;">
-                    @csrf
-                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                    <button type="submit" style="height: 100%; width: 48px; border-radius: 10px; background: #fff1f2; border: 1px solid #fecdd3; color: #e11d48; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Toggle Wishlist" onmouseover="this.style.background='#ffe4e6'" onmouseout="this.style.background='#fff1f2'">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="{{ (Auth::check() && \App\Models\Wishlist::where('user_id', Auth::id())->where('product_id', $product->id)->exists()) ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+        {{-- Divider --}}
+        <hr class="pd-hr">
+
+                {{-- Product Variants --}}
+        @if($product->variants && $product->variants->count() > 0 && $product->variants->where('uom', '!=', null)->count() > 0)
+        <div class="pd-variants-section" style="margin-bottom: 20px;">
+            <div style="font-size: 13px; font-weight: 600; color: #444; margin-bottom: 8px;">Select Variant</div>
+            <div class="pd-variant-chips" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                @foreach($product->variants as $index => $variant)
+                    @if($variant->uom)
+                    <button type="button" 
+                        class="pd-variant-chip {{ $index === 0 ? 'active' : '' }}" 
+                        data-id="{{ $variant->id }}" 
+                        data-price="{{ $variant->variant_price > 0 ? $variant->variant_price : $product->sale_price }}" 
+                        data-stock="{{ $variant->variant_quantity }}"
+                        style="padding: 6px 12px; border: 1.5px solid {{ $index === 0 ? 'var(--ud-orange)' : '#ddd' }}; border-radius: 6px; background: {{ $index === 0 ? '#FFF7ED' : '#fff' }}; color: {{ $index === 0 ? 'var(--ud-orange)' : '#333' }}; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                        {{ $variant->variant_name }}
                     </button>
-                </form>
+                    @endif
+                @endforeach
+            </div>
+        </div>
+        
+        @endif
+{{-- Stock Status --}}
+        <div id="dynamic-stock-wrapper">
+        @if($product->stock > 10)
+            <div class="pd-stock-badge in">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                In Stock
+                <span class="pd-stock-count">({{ $product->stock }} available)</span>
+            </div>
+        @elseif($product->stock > 0)
+            <div class="pd-stock-badge low">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                Only <span class="pd-stock-count">{{ $product->stock }}</span> left — order soon!
             </div>
         @else
-            <div style="display: flex; gap: 10px; margin-top: 15px; align-items: center;">
-                <a href="{{ route('login') }}" class="pd-add-btn" style="flex: 1; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; box-sizing: border-box; height: 48px;">🛒 Add to Cart</a>
-                @if($product->stock > 0)
-                <a href="{{ route('login') }}" class="pd-add-btn" style="flex: 1; background: #3b82f6; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; box-sizing: border-box; height: 48px;">⚡ Buy Now</a>
-                @endif
-                <a href="{{ route('login') }}" style="height: 48px; width: 48px; border-radius: 10px; background: #fff1f2; border: 1px solid #fecdd3; color: #e11d48; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Add to Wishlist">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                </a>
+            <div class="pd-stock-badge out">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
+                Out of Stock
+            </div>
+        @endif
+        </div>
+
+        {{-- Action Buttons --}}
+        @auth
+            <div class="pd-actions">
+                {{-- Quantity Selector --}}
+                <div class="pd-qty-row">
+                    <span class="pd-qty-label">Quantity</span>
+                    <div class="pd-qty-wrap">
+                        <button type="button" class="pd-qty-btn" onclick="let v=this.nextElementSibling;v.value=Math.max(1,+v.value-1);v.dispatchEvent(new Event('change'))">−</button>
+                        <input type="number" value="1" min="1" max="{{ $product->stock }}" class="pd-qty-input pd-main-qty" readonly>
+                        <button type="button" class="pd-qty-btn" onclick="let v=this.previousElementSibling;let mx=+(v.getAttribute('max')||999);v.value=Math.min(mx,+v.value+1);v.dispatchEvent(new Event('change'))">+</button>
+                    </div>
+                </div>
+
+                {{-- CTA Buttons Row --}}
+                <div class="pd-cta-row">
+                    <form action="{{ route('cart.add') }}" method="POST" class="pd-add-form pd-add-cart-form" style="margin: 0; flex: 1;">
+                        @csrf
+                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+                        <input type="hidden" name="quantity" value="1" class="pd-cart-add-qty">
+                        <button type="submit" class="pd-btn pd-btn-cart" {{ $product->stock < 1 ? 'disabled' : '' }}>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+                            {{ $product->stock < 1 ? 'Out of Stock' : 'Add to Cart' }}
+                        </button>
+                    </form>
+
+                    @if($product->stock > 0)
+                        <form action="{{ route('cart.buy-now') }}" method="POST" class="pd-add-form pd-buy-now-form" style="margin: 0; flex: 1;">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                            <input type="hidden" name="quantity" value="1" class="pd-buy-now-qty">
+                            <button type="submit" class="pd-btn pd-btn-buy">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                Buy Now
+                            </button>
+                        </form>
+                        <script>
+                            (function() {
+                                var mainQty = document.querySelector('.pd-main-qty');
+                                var cartAddQty = document.querySelector('.pd-cart-add-qty');
+                                var buyNowQty = document.querySelector('.pd-buy-now-form .pd-buy-now-qty');
+                                if (!mainQty) return;
+                                var syncQty = function() { 
+                                    if(buyNowQty) buyNowQty.value = mainQty.value || 1; 
+                                    if(cartAddQty) cartAddQty.value = mainQty.value || 1;
+                                };
+                                mainQty.addEventListener('change', syncQty);
+                                mainQty.addEventListener('input', syncQty);
+                            })();
+                        </script>
+                    @endif
+
+                    {{-- Wishlist Button --}}
+                    <form action="{{ route('wishlist.toggle') }}" method="POST" style="margin: 0;">
+                        @csrf
+                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+                        <button type="submit" class="pd-btn pd-btn-wish {{ (Auth::check() && \App\Models\Wishlist::where('user_id', Auth::id())->where('product_id', $product->id)->exists()) ? 'active' : '' }}" title="Toggle Wishlist">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="{{ (Auth::check() && \App\Models\Wishlist::where('user_id', Auth::id())->where('product_id', $product->id)->exists()) ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        @else
+            <div class="pd-actions">
+                <div class="pd-cta-row">
+                    <a href="{{ route('login') }}" class="pd-btn pd-btn-cart" style="text-decoration: none; text-align: center;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+                        Add to Cart
+                    </a>
+                    @if($product->stock > 0)
+                    <a href="{{ route('login') }}" class="pd-btn pd-btn-buy" style="text-decoration: none; text-align: center;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        Buy Now
+                    </a>
+                    @endif
+                    <a href="{{ route('login') }}" class="pd-btn pd-btn-wish" title="Add to Wishlist" style="text-decoration: none;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    </a>
+                </div>
             </div>
         @endauth
+
+        {{-- Trust Badges --}}
+        <div class="pd-trust-row">
+            <div class="pd-trust-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3DB868" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span>Secure Payment</span>
+            </div>
+            <div class="pd-trust-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><rect x="1" y="3" width="22" height="18" rx="2"/><path d="M1 9h22"/></svg>
+                <span>Free Returns</span>
+            </div>
+            <div class="pd-trust-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ud-orange)" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 12 16 16 16 8"/><path d="M1 16h15"/></svg>
+                <span>Fast Delivery</span>
+            </div>
+        </div>
     </div>
 </div>
 
 {{-- ═══ REVIEWS SECTION ═══ --}}
 <div class="rv-section">
-    <h2>⭐ Customer Reviews</h2>
+    <h2>Customer Reviews</h2>
 
     {{-- Rating Summary --}}
     <div class="rv-summary">
@@ -122,49 +258,6 @@
             @endforeach
         </div>
     </div>
-
-    {{-- Write Review Form --}}
-    @php
-        $hasBought = false;
-        if (Auth::check()) {
-            $hasBought = \App\Models\Order::where('user_id', Auth::id())
-                ->where('order_status', \App\Models\Order::STATUS_DELIVERED)
-                ->whereHas('orderItems', function ($query) use ($product) {
-                    $query->where('product_id', $product->id);
-                })->exists();
-        }
-    @endphp
-    @auth
-        @if($hasBought)
-        <div class="rv-write">
-            <h3>Write a Review</h3>
-            <form action="{{ route('review.store', $product->id) }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="rv-star-input">
-                    @for($i = 5; $i >= 1; $i--)
-                    <input type="radio" name="rating" id="modal-star{{ $i }}" value="{{ $i }}" {{ $i == 5 ? 'checked' : '' }}>
-                    <label for="modal-star{{ $i }}">★</label>
-                    @endfor
-                </div>
-                <textarea name="comment" class="rv-textarea" placeholder="Share your experience with this product..."></textarea>
-                <div class="rv-img-upload">
-                    <label class="rv-img-label">📷 Add photos (max 4)</label>
-                    <input type="file" name="review_images[]" multiple accept="image/*" onchange="window.previewImages(this)" style="font-size:13px;">
-                    <div class="rv-img-preview" id="imgPreview"></div>
-                </div>
-                <button type="submit" class="rv-submit">Submit Review</button>
-            </form>
-        </div>
-        @else
-        <div class="rv-login-cta" style="background:#f9fafb; padding:20px; border-radius:10px; text-align:center; color:#6b7280; font-size:14px; margin-bottom:24px;">
-            You must purchase and receive this product to write a review.
-        </div>
-        @endif
-    @else
-    <div class="rv-login-cta">
-        <a href="{{ route('login') }}">Log in</a> to write a review
-    </div>
-    @endauth
 
     {{-- Review List --}}
     <div class="rv-list">
@@ -231,5 +324,3 @@
         @endforelse
     </div>
 </div>
-
-

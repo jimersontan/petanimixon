@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Order Placed - PetMarkt-PH')
+@section('title', 'Order Placed - Pet Markt-PH')
 
 @push('styles')
 <style>
@@ -36,7 +36,7 @@
 <div class="success-page">
     <span class="success-icon">🎉</span>
     <h1>Order Placed Successfully!</h1>
-    <p class="sub">Thank you for shopping at PetMarkt-PH. We'll start processing your order right away.</p>
+    <p class="sub">Thank you for shopping at Pet Markt-PH. We'll start processing your order right away.</p>
 
     <div class="success-card">
         <div class="success-row">

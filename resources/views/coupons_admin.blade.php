@@ -24,7 +24,7 @@
     </div>
 
     <div style="display: flex; gap: 8px; border-bottom: 2px solid #f3f4f6; margin-bottom: 20px;">
-        <button type="button" id="tab-all-coupons" class="order-tab active" onclick="switchTab('all-coupons')" style="border-bottom: 3px solid #ea580c; margin-bottom: -2px;">
+        <button type="button" id="tab-all-coupons" class="order-tab active" onclick="switchTab('all-coupons')" style="border-bottom: 3px solid var(--ud-orange-dark); margin-bottom: -2px;">
             All Coupons
         </button>
         <button type="button" id="tab-product-sales" class="order-tab" onclick="switchTab('product-sales')">
@@ -98,7 +98,7 @@
                 <tbody>
                     @forelse($coupons as $coupon)
                     <tr>
-                        <td><strong style="color: #ea580c; font-family: monospace; font-size: 14px;">{{ $coupon->coupon_code }}</strong></td>
+                        <td><strong style="color: var(--ud-orange-dark); font-family: monospace; font-size: 14px;">{{ $coupon->coupon_code }}</strong></td>
                         <td>{{ $coupon->coupon_name }}</td>
                         <td>
                             @if($coupon->discount_type === 'percent')
@@ -158,7 +158,7 @@
                     @empty
                     <tr>
                         <td colspan="7" class="text-center" style="padding: 40px 20px; color: #999;">
-                            📭 No coupons yet. <a href="#" onclick="openCouponModal('add'); return false;" style="color: #ea580c; font-weight: 600;">Create one →</a>
+                            📭 No coupons yet. <a href="#" onclick="openCouponModal('add'); return false;" style="color: var(--ud-orange-dark); font-weight: 600;">Create one →</a>
                         </td>
                     </tr>
                     @endforelse
@@ -194,7 +194,7 @@
         </div>
 
         <div style="margin-bottom: 24px;">
-            <button type="button" class="btn-primary" onclick="openSalesModal()">
+            <button type="button" class="btn-primary" onclick="openSalesModal('add')">
                 <span class="btn-icon">+</span>
                 <span>Add Featured Product</span>
             </button>
@@ -269,9 +269,17 @@
                             @endif
                         </td>
                         <td class="col-actions" style="display: flex; gap: 8px; align-items: center;">
-                            <a href="{{ route('inventory.edit', $product->id) }}" class="action-btn" title="Edit" style="padding: 6px 10px; font-size: 16px; background: none; border: none; cursor: pointer;">
+                            <button type="button" class="action-btn" title="Edit Sale" style="padding: 6px 10px; font-size: 16px; background: none; border: none; cursor: pointer;" onclick="openSalesModal('edit', {
+                                product_id: {{ $product->id }},
+                                product_name: '{{ addslashes($product->product_name) }}',
+                                discount_type: '{{ $product->discount_type }}',
+                                discount_amount: '{{ $product->discount_amount }}',
+                                valid_from: '{{ $product->sale_valid_from ? $product->sale_valid_from->format('Y-m-d\TH:i') : '' }}',
+                                valid_until: '{{ $product->sale_valid_until ? $product->sale_valid_until->format('Y-m-d\TH:i') : '' }}',
+                                is_featured: {{ $product->is_featured ? 'true' : 'false' }}
+                            })">
                                 ✏️
-                            </a>
+                            </button>
                             <form method="POST" action="{{ route('products.toggle-featured', $product->id) }}" style="display: contents;">
                                 @csrf @method('PATCH')
                                 <button type="submit" class="action-btn" title="{{ $product->is_featured ? 'Remove from Homepage' : 'Add to Homepage' }}" style="padding: 6px 10px; font-size: 16px; background: none; border: none; cursor: pointer;">
@@ -289,7 +297,7 @@
                     @empty
                     <tr>
                         <td colspan="7" class="text-center" style="padding: 40px 20px; color: #999;">
-                            🏷️ No products on sale yet. <a href="{{ route('products.readonly') }}" style="color: #ea580c; font-weight: 600;">Manage products →</a>
+                            🏷️ No products on sale yet. <a href="{{ route('products.readonly') }}" style="color: var(--ud-orange-dark); font-weight: 600;">Manage products →</a>
                         </td>
                     </tr>
                     @endforelse
@@ -428,12 +436,13 @@
 <div class="modal-backdrop" data-modal-id="sales-modal"></div>
 <div id="sales-modal" class="modal" style="max-width: 600px; width: 95%;">
     <div class="modal-header">
-        <h2 class="modal-title">✨ Add Product to Sale</h2>
+        <h2 id="salesModalTitle" class="modal-title">Add Product to Sale</h2>
         <button type="button" class="modal-close" onclick="closeSalesModal()">&times;</button>
     </div>
     <div class="modal-body">
         <form method="POST" action="{{ route('products.storeSale') }}">
             @csrf
+            <div id="salesMethodContainer"></div>
             <div class="form-group" style="margin-bottom: 16px;">
                 <label for="sale_product_id" style="font-weight: 700; display: block; margin-bottom: 8px;">Select Product *</label>
                 <select name="product_id" id="sale_product_id" class="form-control" required>
@@ -537,10 +546,39 @@ function openCouponModal(mode, data = null) {
     backdrop.classList.add('open');
 }
 
-function openSalesModal() {
+function openSalesModal(mode = 'add', data = null) {
     const modal = document.getElementById('sales-modal');
     const backdrop = document.querySelector('.modal-backdrop[data-modal-id="sales-modal"]');
-    
+    const title = document.getElementById('salesModalTitle');
+    const form = modal.querySelector('form');
+    const methodContainer = document.getElementById('salesMethodContainer');
+    const productSelect = document.getElementById('sale_product_id');
+
+    // Reset form
+    form.reset();
+    methodContainer.innerHTML = '';
+    form.action = "{{ route('products.storeSale') }}";
+    if (productSelect) productSelect.disabled = false;
+
+    if (mode === 'edit' && data) {
+        title.textContent = 'Edit Sale';
+        // Pre-fill fields
+        if (productSelect) {
+            productSelect.value = data.product_id;
+            productSelect.disabled = true;
+        }
+        // Add a hidden input so the disabled select value still submits
+        methodContainer.innerHTML = '<input type="hidden" name="product_id" value="' + data.product_id + '">';
+        document.getElementById('sale_discount_type').value = data.discount_type || 'percent';
+        document.getElementById('sale_discount_amount').value = data.discount_amount || '';
+        document.getElementById('sale_valid_from').value = data.valid_from || '';
+        document.getElementById('sale_valid_until').value = data.valid_until || '';
+        const featuredCheckbox = form.querySelector('input[name="is_featured"]');
+        if (featuredCheckbox) featuredCheckbox.checked = !!data.is_featured;
+    } else {
+        title.textContent = 'Add Product to Sale';
+    }
+
     if (modal && backdrop) {
         modal.classList.add('open');
         backdrop.classList.add('open');

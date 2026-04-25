@@ -13,7 +13,7 @@
             <div class="chat-header-info">
                 <div class="chat-header-avatar">🐾</div>
                 <div>
-                    <div class="chat-header-name">PetMarkt-PH Support</div>
+                    <div class="chat-header-name">Pet Markt-PH Support</div>
                     <div class="chat-header-status" id="chatHeaderStatus">
                         <span class="chat-status-dot online"></span> Online
                     </div>
@@ -66,7 +66,7 @@
 .chat-bubble-btn {
     position: fixed; bottom: 80px; right: 24px; z-index: 9998;
     width: 60px; height: 60px; border-radius: 50%;
-    background: linear-gradient(135deg, #FF8C42, #ea580c);
+    background: linear-gradient(135deg, var(--ud-orange), var(--ud-orange-dark));
     color: #fff; border: none; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     box-shadow: 0 6px 24px rgba(234,88,12,0.4);
@@ -103,7 +103,7 @@
 .chat-panel-header {
     display: flex; align-items: center; justify-content: space-between;
     padding: 16px 18px;
-    background: linear-gradient(135deg, #FF8C42, #ea580c);
+    background: linear-gradient(135deg, var(--ud-orange), var(--ud-orange-dark));
     color: #fff;
 }
 .chat-header-info { display: flex; align-items: center; gap: 12px; }
@@ -160,7 +160,7 @@
     border-bottom-left-radius: 4px;
 }
 .chat-msg.user .chat-msg-bubble {
-    background: linear-gradient(135deg, #FF8C42, #ea580c);
+    background: linear-gradient(135deg, var(--ud-orange), var(--ud-orange-dark));
     color: #fff; border-bottom-right-radius: 4px;
 }
 .chat-msg-time {
@@ -202,7 +202,7 @@
     padding: 6px 14px; font-size: 12px; color: #374151;
     cursor: pointer; transition: all 0.2s; white-space: nowrap;
 }
-.chat-quick-btn:hover { background: #FFF4EC; border-color: #ea580c; color: #ea580c; }
+.chat-quick-btn:hover { background: #FFF4EC; border-color: var(--ud-orange-dark); color: var(--ud-orange-dark); }
 
 /* ── Input Area ─────────────────────────── */
 .chat-input-area {
@@ -214,16 +214,16 @@
     color: #9ca3af; cursor: pointer; display: flex;
     align-items: center; transition: color 0.2s;
 }
-.chat-attach-btn:hover { color: #ea580c; }
+.chat-attach-btn:hover { color: var(--ud-orange-dark); }
 .chat-input {
     flex: 1; border: 1px solid #e5e7eb; border-radius: 20px;
     padding: 10px 16px; font-size: 13px; outline: none;
     transition: border-color 0.2s;
 }
-.chat-input:focus { border-color: #ea580c; }
+.chat-input:focus { border-color: var(--ud-orange-dark); }
 .chat-send-btn {
     width: 38px; height: 38px; border-radius: 50%;
-    background: linear-gradient(135deg, #FF8C42, #ea580c);
+    background: linear-gradient(135deg, var(--ud-orange), var(--ud-orange-dark));
     color: #fff; border: none; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     transition: transform 0.2s;
@@ -235,7 +235,7 @@
 }
 .chat-image-preview img {
     width: 50px; height: 50px; border-radius: 8px; object-fit: cover;
-    border: 2px solid #ea580c;
+    border: 2px solid var(--ud-orange-dark);
 }
 .chat-remove-image {
     position: absolute; top: -6px; right: -6px;

@@ -75,9 +75,9 @@
         transform: scale(0.97);
     }
 
-    /* ─── Page spacing ─── */
+    /* ─── Page spacing — generous to clear bottom-nav on ALL phones ─── */
     .ud-main {
-        padding-bottom: calc(var(--mob-nav-height) + var(--mob-safe-bottom) + 16px) !important;
+        padding-bottom: calc(var(--mob-nav-height) + var(--mob-safe-bottom) + 32px) !important;
     }
 
 
@@ -678,15 +678,33 @@
     }
 
     .hm-slide {
-        padding: 20px 16px !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        padding: 20px 16px 40px !important;
+        text-align: center !important;
+    }
+
+    .hm-slide-content {
+        max-width: 100% !important;
+        align-items: center !important;
+        margin-bottom: 20px !important;
     }
 
     .hm-slide-title {
         font-size: 1.2rem !important;
     }
 
+    .hm-slide-image {
+        position: relative !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 160px !important;
+        height: 160px !important;
+        margin: 0 auto !important;
+    }
+
     .hm-slide-image img {
-        max-height: 140px !important;
+        max-height: 100% !important;
     }
 
     /* ─── Section Headers ─── */
@@ -821,6 +839,7 @@
         border-radius: 10px !important;
         box-shadow: 0 1px 5px rgba(0,0,0,0.06) !important;
         overflow: hidden;
+        margin-bottom: 4px !important;
     }
 
     .product-card:hover {
@@ -1082,7 +1101,7 @@
     .site-footer-premium {
         margin-top: 24px !important;
         padding-top: 40px !important;
-        padding-bottom: calc(var(--mob-nav-height) + var(--mob-safe-bottom) + 24px) !important;
+        padding-bottom: calc(var(--mob-nav-height) + var(--mob-safe-bottom) + 40px) !important;
     }
 
     .sfp-container {
@@ -1177,10 +1196,27 @@
         margin-bottom: 16px !important;
     }
 
-    /* Gallery — reduced height */
+    /* Gallery — reduced height so image is NEVER cut on load */
     .pd-gallery {
         border-radius: 12px !important;
         aspect-ratio: 4 / 3 !important;
+        max-height: 55vh !important;
+    }
+
+    /* Standalone product detail page — ensure nothing clips */
+    .pd-page {
+        padding: 12px 14px calc(var(--mob-nav-height) + var(--mob-safe-bottom) + 32px) !important;
+    }
+
+    .pd-page .pd-gallery {
+        aspect-ratio: 4 / 3 !important;
+        max-height: 50vh !important;
+        border-radius: 14px !important;
+    }
+
+    .pd-page .pd-breadcrumb {
+        margin-bottom: 10px !important;
+        font-size: 11px !important;
     }
 
     .pd-main-img {
@@ -1417,9 +1453,9 @@
        PHASE 4 — CART & CHECKOUT
        ═══════════════════════════════════════════ */
 
-    /* Cart page globals */
+    /* Cart page globals — extra bottom padding so checkout btn never hides behind nav */
     .cart-page {
-        padding: 12px 12px 100px !important;
+        padding: 12px 12px calc(var(--mob-nav-height) + var(--mob-safe-bottom) + 40px) !important;
         background-color: #f8f4f0 !important;
     }
 
@@ -1572,7 +1608,7 @@
 
     /* Checkout page */
     .checkout-page {
-        padding: 16px 12px 40px !important;
+        padding: 16px 12px calc(var(--mob-nav-height) + var(--mob-safe-bottom) + 32px) !important;
     }
 
     .checkout-heading {
@@ -1640,7 +1676,7 @@
 
     /* Orders page */
     .mo-page {
-        padding: 16px 12px 40px !important;
+        padding: 16px 12px calc(var(--mob-nav-height) + var(--mob-safe-bottom) + 32px) !important;
     }
 
     .mo-header {
@@ -1769,7 +1805,7 @@
 
     /* Wishlist page */
     .wl-page {
-        padding: 16px 12px 40px !important;
+        padding: 16px 12px calc(var(--mob-nav-height) + var(--mob-safe-bottom) + 32px) !important;
     }
 
     .wl-heading {
@@ -1783,7 +1819,7 @@
 
     /* Category page */
     .cat-page {
-        padding: 16px 12px 40px !important;
+        padding: 16px 12px calc(var(--mob-nav-height) + var(--mob-safe-bottom) + 32px) !important;
     }
 
     .cat-heading {
@@ -1793,7 +1829,7 @@
     /* Profile page adjustments */
     .profile-page,
     .account-page {
-        padding: 16px 12px 40px !important;
+        padding: 16px 12px calc(var(--mob-nav-height) + var(--mob-safe-bottom) + 32px) !important;
     }
 
     .profile-header {

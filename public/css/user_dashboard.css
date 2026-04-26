@@ -1050,6 +1050,7 @@ body.user-dashboard {
         margin-left: -14px;
         margin-right: -14px;
         padding: 20px 14px;
+        overflow: visible;
     }
 
     .hm-flash-title { flex-direction: column; align-items: flex-start; gap: 8px; }
@@ -1057,6 +1058,7 @@ body.user-dashboard {
     .hm-product-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
+        padding-bottom: 16px;
     }
 
     .hm-product-card:hover {

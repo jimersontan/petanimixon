@@ -66,9 +66,8 @@ class RiderDashboardController extends Controller
     public function availableOrders()
     {
         $rider = Auth::user();
-        $hasCurrentAssignment = Order::where('rider_id', $rider->id)
-            ->whereIn('order_status', [Order::STATUS_RIDER_CONFIRMED, Order::STATUS_OUT_FOR_DELIVERY])
-            ->exists();
+
+        $hasCurrentAssignment = false; // Kept for backwards compatibility if needed, but not restricting
 
         $orders = Order::where('order_status', Order::STATUS_ASSIGNED_TO_RIDER)
             ->where('shipping_type', 'local')
@@ -86,21 +85,8 @@ class RiderDashboardController extends Controller
         ]);
     }
 
-    /**
-     * Rider accepts/claims an order.
-     */
     public function acceptOrder($id)
     {
-        $hasCurrentAssignment = Order::where('rider_id', Auth::id())
-            ->whereIn('order_status', [Order::STATUS_RIDER_CONFIRMED, Order::STATUS_OUT_FOR_DELIVERY])
-            ->exists();
-
-        if ($hasCurrentAssignment) {
-            return redirect()
-                ->route('rider.active')
-                ->with('error', 'Finish your current assignment first before accepting a new order.');
-        }
-
         $order = Order::where('id', $id)
             ->where('order_status', Order::STATUS_ASSIGNED_TO_RIDER)
             ->where(function($q) {

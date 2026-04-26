@@ -1058,7 +1058,35 @@
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
     .rider-sidebar {
-        display: none;
+        position: fixed;
+        left: -300px;
+        top: 0;
+        bottom: 0;
+        width: 260px;
+        height: 100vh;
+        z-index: 2000;
+        background: #fff;
+        border-right: none;
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 4px 0 16px rgba(0,0,0,0.1);
+        padding: 20px 12px;
+        overflow-y: auto;
+    }
+    .rider-sidebar.active {
+        left: 0;
+    }
+    .rider-sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+    }
+    .rider-sidebar-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
     }
 
     .rider-main {
@@ -1119,7 +1147,9 @@
         white-space: nowrap;
     }
 
+    /* Overrides for < 768px already match since max-width:768 overrides */
     .rider-sidebar {
+        /* Reverted to offcanvas on 768px, but between 768 and 992 let's just make it regular inline scroll */
         width: 100%;
         border-right: 0;
         border-bottom: 1px solid var(--rider-border);

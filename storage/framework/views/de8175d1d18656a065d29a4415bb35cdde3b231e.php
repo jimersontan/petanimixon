@@ -1,13 +1,11 @@
-@extends('frontend.layouts.app')
+<?php $__env->startSection('title', 'Brands - Pet Markt-PH'); ?>
 
-@section('title', 'Brands - Pet Markt-PH')
-
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <style>
 /* ══════════════════════════════════════════════════════════
    PREMIUM BRANDS PAGE — Pet Markt-PH (Repolished)
    ══════════════════════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import  url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 .brands-page {
     width: 100% !important;
@@ -618,12 +616,12 @@
     .stat-label { font-size: 10px; }
 }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="brands-page">
 
-    {{-- Hero --}}
+    
     <div class="brands-hero">
         <div class="brands-hero-wave"></div>
         <div class="brands-hero-badge">⭐ Curated Selection</div>
@@ -635,14 +633,14 @@
         </div>
     </div>
 
-    {{-- Stats --}}
+    
     <div class="brands-stats">
         <div class="stat-item">
-            <div class="stat-value">{{ $brands->count() }}</div>
+            <div class="stat-value"><?php echo e($brands->count()); ?></div>
             <div class="stat-label">Total Brands</div>
         </div>
         <div class="stat-item">
-            <div class="stat-value">{{ $brands->sum('products_count') }}</div>
+            <div class="stat-value"><?php echo e($brands->sum('products_count')); ?></div>
             <div class="stat-label">Products</div>
         </div>
         <div class="stat-item">
@@ -653,40 +651,40 @@
 
     <div class="brands-content">
 
-        {{-- Tabs + Count --}}
+        
         <div class="brand-tabs-container">
             <div class="brand-tabs">
                 <a href="#all" class="brand-tab active" onclick="filterBrands('all', this)">All Brands</a>
                 <a href="#top" class="brand-tab" onclick="filterBrands('top', this)">Top Sellers</a>
                 <a href="#new" class="brand-tab" onclick="filterBrands('new', this)">New Arrivals</a>
             </div>
-            <div class="brand-count-label">Showing <span id="brandVisibleCount">{{ $brands->count() }}</span> brands</div>
+            <div class="brand-count-label">Showing <span id="brandVisibleCount"><?php echo e($brands->count()); ?></span> brands</div>
         </div>
 
-        {{-- Grid --}}
+        
         <div class="brands-grid" id="brandsGrid">
-            @forelse($brands as $brand)
-            <div class="brand-card" data-brand-name="{{ strtolower($brand->name) }}" data-products="{{ $brand->products_count }}">
+            <?php $__empty_1 = true; $__currentLoopData = $brands; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $brand): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+            <div class="brand-card" data-brand-name="<?php echo e(strtolower($brand->name)); ?>" data-products="<?php echo e($brand->products_count); ?>">
                 <div class="brand-logo-wrap">
-                    @if($brand->logo_path)
-                        <img src="{{ $brand->logo_full_url }}" alt="{{ $brand->name }}" class="brand-logo-img" onerror="this.onerror=null; this.src='{{ asset('images/placeholder.png') }}'">
-                    @else
-                        <div class="brand-logo-placeholder">{{ strtoupper(substr($brand->name, 0, 2)) }}</div>
-                    @endif
+                    <?php if($brand->logo_path): ?>
+                        <img src="<?php echo e($brand->logo_full_url); ?>" alt="<?php echo e($brand->name); ?>" class="brand-logo-img" onerror="this.onerror=null; this.src='<?php echo e(asset('images/placeholder.png')); ?>'">
+                    <?php else: ?>
+                        <div class="brand-logo-placeholder"><?php echo e(strtoupper(substr($brand->name, 0, 2))); ?></div>
+                    <?php endif; ?>
                 </div>
-                <h3 class="brand-name">{{ $brand->name }}</h3>
-                <p class="brand-tagline">Quality products from {{ $brand->name }}</p>
-                <p class="brand-product-count">📦 {{ $brand->products_count }} {{ Str::plural('product', $brand->products_count) }}</p>
-                <a href="{{ route('shop.all', ['brand' => $brand->name]) }}" class="btn-view-brand">
+                <h3 class="brand-name"><?php echo e($brand->name); ?></h3>
+                <p class="brand-tagline">Quality products from <?php echo e($brand->name); ?></p>
+                <p class="brand-product-count">📦 <?php echo e($brand->products_count); ?> <?php echo e(Str::plural('product', $brand->products_count)); ?></p>
+                <a href="<?php echo e(route('shop.all', ['brand' => $brand->name])); ?>" class="btn-view-brand">
                     View Products →
                 </a>
             </div>
-            @empty
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                 <div class="no-brands-msg">No brands available at the moment. Check back soon!</div>
-            @endforelse
+            <?php endif; ?>
         </div>
 
-        {{-- Why These Brands --}}
+        
         <div class="brands-why-section">
             <h2 class="brands-why-title">Why These Brands?</h2>
             <p class="brands-why-subtitle">Every brand on Pet Markt-PH passes our rigorous quality standards.</p>
@@ -709,39 +707,39 @@
             </div>
         </div>
 
-        {{-- Featured Brand --}}
-        @if($featuredBrand)
+        
+        <?php if($featuredBrand): ?>
         <div class="featured-brand-section">
             <div class="featured-brand-grid">
                 <div>
                     <div class="featured-brand-img-wrap">
-                        @if($featuredBrand->logo_path)
-                            <img src="{{ $featuredBrand->logo_full_url }}" alt="{{ $featuredBrand->name }}" onerror="this.onerror=null; this.src='{{ asset('images/placeholder.png') }}'">
-                        @else
-                            <div class="fb-placeholder">{{ strtoupper(substr($featuredBrand->name, 0, 2)) }}</div>
-                        @endif
+                        <?php if($featuredBrand->logo_path): ?>
+                            <img src="<?php echo e($featuredBrand->logo_full_url); ?>" alt="<?php echo e($featuredBrand->name); ?>" onerror="this.onerror=null; this.src='<?php echo e(asset('images/placeholder.png')); ?>'">
+                        <?php else: ?>
+                            <div class="fb-placeholder"><?php echo e(strtoupper(substr($featuredBrand->name, 0, 2))); ?></div>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="featured-brand-info">
                     <span class="fb-badge">⭐ Featured Brand</span>
-                    <h2 class="fb-name">{{ $featuredBrand->name }}</h2>
-                    <p class="fb-desc">{{ $featuredBrand->name }} is one of our most trusted partners, providing high-quality, vet-recommended products for your beloved pets. Explore their full range today.</p>
+                    <h2 class="fb-name"><?php echo e($featuredBrand->name); ?></h2>
+                    <p class="fb-desc"><?php echo e($featuredBrand->name); ?> is one of our most trusted partners, providing high-quality, vet-recommended products for your beloved pets. Explore their full range today.</p>
                     <ul class="fb-features">
                         <li>Quality assured & vet-approved</li>
                         <li>Trusted by thousands of pet owners</li>
                         <li>100% pet-friendly materials</li>
                         <li>Sustainable & ethical practices</li>
                     </ul>
-                    <a href="{{ route('shop.all', ['brand' => $featuredBrand->name]) }}" class="btn-shop-brand">Shop {{ $featuredBrand->name }} →</a>
+                    <a href="<?php echo e(route('shop.all', ['brand' => $featuredBrand->name])); ?>" class="btn-shop-brand">Shop <?php echo e($featuredBrand->name); ?> →</a>
                 </div>
             </div>
         </div>
-        @endif
+        <?php endif; ?>
 
     </div>
 </div>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 (function() {
     var searchInput = document.getElementById('brandSearchInput');
@@ -796,5 +794,7 @@ function filterBrands(filter, el) {
     return false;
 }
 </script>
-@endpush
-@endsection
+<?php $__env->stopPush(); ?>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('frontend.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\Pet Markt-PH\resources\views/frontend/brands.blade.php ENDPATH**/ ?>

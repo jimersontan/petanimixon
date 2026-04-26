@@ -53,40 +53,28 @@
         <span class="mob-nav-label">Shop</span>
     </a>
 
-    {{-- Orders --}}
-    @auth
-        <a href="{{ route('orders') }}" class="mob-nav-item {{ request()->routeIs('orders*') ? 'active' : '' }}" data-tab="orders">
-    @else
-        <button type="button" class="mob-nav-item" data-tab="orders" onclick="showAuthSheet('Sign in to view your orders', 'Track deliveries, manage returns, and view order history.')">
-    @endauth
+    {{-- Brands --}}
+    <a href="{{ route('brands') }}" class="mob-nav-item {{ request()->routeIs('brands*') ? 'active' : '' }}" data-tab="brands">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-            @if(request()->routeIs('orders*'))
-                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" fill="currentColor" stroke="currentColor"/>
-                <polyline points="14 2 14 8 20 8" stroke="#fff" stroke-width="2"/>
-                <line x1="16" y1="13" x2="8" y2="13" stroke="#fff" stroke-width="2"/>
-                <line x1="16" y1="17" x2="8" y2="17" stroke="#fff" stroke-width="2"/>
+            @if(request()->routeIs('brands*'))
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" fill="currentColor" stroke="currentColor"></path>
+                <line x1="7" y1="7" x2="7.01" y2="7" stroke="#fff" stroke-width="3"></line>
             @else
-                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/>
-                <line x1="16" y1="17" x2="8" y2="17"/>
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                <line x1="7" y1="7" x2="7.01" y2="7"></line>
             @endif
         </svg>
-        <span class="mob-nav-label">Orders</span>
-    @auth
-        </a>
-    @else
-        </button>
-    @endauth
+        <span class="mob-nav-label">Brands</span>
+    </a>
 
-    {{-- Profile --}}
+    {{-- Me --}}
     @auth
-        <a href="{{ route('profile.edit') }}" class="mob-nav-item {{ request()->routeIs('profile*') ? 'active' : '' }}" data-tab="profile">
+        <a href="{{ route('me') }}" class="mob-nav-item {{ request()->routeIs('me') || request()->routeIs('profile*') ? 'active' : '' }}" data-tab="me">
     @else
-        <button type="button" class="mob-nav-item" data-tab="profile" onclick="showAuthSheet('Sign in to your account', 'Manage your profile, addresses, and preferences.')">
+        <button type="button" class="mob-nav-item" data-tab="me" onclick="showAuthSheet('Sign in to your account', 'Manage your profile, track orders, and view settings.')">
     @endauth
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-            @if(request()->routeIs('profile*'))
+            @if(request()->routeIs('me') || request()->routeIs('profile*'))
                 <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" fill="currentColor" stroke="currentColor"/>
                 <circle cx="12" cy="7" r="4" fill="currentColor" stroke="currentColor"/>
             @else
@@ -94,7 +82,7 @@
                 <circle cx="12" cy="7" r="4"/>
             @endif
         </svg>
-        <span class="mob-nav-label">Profile</span>
+        <span class="mob-nav-label">Me</span>
     @auth
         </a>
     @else

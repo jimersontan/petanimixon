@@ -154,6 +154,10 @@ Route::get('/orders', [\App\Http\Controllers\ClientOrdersController::class, 'ind
     ->name('orders');
 
 // Profile/Account (protected route, for customers)
+Route::get('/me', [\App\Http\Controllers\ProfileController::class, 'me'])
+    ->middleware(['auth', 'client', 'verified'])
+    ->name('me');
+
 Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])
     ->middleware(['auth', 'client', 'verified'])
     ->name('profile.edit');

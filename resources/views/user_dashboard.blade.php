@@ -223,21 +223,7 @@
         </section>
         @endif
 
-        {{-- 5. BANNER STRIP --}}
-        <section class="hm-banner-strip">
-            <div class="hm-banner hm-banner-blue">
-                <div class="hm-banner-content">
-                    <h3>Premium Nutrition for Your Happy Pets</h3>
-                    <p>Discover our top-rated selection of organic foods.</p>
-                </div>
-            </div>
-            <div class="hm-banner hm-banner-orange">
-                <div class="hm-banner-content">
-                    <h3>Everything Your Pet Needs</h3>
-                    <p>Accessories, toys, and hygiene essentials.</p>
-                </div>
-            </div>
-        </section>
+
 
         {{-- 6. JUST FOR YOU (LATEST PRODUCTS) --}}
         <section class="hm-section hm-latest-section">

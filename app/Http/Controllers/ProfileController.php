@@ -10,6 +10,24 @@ use Illuminate\Support\Facades\Storage;
 class ProfileController extends Controller
 {
     /**
+     * Show the Me dashboard
+     */
+    public function me()
+    {
+        $user = Auth::user();
+        
+        $allOrders = \App\Models\Order::where('user_id', $user->id)->get();
+        $orderStats = [
+            'pending' => $allOrders->where('order_status', 'pending')->count(),
+            'processing' => $allOrders->where('order_status', 'processing')->count(),
+            'out_for_delivery' => $allOrders->where('order_status', 'out_for_delivery')->count(),
+            'delivered' => $allOrders->where('order_status', 'delivered')->count(),
+        ];
+
+        return view('profile.me', compact('user', 'orderStats'));
+    }
+
+    /**
      * Show the edit profile form
      */
     public function edit()

@@ -304,6 +304,41 @@ class ShopController extends Controller
     }
 
     /**
+     * AJAX: Return search suggestions as JSON.
+     */
+    public function searchSuggestions(Request $request)
+    {
+        $q = trim($request->input('q', ''));
+        if (strlen($q) < 2) {
+            return response()->json([]);
+        }
+
+        $products = Product::where('product_status', 'active')
+            ->where(function($query) use ($q) {
+                $query->where('product_name', 'like', "%{$q}%")
+                      ->orWhere('brand_name', 'like', "%{$q}%")
+                      ->orWhere('description', 'like', "%{$q}%");
+            })
+            ->limit(6)
+            ->get();
+
+        $results = [];
+        foreach ($products as $p) {
+            $results[] = [
+                'id' => $p->id,
+                'name' => $p->product_name,
+                'brand' => $p->brand_name,
+                'price' => number_format((float)($p->is_reduced && $p->reduced_price ? $p->reduced_price : $p->price), 2),
+                'original_price' => $p->is_reduced && $p->reduced_price ? number_format((float)$p->price, 2) : null,
+                'image' => $p->image_url,
+                'url' => route('product.show', $p->id),
+            ];
+        }
+
+        return response()->json($results);
+    }
+
+    /**
      * Return product modal content via AJAX.
      */
     public function productModal($id)

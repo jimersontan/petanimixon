@@ -1,22 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Pet Markt-PH Admin</title>
-    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+@extends('layouts.admin')
+
+@section('title', 'Dashboard')
+
+@push('styles')
     <link rel="stylesheet" href="{{ asset('css/dashboard_v2.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/animations.css') }}">
-</head>
-<body class="dashboard-body">
-    @include('partials.admin_header')
+@endpush
 
-    <div class="dashboard-layout">
-        <!-- Sidebar -->
-        @include('partials.admin_sidebar')
-
-        <!-- Main content -->
-        <main class="main-content" style="background-color: #f7f9fa;">
+@section('content')
             <div class="content-header" style="margin-bottom:0;">
                 <h1 class="page-title" style="display:none;">Dashboard</h1>
             </div>
@@ -343,9 +333,9 @@
                 </div>
 
             </div>
-        </main>
-    </div>
+@endsection
 
+@push('scripts')
     <!-- Chart.js configuration -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -402,10 +392,4 @@
             });
         });
     </script>
-    <script src="{{ asset('js/dashboard.js') }}"></script>
-    <script src="{{ asset('js/animations.js') }}"></script>
-</body>
-</html>
-
-
-
+@endpush

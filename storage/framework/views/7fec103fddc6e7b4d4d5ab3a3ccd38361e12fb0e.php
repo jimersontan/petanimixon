@@ -43,10 +43,10 @@
                                         <span class="hm-slide-discount">-<?php echo e(round((1 - $hp->price / $hp->original_price) * 100)); ?>%</span>
                                     <?php endif; ?>
                                 </div>
-                                <div class="hm-slide-rating">
-                                    <?php $rating = $hp->average_rating ?? 5; ?>
+                                <div class="hm-slide-rating" <?php echo (!isset($hp->average_rating) || $hp->average_rating == 0) ? 'style="opacity: 0.6;"' : ''; ?>>
+                                    <?php $rating = $hp->average_rating ?? 0; ?>
                                     <?php for($s = 1; $s <= 5; $s++): ?>
-                                        <span class="hm-star <?php echo e($s <= round($rating) ? 'filled' : ''); ?>">★</span>
+                                        <span class="hm-star <?php echo e($s <= round($rating) && $rating > 0 ? 'filled' : ''); ?>">★</span>
                                     <?php endfor; ?>
                                     <span class="hm-rating-text"><?php echo e(number_format($rating, 1)); ?></span>
                                 </div>

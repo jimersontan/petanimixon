@@ -1,34 +1,9 @@
-<!-- ===== ORDERS PAGE ===== -->
-<!-- Standalone page (does not extend admin layout, has its own header/sidebar) -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orders - Pet Markt-PH Admin</title>
-    <!-- Core Stylesheets -->
-    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/orders.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/animations.css') }}">
-</head>
-<body class="dashboard-body">
+@extends('layouts.admin')
 
-    <!-- ===== HEADER SECTION ===== -->
-    @include('partials.admin_header')
-    <!-- ===== END HEADER SECTION ===== -->
+@section('title', 'Orders')
 
-    <!-- ===== DASHBOARD LAYOUT: Sidebar + Main Content ===== -->
-    <div class="dashboard-layout">
-
-        <!-- ===== SIDEBAR NAVIGATION ===== -->
-        <!-- Left-side navigation menu -->
-        @include('partials.admin_sidebar')
-        <!-- ===== END SIDEBAR NAVIGATION ===== -->
-
-        <!-- ===== MAIN CONTENT AREA ===== -->
-        <main class="main-content">
-
-            <!-- ===== PAGE HEADER: Title and Date Filter ===== -->
+@section('content')
+<!-- ===== PAGE HEADER: Title and Date Filter ===== -->
             <div class="content-header">
                 <h1 class="page-title">Orders</h1>
                 <div class="date-filter">
@@ -269,21 +244,4 @@
 
             </div>
             <!-- ===== END ORDERS TABLE SECTION ===== -->
-
-        </main>
-        <!-- ===== END MAIN CONTENT AREA ===== -->
-
-    </div>
-    <!-- ===== END DASHBOARD LAYOUT ===== -->
-
-    <!-- ===== SCRIPTS SECTION ===== -->
-    <!-- Orders JS: Table filtering, export, and interaction scripts -->
-    <script src="{{ asset('js/orders.js') }}"></script>
-    <script src="{{ asset('js/animations.js') }}"></script>
-    <!-- ===== END SCRIPTS SECTION ===== -->
-
-</body>
-</html>
-<!-- ===== END ORDERS PAGE ===== -->
-
-
+@endsection

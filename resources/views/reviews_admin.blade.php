@@ -1,24 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reviews - Pet Markt-PH Admin</title>
-    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/orders.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/animations.css') }}">
-</head>
-<body class="dashboard-body">
-    <!-- Header -->
-    @include('partials.admin_header')
+@extends('layouts.admin')
 
-    <div class="dashboard-layout">
-        <!-- Sidebar -->
-        @include('partials.admin_sidebar')
+@section('title', 'Reviews')
 
-        <!-- Main content -->
-        <main class="main-content">
-            <div class="content-header">
+@section('content')
+<div class="content-header">
                 <h1 class="page-title">Reviews</h1>
                 <div class="date-filter">
                     <form method="get" action="{{ route('reviews.admin') }}" class="date-filter-form" id="reviewsDateForm">
@@ -124,13 +109,4 @@
                     </table>
                 </div>
             </div>
-        </main>
-    </div>
-
-    <script src="{{ asset('js/orders.js') }}"></script>
-    <script src="{{ asset('js/animations.js') }}"></script>
-</body>
-</html>
-
-
-
+@endsection

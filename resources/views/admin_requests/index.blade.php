@@ -1,18 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Requests - Pet Markt-PH Admin</title>
-    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/orders.css') }}"> <!-- reuse table styles -->
-</head>
-<body class="dashboard-body">
-    @include('partials.admin_header')
-    <div class="dashboard-layout">
-        @include('partials.admin_sidebar')
-        <main class="main-content">
-            <div class="content-header">
+@extends('layouts.admin')
+
+@section('title', 'Admin Requests')
+
+@section('content')
+<div class="content-header">
                 <h1 class="page-title">Admin Account Requests</h1>
             </div>
 
@@ -60,10 +51,4 @@
                 </tbody>
             </table>
             </div>
-        </main>
-    </div>
-
-    <script src="{{ asset('js/dashboard.js') }}"></script>
-</body>
-</html>
-
+@endsection

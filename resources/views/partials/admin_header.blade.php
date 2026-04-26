@@ -19,7 +19,7 @@
             'widgetId' => 'adminNotificationCenter',
             'theme' => 'slate',
             'headerTitle' => 'Admin notifications',
-            'viewAllUrl' => route('orders.index'),
+            'viewAllUrl' => route('admin.orders'),
             'viewAllText' => 'Open orders board',
             'buttonClass' => 'icon-btn',
             'panelWidth' => '390px',

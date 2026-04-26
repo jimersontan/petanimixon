@@ -1,29 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Couriers Management - Pet Markt-PH Admin</title>
-    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/rider.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/animations.css') }}">
-</head>
-<body class="dashboard-body">
+@extends('layouts.admin')
 
-    @if(session('success'))
-        <div class="rider-toast">{{ session('success') }}</div>
-    @endif
+@section('title', 'Couriers Management')
 
-    @include('partials.admin_header')
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/rider.css') }}">
+@endpush
 
-    <div class="dashboard-layout">
-
-        <!-- ===== SIDEBAR ===== -->
-        @include('partials.admin_sidebar')
-
-        <!-- ===== MAIN CONTENT ===== -->
-        <main class="main-content">
-            <div class="content-header">
+@section('content')
+<div class="content-header">
                 <div>
                     <h1 class="page-title">Couriers Management</h1>
                     <p style="color: #64748b; font-size: 0.88rem; margin: 4px 0 0;">Manage your third-party courier partners</p>
@@ -141,10 +125,10 @@
                 </div>
                 @endif
             </div>
-        </main>
-    </div>
+@endsection
 
-    <!-- ===== CREATE COURIER MODAL ===== -->
+@push('modals')
+<!-- ===== CREATE COURIER MODAL ===== -->
     <div class="rider-modal-overlay" id="createCourierModal" style="display: none;">
         <div class="rider-modal">
             <div class="rider-modal-header">
@@ -233,8 +217,10 @@
         </div>
     </div>
     @endif
+@endpush
 
-    <script>
+@push('scripts')
+<script>
         // Auto-show create modal if there are errors and we were creating
         @if($errors->any() && !isset($showEditModal))
             document.getElementById('createCourierModal').style.display = 'flex';
@@ -249,6 +235,4 @@
             });
         });
     </script>
-    <script src="{{ asset('js/animations.js') }}"></script>
-</body>
-</html>
+@endpush

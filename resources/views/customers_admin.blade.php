@@ -1,23 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customers - Pet Markt-PH Admin</title>
-    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/orders.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/animations.css') }}">
-</head>
-<body class="dashboard-body">
-    <!-- Header -->
-    @include('partials.admin_header')
+@extends('layouts.admin')
 
-    <div class="dashboard-layout">
-        <!-- Sidebar -->
-        @include('partials.admin_sidebar')
+@section('title', 'Customers')
 
-        <!-- Main content -->
-        <main class="main-content">
+@section('content')
             <div class="content-header">
                 <div>
                     <h1 class="page-title">Customers</h1>
@@ -152,9 +137,9 @@
                 </div>
                 @endif
             </div>
-        </main>
-    </div>
+@endsection
 
+@push('modals')
     <!-- Customer Details Modal -->
     <div class="modal-backdrop" id="customerModalBackdrop"></div>
     <div id="customerModal" class="modal" style="max-width: 600px; width: 95%;" role="dialog" aria-modal="true" tabindex="-1">
@@ -169,9 +154,9 @@
             <button type="button" class="btn-secondary" onclick="closeCustomerModal()">Close</button>
         </div>
     </div>
+@endpush
 
-    <script src="{{ asset('js/orders.js') }}"></script>
-    <script src="{{ asset('js/animations.js') }}"></script>
+@push('scripts')
     <script>
         function openCustomerModal(id) {
             const modal = document.getElementById('customerModal');
@@ -247,8 +232,7 @@
             document.getElementById('customerModalBackdrop').classList.remove('open');
         }
     </script>
-</body>
-</html>
+@endpush
 
 
 

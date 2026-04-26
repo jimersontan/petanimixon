@@ -170,4 +170,41 @@ class OrdersController extends Controller
 
         return back()->with('success', 'Tracking number saved.');
     }
+
+    /**
+     * Admin order tracking page with live map.
+     */
+    public function track($id)
+    {
+        $order = Order::with(['user', 'orderItems.product', 'shippingAddress', 'courier', 'rider', 'statusHistory.changedByUser'])
+            ->findOrFail($id);
+
+        return view('admin_order_tracking', compact('order'));
+    }
+
+    /**
+     * JSON tracking data for admin live map polling.
+     */
+    public function trackingData($id)
+    {
+        $order = Order::with(['shippingAddress', 'rider'])->findOrFail($id);
+
+        return response()->json([
+            'status' => $order->order_status,
+            'payment_status' => $order->payment_status,
+            'rider' => $order->rider ? [
+                'name' => $order->rider->full_name ?? $order->rider->first_name,
+                'lat' => (float) $order->rider_lat,
+                'lng' => (float) $order->rider_lng,
+            ] : null,
+            'eta' => $order->formatted_eta,
+            'eta_minutes' => $order->estimated_delivery_minutes,
+            'progress' => $order->getDeliveryProgressPercent(),
+            'estimated_arrival' => optional($order->estimated_arrival)->format('g:i A'),
+            'delivery_started_at' => optional($order->delivery_started_at)->toISOString(),
+            'picked_up_at' => optional($order->rider_picked_up_at)->toISOString(),
+            'delivered_at' => optional($order->rider_delivered_at)->toISOString(),
+            'shipping_type' => $order->shipping_type,
+        ]);
+    }
 }

@@ -69,7 +69,7 @@ class CheckoutController extends Controller
     public function process(Request $request)
     {
         $request->validate([
-            'payment_method' => 'required|string|in:cod,gcash',
+            'payment_method' => 'required|string|in:cod',
             'shipping_type' => 'required|string|in:local,courier',
         ]);
 
@@ -212,15 +212,6 @@ class CheckoutController extends Controller
 
             $order->notifyOrderPlaced();
 
-            // Handle GCash / online payment via gateway
-            if ($request->payment_method === 'gcash') {
-                $gateway = new MockPaymentGateway();
-                $result = $gateway->createPayment($order);
-                if ($result['success'] && $result['redirect_url']) {
-                    return redirect($result['redirect_url']);
-                }
-            }
-
             return redirect()->route('checkout.success', $order->order_id);
         });
     }
@@ -295,10 +286,18 @@ class CheckoutController extends Controller
      */
     public function tracking($order_id)
     {
-        $order = Order::where('order_id', $order_id)
-            ->where('user_id', Auth::id())
-            ->with(['orderItems.product', 'shippingAddress', 'rider'])
-            ->firstOrFail();
+        $query = Order::where('user_id', Auth::id())
+            ->with(['orderItems.product', 'shippingAddress', 'rider']);
+
+        // Support both numeric ID and string order_id (ORD-...)
+        if (is_numeric($order_id)) {
+            $order = $query->where('id', $order_id)->first();
+            if (!$order) {
+                $order = $query->where('order_id', $order_id)->firstOrFail();
+            }
+        } else {
+            $order = $query->where('order_id', $order_id)->firstOrFail();
+        }
 
         return view('frontend.order_tracking', compact('order'));
     }
@@ -308,10 +307,17 @@ class CheckoutController extends Controller
      */
     public function trackingData($order_id)
     {
-        $order = Order::where('order_id', $order_id)
-            ->where('user_id', Auth::id())
-            ->with(['shippingAddress', 'rider'])
-            ->firstOrFail();
+        $query = Order::where('user_id', Auth::id())
+            ->with(['shippingAddress', 'rider']);
+
+        if (is_numeric($order_id)) {
+            $order = $query->where('id', $order_id)->first();
+            if (!$order) {
+                $order = $query->where('order_id', $order_id)->firstOrFail();
+            }
+        } else {
+            $order = $query->where('order_id', $order_id)->firstOrFail();
+        }
 
         return response()->json([
             'status' => $order->order_status,

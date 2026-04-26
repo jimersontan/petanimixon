@@ -580,7 +580,7 @@
         </div>
         <div class="detail-row">
             <span class="detail-label">Payment</span>
-            <span class="detail-value"><?php echo e($order->payment_method === 'cod' ? 'Cash on Delivery' : 'GCash'); ?></span>
+            <span class="detail-value">Cash on Delivery</span>
         </div>
         <div class="detail-row">
             <span class="detail-label">Shipping</span>

@@ -49,6 +49,7 @@ Route::get('/categories/{id}', [ShopController::class, 'showCategory'])->name('c
 Route::get('/product/{id}', [ShopController::class, 'showProduct'])->name('product.show');
 Route::get('/product/{id}/modal', [ShopController::class, 'productModal'])->name('product.modal');
 Route::get('/brands', [ShopController::class, 'brands'])->name('brands');
+Route::get('/search/suggestions', [ShopController::class, 'searchSuggestions'])->name('search.suggestions');
 
 // Static info pages
 Route::view('/faq', 'frontend.faq')->name('faq');
@@ -185,6 +186,14 @@ Route::post('/admin/orders/{id}/rider', [OrdersController::class, 'assignRider']
 Route::post('/admin/orders/{id}/tracking', [OrdersController::class, 'saveTracking'])
     ->middleware(['auth', 'admin'])
     ->name('admin.orders.tracking');
+
+Route::get('/admin/orders/{id}/track', [OrdersController::class, 'track'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.orders.track');
+
+Route::get('/admin/orders/{id}/tracking-data', [OrdersController::class, 'trackingData'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.orders.tracking-data');
 
 // Admin routes (dashboard and all admin pages - admin only)
 Route::get('/dashboard', [DashboardController::class, 'index'])

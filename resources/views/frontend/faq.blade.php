@@ -136,7 +136,7 @@
         </h2>
         <div class="faq-item">
             <button class="faq-question" onclick="toggleFaq(this)">What payment methods do you accept? <span class="arrow">▾</span></button>
-            <div class="faq-answer"><p>We accept Cash on Delivery (COD) and GCash. More payment options including credit/debit cards and bank transfers are coming soon!</p></div>
+            <div class="faq-answer"><p>We currently accept Cash on Delivery (COD). More payment options including GCash, credit/debit cards, and bank transfers are coming soon!</p></div>
         </div>
         <div class="faq-item">
             <button class="faq-question" onclick="toggleFaq(this)">Is it safe to pay online? <span class="arrow">▾</span></button>

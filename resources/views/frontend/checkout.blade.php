@@ -330,14 +330,6 @@
                         <div class="co-pay-desc">Pay when your order arrives</div>
                     </div>
                 </div>
-                <div class="co-pay-option" onclick="selectPay(this,'gcash')">
-                    <input type="radio" name="_pay_radio" value="gcash">
-                    <span class="co-pay-icon">📱</span>
-                    <div>
-                        <div class="co-pay-name">GCash</div>
-                        <div class="co-pay-desc">Pay via GCash e-wallet</div>
-                    </div>
-                </div>
             </div>
             <div class="co-card">
                 <h2>🏷️ Voucher Code <span style="font-size:13px;color:#888;font-weight:400;">(optional)</span></h2>
@@ -545,7 +537,7 @@ function buildReview() {
     document.getElementById('reviewShipFee').textContent = shipFee > 0 ? '₱' + shipFee.toFixed(2) : 'FREE';
 
     // Payment
-    const payMap = { cod: 'Cash on Delivery', gcash: 'GCash' };
+    const payMap = { cod: 'Cash on Delivery' };
     document.getElementById('reviewPay').textContent = payMap[document.getElementById('hPay').value] || '';
 
     // Discount

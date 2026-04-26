@@ -45,10 +45,10 @@
                                         <span class="hm-slide-discount">-{{ round((1 - $hp->price / $hp->original_price) * 100) }}%</span>
                                     @endif
                                 </div>
-                                <div class="hm-slide-rating">
-                                    @php $rating = $hp->average_rating ?? 5; @endphp
+                                <div class="hm-slide-rating" {!! (!isset($hp->average_rating) || $hp->average_rating == 0) ? 'style="opacity: 0.6;"' : '' !!}>
+                                    @php $rating = $hp->average_rating ?? 0; @endphp
                                     @for($s = 1; $s <= 5; $s++)
-                                        <span class="hm-star {{ $s <= round($rating) ? 'filled' : '' }}">★</span>
+                                        <span class="hm-star {{ $s <= round($rating) && $rating > 0 ? 'filled' : '' }}">★</span>
                                     @endfor
                                     <span class="hm-rating-text">{{ number_format($rating, 1) }}</span>
                                 </div>

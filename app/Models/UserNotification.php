@@ -71,16 +71,24 @@ class UserNotification extends Model
      */
     public function getTypeLabelAttribute(): string
     {
-        return match ($this->type) {
-            'order_status' => 'Order update',
-            'delivery' => 'Delivery',
-            'payment' => 'Payment',
-            'promotion' => 'Promo',
-            'support' => 'Support',
-            'stock_alert' => 'Stock alert',
-            'system' => 'System',
-            default => ucfirst(str_replace('_', ' ', (string) $this->type)),
-        };
+        switch ($this->type) {
+            case 'order_status':
+                return 'Order update';
+            case 'delivery':
+                return 'Delivery';
+            case 'payment':
+                return 'Payment';
+            case 'promotion':
+                return 'Promo';
+            case 'support':
+                return 'Support';
+            case 'stock_alert':
+                return 'Stock alert';
+            case 'system':
+                return 'System';
+            default:
+                return ucfirst(str_replace('_', ' ', (string) $this->type));
+        }
     }
 
     /**

@@ -1,13 +1,7 @@
-<!-- ===== ORDER DETAIL PAGE ===== -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order {{ $order->display_id }} - Pet Markt-PH Admin</title>
-    <!-- Core Stylesheets -->
-    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/orders.css') }}">
+@extends('layouts.admin')
+@section('title', 'Order ' . $order->display_id)
+
+@push('styles')
     <style>
         .order-detail-layout {
             display: grid;
@@ -418,14 +412,10 @@
             word-break: break-word;
         }
     </style>
-</head>
-<body class="dashboard-body">
+@endpush
 
-    <!-- Header -->
-    @include('partials.admin_header')
-
-    <div class="dashboard-layout" style="display:block;">
-        
+@section('content')
+    <div style="display:block;">
         <div class="content-header" style="max-width: 1200px; margin: 0 auto; padding: 0 24px; margin-top:24px;">
             <div style="margin-bottom: 16px;">
                 <a href="{{ route('admin.orders') }}" style="text-decoration: none; color: #374151; display:inline-flex; align-items:center; gap:8px;">
@@ -433,12 +423,15 @@
                     Back to Orders
                 </a>
             </div>
-            <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                 <h1 class="page-title">Order {{ $order->display_id }}</h1>
                 <span class="badge {{ $order->isLocal() ? 'badge-local' : 'badge-courier' }}">
                     {{ $order->isLocal() ? '🛵 Local Delivery' : '📦 Courier (J&T)' }}
                 </span>
                 <span class="badge" style="background:#e0e7ff; color:#4f46e5;">{{ $order->status_label }}</span>
+                <a href="{{ route('admin.orders.track', $order->id) }}" style="display:inline-flex; align-items:center; gap:6px; padding:6px 16px; background:linear-gradient(135deg,#2e7d32,#388e3c); color:#fff; border-radius:8px; font-size:12px; font-weight:700; text-decoration:none; transition:all 0.2s; box-shadow:0 2px 8px rgba(46,125,50,0.25);" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">
+                    📍 Track Delivery
+                </a>
             </div>
             
             @if(session('success'))
@@ -718,6 +711,4 @@
         </div>
 
     </div>
-
-</body>
-</html>
+@endsection

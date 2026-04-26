@@ -256,7 +256,7 @@
                                 <img src="{{ optional($item->product)->image_url ?? asset('images/placeholder.png') }}" alt="" class="mo-product-img">
                                 <div>
                                     <div class="mo-product-name">{{ optional($item->product)->product_name ?? 'Product' }}</div>
-                                    <div class="mo-product-qty">x{{ $item->quantity }} · ₱{{ number_format((float)($item->price ?? 0), 2) }}</div>
+                                    <div class="mo-product-qty">x{{ $item->quantity }} · ₱{{ number_format((float)($item->unit_price ?? 0), 2) }}</div>
                                 </div>
                             </div>
                         @endforeach

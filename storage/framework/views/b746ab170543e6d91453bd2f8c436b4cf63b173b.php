@@ -1,8 +1,6 @@
-@extends('frontend.layouts.app')
+<?php $__env->startSection('title', 'Order Placed - Pet Markt-PH'); ?>
 
-@section('title', 'Order Placed - Pet Markt-PH')
-
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <style>
 .success-page { max-width: 600px; margin: 0 auto; padding: 50px 20px 60px; text-align: center; }
 .success-icon { font-size: 64px; margin-bottom: 16px; display: block; }
@@ -30,9 +28,9 @@
     .success-btn { justify-content: center; }
 }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="success-page">
     <span class="success-icon">🎉</span>
     <h1>Order Placed Successfully!</h1>
@@ -41,11 +39,11 @@
     <div class="success-card">
         <div class="success-row">
             <span class="success-label">Order ID</span>
-            <span class="success-value">{{ $order->order_id }}</span>
+            <span class="success-value"><?php echo e($order->order_id); ?></span>
         </div>
         <div class="success-row">
             <span class="success-label">Date</span>
-            <span class="success-value">{{ $order->created_at->format('M j, Y g:i A') }}</span>
+            <span class="success-value"><?php echo e($order->created_at->format('M j, Y g:i A')); ?></span>
         </div>
         <div class="success-row">
             <span class="success-label">Payment</span>
@@ -53,24 +51,26 @@
         </div>
         <div class="success-row">
             <span class="success-label">Shipping</span>
-            <span class="success-value">{{ ucfirst($order->shipping_method ?? 'Standard') }} Delivery</span>
+            <span class="success-value"><?php echo e(ucfirst($order->shipping_method ?? 'Standard')); ?> Delivery</span>
         </div>
         <div class="success-row">
             <span class="success-label">Items</span>
-            <span class="success-value">{{ $order->orderItems->count() }} item(s)</span>
+            <span class="success-value"><?php echo e($order->orderItems->count()); ?> item(s)</span>
         </div>
         <div class="success-row success-total">
             <span>Total</span>
-            <span>₱{{ number_format($order->total_amount, 2) }}</span>
+            <span>₱<?php echo e(number_format($order->total_amount, 2)); ?></span>
         </div>
     </div>
 
     <div class="success-actions">
-        <a href="{{ route('order.track', $order->order_id) }}" class="success-btn success-btn-track">📦 Track My Order</a>
-        <a href="{{ route('orders') }}" class="success-btn success-btn-orders">📋 My Orders</a>
-        <a href="{{ route('shop.all') }}" class="success-btn success-btn-shop">🛒 Continue Shopping</a>
+        <a href="<?php echo e(route('order.track', $order->order_id)); ?>" class="success-btn success-btn-track">📦 Track My Order</a>
+        <a href="<?php echo e(route('orders')); ?>" class="success-btn success-btn-orders">📋 My Orders</a>
+        <a href="<?php echo e(route('shop.all')); ?>" class="success-btn success-btn-shop">🛒 Continue Shopping</a>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
 
+
+<?php echo $__env->make('frontend.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\John Carry\.gemini\antigravity\scratch\Pet Markt-PH\resources\views/frontend/checkout_success.blade.php ENDPATH**/ ?>

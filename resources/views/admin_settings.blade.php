@@ -497,6 +497,11 @@
                             <label for="store_description">Store Description</label>
                             <textarea id="store_description" name="store_description" class="settings-input" placeholder="Your trusted pet products marketplace" style="flex: 1; min-height: 80px; resize: none;">{{ old('store_description', $s->store_description ?? '') }}</textarea>
                         </div>
+                        
+                        <div class="form-group" style="flex: 1; display:flex; flex-direction:column;">
+                            <label for="store_address">Store Address</label>
+                            <textarea id="store_address" name="store_address" class="settings-input" placeholder="e.g. 123 Pet Street, Dog City" style="flex: 1; min-height: 80px; resize: none;">{{ old('store_address', $extra['store_address'] ?? '') }}</textarea>
+                        </div>
                     </div>
                     
                     <!-- Right Column -->

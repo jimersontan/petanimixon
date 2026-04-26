@@ -1,23 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analytics - PetMarkt-PH Admin</title>
-    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/orders.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/animations.css') }}">
+@extends('layouts.admin')
+
+@section('title', 'Analytics')
+
+@push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body class="dashboard-body">
-    <!-- Header -->
-    @include('partials.admin_header')
+@endpush
 
-    <div class="dashboard-layout">
-        <!-- Sidebar -->
-        @include('partials.admin_sidebar')
-
-        <main class="main-content">
+@section('content')
             <div class="content-header">
                 <h1 class="page-title">Analytics & Revenue</h1>
                 <div class="date-filter">
@@ -160,10 +149,7 @@
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
-
-    <script src="{{ asset('js/animations.js') }}"></script>
+@push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Category Chart Data
@@ -288,8 +274,7 @@
                 });
         });
     </script>
-</body>
-</html>
+@endsection
 
 
 

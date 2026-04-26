@@ -35,6 +35,11 @@ class SettingsAdminController extends Controller
             }
             unset($data['store_logo']);
             $settings->fill($data);
+            
+            if ($request->has('store_address')) {
+                $extra['store_address'] = $request->input('store_address');
+                $settings->extra = $extra;
+            }
         } else {
             $allowed = $this->getExtraKeysForSection($section);
             foreach ($allowed as $key) {

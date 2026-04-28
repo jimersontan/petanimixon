@@ -516,7 +516,7 @@
         lifeStageContainers.appendChild(rowLabel);
 
         const badgeRow = document.createElement('div');
-        badgeRow.style.cssText = 'display: flex; flex-wrap: wrap; gap: 12px; position: relative; width: 100%;';
+        badgeRow.style.cssText = 'display: flex; flex-wrap: wrap; gap: 12px; position: relative; width: 100%; margin-bottom: 15px; z-index: 10;';
 
         selectedOptions.forEach((opt, idx) => {
             const animalName = opt.text.toLowerCase();
@@ -554,9 +554,9 @@
                 <!-- The Popover content -->
                 <div id="${popoverId}" class="lifestage-popover" style="
                     display: none; position: absolute; top: calc(100% + 8px); left: 0;
-                    background: white; border: 1px solid #e5e7eb; border-radius: 12px;
+                    background: #ffffff !important; border: 1px solid #e5e7eb; border-radius: 12px;
                     box-shadow: 0 10px 25px -4px rgba(0,0,0,0.1), 0 4px 10px -4px rgba(0,0,0,0.06); 
-                    padding: 12px; z-index: 1001; min-width: 200px; flex-wrap: wrap; gap: 8px;
+                    padding: 12px; z-index: 2000; min-width: 200px; flex-wrap: wrap; gap: 8px;
                     transform-origin: top left;
                 ">
             `;

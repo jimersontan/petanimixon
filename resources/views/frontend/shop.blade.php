@@ -192,7 +192,7 @@
         /* ── Brands column ── */
         .brand-list-grid {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(3, 1fr);
             gap: 10px;
             flex: 1;
             overflow-y: auto;

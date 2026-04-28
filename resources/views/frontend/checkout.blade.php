@@ -302,15 +302,6 @@
                     </div>
                     <div class="co-ship-price" id="priceLocal">₱50.00</div>
                 </div>
-                <div class="co-ship-option" onclick="selectShip(this,'courier')">
-                    <input type="radio" name="_ship_radio" value="courier">
-                    <span class="co-ship-icon">📦</span>
-                    <div class="co-ship-info">
-                        <div class="co-ship-name">Courier Shipping (J&T Express)</div>
-                        <div class="co-ship-desc">Shipped nationwide. Estimated 3–7 days.</div>
-                    </div>
-                    <div class="co-ship-price" id="priceCourier">₱150.00</div>
-                </div>
             </div>
             <div class="co-nav">
                 <button type="button" class="co-btn co-btn-back" onclick="goStep(2)">← Back</button>

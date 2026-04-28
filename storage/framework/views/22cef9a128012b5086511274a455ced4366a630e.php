@@ -1,6 +1,131 @@
 
 
-<?php $__env->startSection('title', 'Pet Markt-PH - Everything Your Pet Needs'); ?>
+<?php $__env->startSection('title', 'Pet Markt-PH - Premium Pet Essentials'); ?>
+
+<?php $__env->startPush('styles'); ?>
+<style>
+    /* Most Sold Carousel */
+    .hm-most-sold-section {
+        background: #fff;
+        padding: 24px 0;
+        margin-top: 20px;
+    }
+    .ms-carousel-container {
+        position: relative;
+        overflow: hidden;
+        padding: 10px 4px;
+    }
+    .ms-carousel-track {
+        display: flex;
+        transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        gap: 16px;
+    }
+    .ms-carousel-slide {
+        flex: 0 0 calc(100% / 3 - 11px);
+        min-width: calc(100% / 3 - 11px);
+    }
+    .hm-carousel-btn-mini {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        color: #4b5563;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 14px;
+    }
+    .hm-carousel-btn-mini:hover {
+        background: var(--ud-orange);
+        color: #fff;
+        border-color: var(--ud-orange);
+        box-shadow: 0 4px 10px rgba(255, 136, 68, 0.3);
+    }
+
+    /* Life Stage Section */
+    .hm-life-stage-section {
+        background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+        border-radius: 16px;
+        padding: 32px 24px;
+        margin: 32px 12px;
+        text-align: center;
+        border: 1px solid #fde68a;
+    }
+    .ls-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-top: 24px;
+    }
+    .ls-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 20px 16px;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        border: 1px solid rgba(0,0,0,0.03);
+        box-shadow: 0 4px 12px rgba(251, 191, 36, 0.1);
+    }
+    .ls-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(251, 191, 36, 0.2);
+        border-color: #fbbf24;
+    }
+    .ls-icon {
+        font-size: 32px;
+        margin-bottom: 12px;
+        display: block;
+    }
+    .ls-name {
+        font-size: 15px;
+        font-weight: 800;
+        color: #1a1a1a;
+        margin-bottom: 4px;
+        display: block;
+    }
+    .ls-desc {
+        font-size: 11px;
+        color: #78716c;
+        line-height: 1.4;
+    }
+
+    .hm-pc-add-btn {
+        margin-top: 10px;
+        padding: 8px 12px;
+        background: var(--ud-orange);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .hm-pc-add-btn:hover {
+        background: var(--ud-orange-dark);
+        transform: scale(1.02);
+    }
+
+    @media (max-width: 768px) {
+        .ms-carousel-slide {
+            flex: 0 0 calc(100% / 2 - 8px);
+            min-width: calc(100% / 2 - 8px);
+        }
+        .ls-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .ls-card { padding: 16px 12px; }
+    }
+    @media (max-width: 480px) {
+        .ms-carousel-slide {
+            flex: 0 0 100%;
+            min-width: 100%;
+        }
+    }
+</style>
+<?php $__env->stopPush(); ?>
 
 <?php $__env->startSection('content'); ?>
     <?php if(session('message')): ?>
@@ -176,6 +301,22 @@
         </section>
 
         
+        <section class="hm-section hm-life-stage-section">
+            <h2 class="hm-section-title" style="font-size: 1.6rem; color: #92400e;">Tailored by Life Stage</h2>
+            <p style="color: #b45309; font-size: 14px; margin-top: 4px;">Premium nutrition for every milestone in your pet's life</p>
+            
+            <div class="ls-grid">
+                <?php $__currentLoopData = $lifeStages; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ls): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <a href="<?php echo e(route('shop.all', ['life_stage[]' => $ls['slug']])); ?>" class="ls-card">
+                    <span class="ls-icon"><?php echo e($ls['icon']); ?></span>
+                    <span class="ls-name"><?php echo e($ls['name']); ?></span>
+                    <span class="ls-desc"><?php echo e($ls['desc']); ?></span>
+                </a>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </div>
+        </section>
+
+        
         <?php if(isset($saleProducts) && $saleProducts->count() > 0): ?>
         <section class="hm-section hm-flash-sale-section">
             <div class="hm-section-header hm-flash-header">
@@ -223,8 +364,43 @@
         </section>
         <?php endif; ?>
 
+        
+        <section class="hm-section hm-most-sold-section" style="padding: 0 12px;">
+            <div class="hm-section-header">
+                <h2 class="hm-section-title">🔥 Most Sold Products</h2>
+                <div style="display: flex; gap: 8px;">
+                    <button class="hm-carousel-btn-mini" onclick="moveMS(-1)" aria-label="Previous">←</button>
+                    <button class="hm-carousel-btn-mini" onclick="moveMS(1)" aria-label="Next">→</button>
+                </div>
+            </div>
 
-
+            <div class="ms-carousel-container">
+                <div class="ms-carousel-track" id="msTrack">
+                    <?php $__currentLoopData = $bestSellers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <div class="ms-carousel-slide">
+                        <div class="hm-product-card">
+                            <div class="hm-pc-image" onclick="window.openProductModal(<?php echo e($product->id); ?>, event)">
+                                <img src="<?php echo e($product->image_url); ?>" alt="<?php echo e($product->product_name); ?>"
+                                     onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 150 150%22%3E%3Crect width=%22150%22 height=%22150%22 fill=%22%23f5f5f5%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-family=%22Arial%22 font-size=%2214%22 fill=%22%23bbb%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22%3ENo Image%3C/text%3E%3C/svg%3E';">
+                                <span class="hm-badge" style="background: #ef4444; color: #fff; right: 8px; top: 8px;">TOP SELLER</span>
+                            </div>
+                            <div class="hm-pc-info">
+                                <h3 class="hm-pc-title" onclick="window.openProductModal(<?php echo e($product->id); ?>, event)"><?php echo e($product->product_name); ?></h3>
+                                <div class="hm-pc-price-row">
+                                    <span class="hm-price-current">₱<?php echo e(number_format((float)$product->price, 2)); ?></span>
+                                </div>
+                                <?php if(auth()->guard()->check()): ?>
+                                <button class="hm-pc-add-btn" onclick="event.stopPropagation(); window.quickAddToCart(<?php echo e($product->id); ?>)">Add to Cart</button>
+                                <?php else: ?>
+                                <a href="<?php echo e(route('login')); ?>" class="hm-pc-add-btn" style="text-decoration:none; text-align:center;">Add to Cart</a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </div>
+            </div>
+        </section>
         
         <section class="hm-section hm-latest-section">
             <div class="hm-section-header" style="justify-content: center;">
@@ -343,6 +519,54 @@
             slideInterval = setInterval(() => moveSlide(1), 5000);
         }
     </script>
+    <?php $__env->startPush('scripts'); ?>
+    <script>
+        // Most Sold Carousel Logic
+        let msIndex = 0;
+        const msTrack = document.getElementById('msTrack');
+        
+        window.moveMS = function(direction) {
+            const container = document.querySelector('.ms-carousel-container');
+            const slide = document.querySelector('.ms-carousel-slide');
+            if (!msTrack || !slide) return;
+            
+            const slideWidth = slide.offsetWidth + 16; // width + gap
+            const visibleSlides = Math.floor(container.offsetWidth / slideWidth) || 1;
+            const totalSlides = msTrack.children.length;
+            const maxIndex = totalSlides - visibleSlides;
+            
+            msIndex += direction;
+            if (msIndex < 0) msIndex = maxIndex;
+            if (msIndex > maxIndex) msIndex = 0;
+            
+            msTrack.style.transform = `translateX(-${msIndex * slideWidth}px)`;
+        };
+
+        window.quickAddToCart = function(productId) {
+            const formData = new FormData();
+            formData.append('product_id', productId);
+            formData.append('quantity', 1);
+            formData.append('_token', '<?php echo e(csrf_token()); ?>');
+
+            fetch('<?php echo e(route("cart.add")); ?>', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    if (window.showToast) window.showToast("Added to cart! ✓");
+                    else alert("Added to cart!");
+                } else if (response.status === 401) {
+                    window.location.href = "<?php echo e(route('login')); ?>";
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        };
+    </script>
+    <?php $__env->stopPush(); ?>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('frontend.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\Pet Markt-PH\resources\views/user_dashboard.blade.php ENDPATH**/ ?>

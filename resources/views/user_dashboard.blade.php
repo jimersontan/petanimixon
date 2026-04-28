@@ -300,21 +300,6 @@
             </div>
         </section>
 
-        {{-- 3b. SHOP BY LIFE STAGE --}}
-        <section class="hm-section hm-life-stage-section">
-            <h2 class="hm-section-title" style="font-size: 1.6rem; color: #92400e;">Tailored by Life Stage</h2>
-            <p style="color: #b45309; font-size: 14px; margin-top: 4px;">Premium nutrition for every milestone in your pet's life</p>
-            
-            <div class="ls-grid">
-                @foreach($lifeStages as $ls)
-                <a href="{{ route('shop.all', ['life_stage[]' => $ls['slug']]) }}" class="ls-card">
-                    <span class="ls-icon">{{ $ls['icon'] }}</span>
-                    <span class="ls-name">{{ $ls['name'] }}</span>
-                    <span class="ls-desc">{{ $ls['desc'] }}</span>
-                </a>
-                @endforeach
-            </div>
-        </section>
 
         {{-- 4. FLASH SALE SECTION --}}
         @if(isset($saleProducts) && $saleProducts->count() > 0)
@@ -539,6 +524,14 @@
             
             msTrack.style.transform = `translateX(-${msIndex * slideWidth}px)`;
         };
+
+        // Auto-play Most Sold
+        let msInterval = setInterval(() => moveMS(1), 4000);
+        document.querySelector('.hm-most-sold-section').addEventListener('mouseenter', () => clearInterval(msInterval));
+        document.querySelector('.hm-most-sold-section').addEventListener('mouseleave', () => {
+            clearInterval(msInterval);
+            msInterval = setInterval(() => moveMS(1), 4000);
+        });
 
         window.quickAddToCart = function(productId) {
             const formData = new FormData();

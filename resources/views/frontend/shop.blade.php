@@ -18,7 +18,7 @@
 
         .shop-top-grid {
             display: grid;
-            grid-template-columns: 85fr 15fr;
+            grid-template-columns: 80fr 20fr;
             gap: 20px;
         }
 
@@ -193,7 +193,7 @@
         .brand-list-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 6px;
             flex: 1;
             overflow-y: auto;
             align-content: start;
@@ -202,52 +202,65 @@
 
         .brand-card-mini {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 12px;
-            padding: 12px 14px;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 4px;
             border: 1px solid #f0f0f0;
-            border-radius: 10px;
+            border-radius: 12px;
             text-decoration: none;
             color: #333;
-            transition: all .2s;
+            transition: all 0.2s;
             cursor: pointer;
+            background: #fff;
+            min-height: 80px;
         }
 
         .brand-card-mini:hover {
             border-color: var(--ud-orange);
             background: #FFF7ED;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, .06);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
         }
 
         .brand-card-logo {
-            width: 44px;
-            height: 44px;
-            border-radius: 10px;
-            background: #f5f5f5;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #f9f9f9;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             flex-shrink: 0;
+            border: 1px solid #eee;
         }
 
         .brand-card-logo img {
-            width: 100%;
-            height: 100%;
+            width: 70%;
+            height: 70%;
             object-fit: contain;
         }
 
         .brand-card-logo span {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
-            color: #999;
+            color: #bbb;
         }
 
         .brand-card-name {
-            font-size: 14px;
+            font-size: 10px;
             font-weight: 700;
-            color: #333;
+            color: #4b5563;
+            text-align: center;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.2;
+            width: 100%;
+            padding: 0 2px;
         }
 
         /* Responsive: stack on mobile */

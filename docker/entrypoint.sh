@@ -12,6 +12,7 @@ php-fpm -D
 # Run migrations and seeders
 php artisan migrate --force
 php artisan db:seed --force
+php artisan storage:link --force
 
 # Start Nginx
 nginx -g "daemon off;"

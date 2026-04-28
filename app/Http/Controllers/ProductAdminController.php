@@ -133,20 +133,27 @@ class ProductAdminController extends Controller
         // handle product image upload with AI Background removal backing
         if ($request->hasFile('image')) {
             $file = $request->file('image');
-            \Illuminate\Support\Facades\Log::info('=== PRODUCT UPLOAD: Image detected, calling Remove.bg ===');
-            \Illuminate\Support\Facades\Log::info('File path: ' . $file->getRealPath());
+            \Illuminate\Support\Facades\Log::info('=== PRODUCT UPLOAD: Image detected ===');
+            \Illuminate\Support\Facades\Log::info('File: ' . $file->getClientOriginalName() . ' (Size: ' . $file->getSize() . ' bytes)');
+            
             $bgService = new \App\Services\BackgroundRemovalService();
             // Automatically remove background using Remove.bg
-            $rawPng = $bgService->removeBackground($file->getRealPath());
-            \Illuminate\Support\Facades\Log::info('Remove.bg returned: ' . ($rawPng ? strlen($rawPng) . ' bytes' : 'NULL'));
+            try {
+                $rawPng = $bgService->removeBackground($file->getRealPath());
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Background removal failed: ' . $e->getMessage());
+                $rawPng = null;
+            }
+
             if ($rawPng) {
                 $filename = uniqid('prod_nobg_') . '.png';
                 \Illuminate\Support\Facades\Storage::disk('public')->put('products/' . $filename, $rawPng);
                 $data['animal_image_url'] = 'products/' . $filename;
-                \Illuminate\Support\Facades\Log::info('Saved as: products/' . $filename);
+                \Illuminate\Support\Facades\Log::info('Saved with Remove.bg: products/' . $filename);
             } else {
-                $data['animal_image_url'] = $file->store('products', 'public');
-                \Illuminate\Support\Facades\Log::info('Fallback - saved without bg removal: ' . $data['animal_image_url']);
+                $path = $file->store('products', 'public');
+                $data['animal_image_url'] = $path;
+                \Illuminate\Support\Facades\Log::info('Fallback - saved normally: ' . $path);
             }
         }
 
@@ -322,14 +329,25 @@ class ProductAdminController extends Controller
         // handle product image upload with AI Background removal backing
         if ($request->hasFile('image')) {
             $file = $request->file('image');
+            \Illuminate\Support\Facades\Log::info('=== PRODUCT UPDATE: Image detected ===');
+            
             $bgService = new \App\Services\BackgroundRemovalService();
-            $rawPng = $bgService->removeBackground($file->getRealPath());
+            try {
+                $rawPng = $bgService->removeBackground($file->getRealPath());
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Background removal failed: ' . $e->getMessage());
+                $rawPng = null;
+            }
+
             if ($rawPng) {
                 $filename = uniqid('prod_nobg_') . '.png';
                 \Illuminate\Support\Facades\Storage::disk('public')->put('products/' . $filename, $rawPng);
                 $data['animal_image_url'] = 'products/' . $filename;
+                \Illuminate\Support\Facades\Log::info('Updated with Remove.bg: products/' . $filename);
             } else {
-                $data['animal_image_url'] = $file->store('products', 'public');
+                $path = $file->store('products', 'public');
+                $data['animal_image_url'] = $path;
+                \Illuminate\Support\Facades\Log::info('Fallback - updated normally: ' . $path);
             }
         }
 

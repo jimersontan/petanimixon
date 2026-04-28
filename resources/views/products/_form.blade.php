@@ -140,7 +140,7 @@
         <!-- Field: Product Image (file upload with paste + drag support) -->
         <div class="form-group">
             <label for="image">Product Image</label>
-            <div class="paste-upload-zone" tabindex="0">
+            <div class="paste-upload-zone" data-input="image" tabindex="0">
                 <button type="button" class="remove-file-btn" title="Remove">✕</button>
                 <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 18h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <div class="upload-title">Click to upload or paste image</div>

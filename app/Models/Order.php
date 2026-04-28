@@ -39,6 +39,7 @@ class Order extends Model
         'rider_lng',
         'estimated_delivery_minutes',
         'delivery_started_at',
+        'delivery_proof_image',
     ];
 
     protected $casts = [

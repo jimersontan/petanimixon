@@ -345,10 +345,24 @@
                                     <button type="submit" class="btn-rider-warning" onclick="return confirm('Confirm: Order picked up from store?')">📦 Mark as Picked Up</button>
                                 </form>
                             @else
-                                <form action="{{ route('rider.deliver', $order->id) }}" method="POST" style="display: flex; flex-direction: column; width: 100%;">
+                                <form action="{{ route('rider.deliver', $order->id) }}" method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; width: 100%;">
                                     @csrf
+                                    <div style="margin-bottom: 15px;">
+                                        <label style="display: block; font-size: 13px; font-weight: 700; color: #444; margin-bottom: 8px;">📸 Take/Upload Proof of Delivery (Required)</label>
+                                        <div style="position: relative; width: 100%; height: 120px; border: 2px dashed #ccc; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f9f9f9; cursor: pointer; transition: all 0.2s;" onclick="document.getElementById('proofInput{{ $order->id }}').click()" onmouseover="this.style.borderColor='#43a047'; this.style.background='#f1f8e9'" onmouseout="this.style.borderColor='#ccc'; this.style.background='#f9f9f9'">
+                                            <div id="proofPreview{{ $order->id }}" style="display: none; position: absolute; inset: 0; border-radius: 10px; overflow: hidden; z-index: 5;">
+                                                <img src="" style="width: 100%; height: 100%; object-fit: cover;">
+                                                <div style="position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.5); color: #fff; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer;" onclick="event.stopPropagation(); window.removeProof({{ $order->id }})">✕</div>
+                                            </div>
+                                            <div id="proofPlaceholder{{ $order->id }}" style="text-align: center;">
+                                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                                                <div style="font-size: 12px; color: #888; margin-top: 5px;">Tap to capture photo</div>
+                                            </div>
+                                            <input type="file" name="delivery_proof" id="proofInput{{ $order->id }}" accept="image/*" capture="environment" style="display: none;" onchange="window.previewProof(event, {{ $order->id }})" required>
+                                        </div>
+                                    </div>
                                     <textarea name="rider_notes" class="delivery-notes-input" placeholder="Delivery notes (optional): e.g., Left with guard, delivered to door..." style="width: 100%; box-sizing: border-box; margin-bottom: 15px;"></textarea>
-                                    <button type="submit" class="btn-rider-success" style="width: 100%; text-align: center; justify-content: center; padding: 14px 20px; font-size: 16px;">✅ Mark as Delivered</button>
+                                    <button type="submit" class="btn-rider-success" id="deliverBtn{{ $order->id }}" style="width: 100%; text-align: center; justify-content: center; padding: 14px 20px; font-size: 16px;">✅ Mark as Delivered</button>
                                 </form>
                             @endif
                         </div>
@@ -567,6 +581,34 @@
         </main>
     </div>
 
+    <script>
+        window.previewProof = function(event, orderId) {
+            const input = event.target;
+            const preview = document.getElementById('proofPreview' + orderId);
+            const placeholder = document.getElementById('proofPlaceholder' + orderId);
+            const img = preview.querySelector('img');
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    img.src = e.target.result;
+                    preview.style.display = 'block';
+                    placeholder.style.display = 'none';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
+
+        window.removeProof = function(orderId) {
+            const input = document.getElementById('proofInput' + orderId);
+            const preview = document.getElementById('proofPreview' + orderId);
+            const placeholder = document.getElementById('proofPlaceholder' + orderId);
+            
+            input.value = '';
+            preview.style.display = 'none';
+            placeholder.style.display = 'flex';
+        };
+    </script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </body>
 </html>

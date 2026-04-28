@@ -18,22 +18,24 @@ class ShopController extends Controller
         $categories = Category::where('is_active', 1)->orderBy('category_name')->get();
         $featured = Product::where('is_featured', 1)->limit(12)->get();
 
-        // Top 2 best-sellers by order count
+        // Top best-sellers by order count (fetched 9 for the 3x3 carousel)
         $bestSellers = Product::where('product_status', 'active')
             ->withCount('orderItems')
             ->orderByDesc('order_items_count')
-            ->limit(2)
+            ->limit(9)
             ->get();
 
         // Fill with random products if not enough best-sellers
-        $randomProducts = Product::where('product_status', 'active')
-            ->whereNotIn('id', $bestSellers->pluck('id'))
-            ->inRandomOrder()
-            ->limit(2)
-            ->get();
+        if ($bestSellers->count() < 9) {
+            $randomProducts = Product::where('product_status', 'active')
+                ->whereNotIn('id', $bestSellers->pluck('id'))
+                ->inRandomOrder()
+                ->limit(9 - $bestSellers->count())
+                ->get();
+            $bestSellers = $bestSellers->merge($randomProducts);
+        }
 
-        // Merge: best-sellers first, then random
-        $heroProducts = $bestSellers->merge($randomProducts);
+        $heroProducts = $bestSellers->take(5);
 
         $latestProducts = Product::where('product_status', 'active')
             ->orderBy('created_at', 'desc')
@@ -51,7 +53,15 @@ class ShopController extends Controller
 
         $animalTypes = $animalTypesQuery->get();
 
-        // Homepage promo coupons (linked to specific products)
+        // Life Stage mapping for homepage
+        $lifeStages = [
+            ['name' => 'Puppy', 'slug' => 'puppy', 'icon' => '🐶', 'desc' => 'Nutrition for growth'],
+            ['name' => 'Adult', 'slug' => 'adult', 'icon' => '🐕', 'desc' => 'Optimal health balance'],
+            ['name' => 'Senior', 'slug' => 'senior', 'icon' => '🦴', 'desc' => 'Joint & heart support'],
+            ['name' => 'Kitten', 'slug' => 'kitten', 'icon' => '🐱', 'desc' => 'Early development'],
+        ];
+
+        // Homepage promo coupons
         $promoCoupons = \App\Models\Coupon::where('show_on_homepage', true)
             ->where('is_active', true)
             ->where('valid_until', '>=', now())
@@ -61,17 +71,16 @@ class ShopController extends Controller
             ->limit(2)
             ->get();
 
-        // Sales products (products marked as reduced/on sale)
+        // Sales products
         $saleProducts = Product::where('product_status', 'active')
             ->where('is_reduced', true)
             ->orderByDesc('created_at')
             ->limit(6)
             ->get();
 
-        // Featured sale products for homepage right side (max 2)
+        // Featured sale products
         $featuredSaleProducts = Product::where('product_status', 'active')
             ->where('is_reduced', true)
-            // ->where('is_featured', true)
             ->orderByDesc('updated_at')
             ->limit(2)
             ->get();
@@ -80,8 +89,10 @@ class ShopController extends Controller
             'categories' => $categories,
             'featuredProducts' => $featured,
             'heroProducts' => $heroProducts,
+            'bestSellers' => $bestSellers,
             'latestProducts' => $latestProducts,
             'animalTypes' => $animalTypes,
+            'lifeStages' => $lifeStages,
             'promoCoupons' => $promoCoupons,
             'saleProducts' => $saleProducts,
             'featuredSaleProducts' => $featuredSaleProducts,

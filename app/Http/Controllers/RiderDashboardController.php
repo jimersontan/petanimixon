@@ -9,6 +9,7 @@ use App\Models\UserNotification;
 use App\Events\OrderDelivered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class RiderDashboardController extends Controller
 {
@@ -196,11 +197,17 @@ class RiderDashboardController extends Controller
         // Get destination coords so we can set final position
         $destCoords = $this->getDestinationCoords($order);
 
+        $proofPath = null;
+        if ($request->hasFile('delivery_proof')) {
+            $proofPath = $request->file('delivery_proof')->store('delivery_proofs', 'public');
+        }
+
         $order->update([
             'order_status' => Order::STATUS_DELIVERED,
             'payment_status' => Order::PAYMENT_PAID,
             'rider_delivered_at' => now(),
             'rider_notes' => $request->input('rider_notes', ''),
+            'delivery_proof_image' => $proofPath,
             'rider_lat' => $destCoords[0],
             'rider_lng' => $destCoords[1],
             'estimated_delivery_minutes' => 0,

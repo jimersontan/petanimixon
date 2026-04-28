@@ -9,8 +9,9 @@ chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 # Start PHP-FPM
 php-fpm -D
 
-# Run migrations
+# Run migrations and seeders
 php artisan migrate --force
+php artisan db:seed --force
 
 # Start Nginx
 nginx -g "daemon off;"

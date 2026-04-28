@@ -38,7 +38,7 @@ WORKDIR /var/www
 COPY . /var/www
 
 # Copy existing application directory permissions
-COPY --chown=$user:$user . /var/www
+COPY --chown=www-data:www-data . /var/www
 
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs

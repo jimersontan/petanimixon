@@ -41,7 +41,7 @@ COPY . /var/www
 COPY --chown=$user:$user . /var/www
 
 # Install dependencies
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
 # Nginx config
 COPY docker/nginx.conf /etc/nginx/sites-available/default

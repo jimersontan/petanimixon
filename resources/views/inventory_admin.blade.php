@@ -256,7 +256,6 @@
                                 "animal_image_url" => $product->animal_image_url,
                                 "wet_or_dry" => $product->wet_or_dry,
                                 "weight_variants" => $product->variants
-                                    ->filter(fn($v) => $v->uom !== null)
                                     ->map(function($v) {
                                         $specs = json_decode($v->specifications, true);
                                         $val = $specs['variant_value'] ?? $specs['weight_value'] ?? null;
@@ -265,8 +264,8 @@
                                             $val = trim($val);
                                         }
                                         return [
-                                            'value' => $val, 
-                                            'unit' => $v->uom,
+                                            'value' => $val ?: $v->variant_name, 
+                                            'unit' => $v->uom ?: 'Type',
                                             'price' => $v->variant_price,
                                             'stock' => $v->variant_quantity,
                                         ];
@@ -466,9 +465,12 @@
             
             // Trigger update for new form state
             if (window.updateChips) window.updateChips();
-            // Clear weight chips for new product
-            
-            
+            // Clear variants and add a default 'Standard' one
+            if (window.setVariantChips) {
+                window.setVariantChips([{ value: 'Standard', unit: 'Type', price: 0, stock: 0 }]);
+            } else if (window.clearVariantChips) {
+                window.clearVariantChips();
+            }
         } else if (mode === 'edit' && data) {
             title.textContent = 'Edit Product';
             submitBtn.textContent = 'Save Changes';
@@ -505,11 +507,14 @@
             // Update chips and life stage selectors
             if (window.updateChips) window.updateChips(data.animal_life_stages || {});
             
-            // Pre-populate weight variant chips from existing data
-            if (window.setWeightChips && data.weight_variants && data.weight_variants.length > 0) {
-                window.setWeightChips(data.weight_variants);
-            } else if (window.clearWeightChips) {
-                window.clearWeightChips();
+            // Pre-populate variants
+            if (window.setVariantChips) {
+                if (data.weight_variants && data.weight_variants.length > 0) {
+                    window.setVariantChips(data.weight_variants);
+                } else {
+                    // Fallback for products that haven't been migrated to variants yet
+                    window.setVariantChips([{ value: 'Standard', unit: 'Type', price: data.price, stock: data.stock }]);
+                }
             }
             
             // Handle image preview

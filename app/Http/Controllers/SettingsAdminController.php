@@ -34,31 +34,50 @@ class SettingsAdminController extends Controller
                 $data['store_logo_path'] = $request->file('store_logo')->store('settings', 'public');
             }
             unset($data['store_logo']);
+            
+            // Replace nulls with empty strings to properly clear fields
+            foreach ($data as $k => $v) {
+                if ($v === null && $k !== 'store_logo_path') {
+                    $data[$k] = '';
+                }
+            }
             $settings->fill($data);
             
             if ($request->has('store_address')) {
-                $extra['store_address'] = $request->input('store_address');
+                $extra['store_address'] = $request->input('store_address') ?? '';
                 $settings->extra = $extra;
             }
         } else {
             $allowed = $this->getExtraKeysForSection($section);
             foreach ($allowed as $key) {
-                $val = $request->input($key);
-                if ($val !== null) {
-                    $extra[$key] = is_string($val) ? $val : (string) $val;
+                if ($request->has($key)) {
+                    $val = $request->input($key);
+                    $extra[$key] = $val === null ? '' : (is_string($val) ? $val : (string) $val);
                 }
             }
-            foreach (['gateway_cod','gateway_bank','gateway_online','provider_lbc','provider_jnt','provider_grab','provider_own','google_analytics','facebook_pixel','perm_orders','perm_products','perm_customers','perm_settings','password_require_upper','password_require_number'] as $cb) {
-                $extra[$cb] = $request->has($cb) ? '1' : '0';
+            
+            $checkboxesBySection = [
+                'payment' => ['gateway_cod','gateway_bank','gateway_online'],
+                'delivery' => ['provider_lbc','provider_jnt','provider_grab','provider_own'],
+                'third_party' => ['google_analytics','facebook_pixel'],
+                'staff_permissions' => ['perm_orders','perm_products','perm_customers','perm_settings'],
+                'password_policy' => ['password_require_upper','password_require_number'],
+            ];
+
+            if (isset($checkboxesBySection[$section])) {
+                foreach ($checkboxesBySection[$section] as $cb) {
+                    $extra[$cb] = $request->has($cb) ? '1' : '0';
+                }
             }
-            if ($request->filled('api_secret_key')) {
+
+            if ($section === 'api_keys' && $request->filled('api_secret_key')) {
                 $extra['api_secret_key'] = $request->input('api_secret_key');
             }
             $settings->extra = $extra;
         }
 
         $settings->save();
-        return redirect()->route('settings.admin')->with('success', 'Settings saved successfully.');
+        return redirect()->route('settings.admin', ['section' => $section])->with('success', 'Settings saved successfully.');
     }
 
     protected function getExtraKeysForSection(string $section): array

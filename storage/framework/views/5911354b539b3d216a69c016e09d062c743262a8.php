@@ -1,0 +1,551 @@
+<!-- ===== PRODUCTS ADMIN PAGE ===== -->
+<!-- Extends the main admin layout -->
+
+
+<?php $__env->startSection('title','Products'); ?>
+
+<?php $__env->startSection('content'); ?>
+
+<!-- ===== PAGE HEADER SECTION ===== -->
+<!-- Title, subtitle, date filter, and add product button -->
+<div class="content-header">
+    <!-- Page Title and Subtitle -->
+    <div>
+        <h1 class="page-title">Inventory Management</h1>
+        <p class="page-subtitle">Manage your product inventory</p>
+    </div>
+    <!-- End: Page Title -->
+
+    <!-- Date Range Filter and Add New Product Button -->
+    <div class="date-filter">
+        <!-- Date Range Filter Form: Filters products by time period -->
+        <form method="get" action="<?php echo e(route('inventory.admin')); ?>" class="date-filter-form" id="productsDateForm">
+            <!-- Brand Filter -->
+            <select name="brand" class="filter-select" aria-label="Brand" onchange="this.form.submit()">
+                <option value="">All Brands</option>
+                <option value="unbranded" <?php echo e(($selectedBrand ?? '') == 'unbranded' ? 'selected' : ''); ?>>Unbranded/No Brand</option>
+                <?php $__currentLoopData = $brands; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $b): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($b->name); ?>" <?php echo e(($selectedBrand ?? '') == $b->name ? 'selected' : ''); ?>>
+                        <?php echo e($b->name); ?>
+
+                    </option>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </select>
+            <!-- Date Range Filter -->
+            <select name="days" id="productsDateRange" class="filter-select" aria-label="Date range" onchange="this.form.submit()">
+                <option value="7" <?php echo e(($days ?? 30) == 7 ? 'selected' : ''); ?>>Last 7 days</option>
+                <option value="30" <?php echo e(($days ?? 30) == 30 ? 'selected' : ''); ?>>Last 30 days</option>
+                <option value="90" <?php echo e(($days ?? 30) == 90 ? 'selected' : ''); ?>>Last 90 days</option>
+            </select>
+        </form>
+        <!-- End: Date Range Filter -->
+
+        <!-- Add New Product Button: Opens the product creation modal -->
+        <button type="button" class="btn-primary" onclick="openProductModal('add')">
+            <span class="btn-icon">+</span>
+            <span>Add New Product</span>
+        </button>
+    </div>
+    <!-- End: Date Filter and Action Button -->
+</div>
+<!-- ===== END PAGE HEADER SECTION ===== -->
+
+<!-- ===== ALERTS AND NOTIFICATIONS ===== -->
+<?php if(session('success')): ?>
+    <div class="alert alert-success" style="padding: 16px; margin-bottom: 24px; border-radius: 8px; background-color: #dcfce3; color: #166534; border: 1px solid #bbf7d0; font-weight: 500; display: flex; align-items: center; gap: 10px;">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        <?php echo e(session('success')); ?>
+
+    </div>
+<?php endif; ?>
+<?php if(session('error')): ?>
+    <div class="alert alert-danger" style="padding: 16px; margin-bottom: 24px; border-radius: 8px; background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; font-weight: 500; display: flex; align-items: center; gap: 10px;">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
+        <?php echo e(session('error')); ?>
+
+    </div>
+<?php endif; ?>
+<!-- ===== END ALERTS ===== -->
+
+<!-- ===== METRICS CARDS SECTION ===== -->
+<!-- Four summary cards: Total Products, Active, Low Stock, Out of Stock -->
+<div class="metrics-grid">
+
+    <!-- Metric Card: Total Products -->
+    <div class="metric-card">
+        <div class="metric-icon metric-icon-orders-orange">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M3 3v8h8V3H3zm10 0v8h8V3h-8zM3 13v8h8v-8H3zm10 0v8h8v-8h-8z"/></svg>
+        </div>
+        <div class="metric-content">
+            <div class="metric-value" id="productsTotal"><?php echo e(number_format($stats['total_products'] ?? 0)); ?></div>
+            <div class="metric-label">Total Products</div>
+        </div>
+    </div>
+    <!-- End: Total Products Card -->
+
+    <!-- Metric Card: Active Products -->
+    <div class="metric-card">
+        <div class="metric-icon metric-icon-completed">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        </div>
+        <div class="metric-content">
+            <div class="metric-value" id="productsActive"><?php echo e(number_format($stats['active_products'] ?? 0)); ?></div>
+            <div class="metric-label">Active</div>
+        </div>
+    </div>
+    <!-- End: Active Products Card -->
+
+    <!-- Metric Card: Low Stock Items -->
+    <div class="metric-card">
+        <div class="metric-icon metric-icon-pending">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+        </div>
+        <div class="metric-content">
+            <div class="metric-value" id="productsLowStock"><?php echo e(number_format($stats['low_stock'] ?? 0)); ?></div>
+            <div class="metric-label">Low Stock Items</div>
+        </div>
+    </div>
+    <!-- End: Low Stock Card -->
+
+    <!-- Metric Card: Out of Stock -->
+    <div class="metric-card">
+        <div class="metric-icon metric-icon-cancelled">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
+        </div>
+        <div class="metric-content">
+            <div class="metric-value" id="productsOutOfStock"><?php echo e(number_format($stats['out_of_stock'] ?? 0)); ?></div>
+            <div class="metric-label">Out of Stock</div>
+        </div>
+    </div>
+    <!-- End: Out of Stock Card -->
+
+</div>
+<!-- ===== END METRICS CARDS SECTION ===== -->
+
+<!-- ===== PRODUCTS TABLE SECTION ===== -->
+<!-- Main table listing all products with filtering and actions -->
+<div class="card orders-table-card">
+
+    <!-- Table Header: Title and Filter Button -->
+    <div class="orders-section-header">
+        <h2 class="card-title">All Products</h2>
+        <div class="orders-actions">
+            <button type="button" class="btn-secondary btn-filter">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></svg>
+                Filter
+            </button>
+        </div>
+    </div>
+    <!-- End: Table Header -->
+
+    <!-- Status Filter Tabs: All, Active, Draft, Out of Stock -->
+    <div class="order-status-tabs" role="tablist">
+        <?php $currentStatus = $status ?? 'all'; ?>
+        <a href="<?php echo e(route('inventory.admin', array_merge(request()->all(), ['status' => 'all']))); ?>"
+           class="order-tab <?php echo e($currentStatus === 'all' ? 'active' : ''); ?>"
+           role="tab"
+           aria-selected="<?php echo e($currentStatus === 'all' ? 'true' : 'false'); ?>">All</a>
+        <a href="<?php echo e(route('inventory.admin', array_merge(request()->all(), ['status' => 'active']))); ?>"
+           class="order-tab <?php echo e($currentStatus === 'active' ? 'active' : ''); ?>"
+           role="tab"
+           aria-selected="<?php echo e($currentStatus === 'active' ? 'true' : 'false'); ?>">Active</a>
+        <a href="<?php echo e(route('inventory.admin', array_merge(request()->all(), ['status' => 'draft']))); ?>"
+           class="order-tab <?php echo e($currentStatus === 'draft' ? 'active' : ''); ?>"
+           role="tab"
+           aria-selected="<?php echo e($currentStatus === 'draft' ? 'true' : 'false'); ?>">Draft</a>
+        <a href="<?php echo e(route('inventory.admin', array_merge(request()->all(), ['status' => 'out_of_stock']))); ?>"
+           class="order-tab <?php echo e($currentStatus === 'out_of_stock' ? 'active' : ''); ?>"
+           role="tab"
+           aria-selected="<?php echo e($currentStatus === 'out_of_stock' ? 'true' : 'false'); ?>">Out of Stock</a>
+    </div>
+    <!-- End: Status Filter Tabs -->
+
+    <!-- Products Data Table -->
+    <div class="table-wrap">
+        <table class="orders-table" id="productsTable">
+            <!-- Table Header Columns -->
+            <thead>
+                <tr>
+                    <th class="col-checkbox">
+                        <input type="checkbox" class="select-all" id="selectAllProducts" aria-label="Select all products">
+                    </th>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th class="col-actions">Actions</th>
+                </tr>
+            </thead>
+            <!-- End: Table Header -->
+
+            <!-- Table Body: Product Rows -->
+            <tbody>
+                <!-- Status badge CSS class mapping -->
+                <?php
+                    $statusBadge = [
+                        'active' => 'badge-paid',
+                        'draft' => 'badge-pending',
+                        'out_of_stock' => 'badge-failed',
+                    ];
+                ?>
+
+                <!-- Loop: Render each product row -->
+                <?php $__empty_1 = true; $__currentLoopData = ($products ?? []); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                <tr data-status="<?php echo e($product->product_status ?? 'active'); ?>">
+                    <!-- Checkbox Column -->
+                    <td class="col-checkbox">
+                        <input type="checkbox" class="order-checkbox" value="<?php echo e($product->id); ?>">
+                    </td>
+                    <!-- Product Name and SKU -->
+                    <td>
+                        <div class="product-cell">
+                            <img src="<?php echo e($product->image_url); ?>" alt="Product Thumb" class="product-thumb-sm" style="object-fit: cover;" onerror="this.onerror=null; this.src='<?php echo e(asset('images/placeholder.png')); ?>';">
+                            <span class="product-meta">
+                                <span class="product-name"><?php echo e($product->product_name ?? ''); ?></span>
+                                <span class="product-sku">SKU: <?php echo e($product->sku ?? ''); ?></span>
+                            </span>
+                        </div>
+                    </td>
+                    <!-- Category Name -->
+                    <td><?php echo e(optional($product->category)->category_name ?? ''); ?></td>
+                    <!-- Price -->
+                    <td><?php echo e(isset($product->price) ? '' . number_format((float)$product->price, 2) : ''); ?></td>
+                    <!-- Stock Count -->
+                    <td><?php echo e($product->stock ?? 0); ?></td>
+                    <!-- Status Badge -->
+                    <td>
+                        <?php $status = $product->product_status ?? 'active'; ?>
+                        <span class="badge <?php echo e($statusBadge[$status] ?? 'badge-pending'); ?>"><?php echo e(ucfirst(str_replace('_', ' ', $status))); ?></span>
+                    </td>
+                    <!-- Action Buttons: Edit and Delete -->
+                    <td class="col-actions">
+                        <!-- Edit Button -->
+                        <?php
+                            // Build animal type IDs and life stages from pivot
+                            $pivotAnimalTypeIds = [];
+                            $pivotLifeStages = [];
+                            if ($product->relationLoaded('animalTypes')) {
+                                foreach ($product->animalTypes as $at) {
+                                    $pivotAnimalTypeIds[] = (int) $at->id;
+                                    if ($at->pivot->life_stage) {
+                                        $pivotLifeStages[(string) $at->id] = $at->pivot->life_stage;
+                                    }
+                                }
+                            }
+                            // Fallback: if no pivot data, try to match from animal_type text
+                            if (empty($pivotAnimalTypeIds) && $product->animal_type && isset($animal_types)) {
+                                foreach ($animal_types as $at) {
+                                    if (str_contains($product->animal_type, $at->animal_type)) {
+                                        $pivotAnimalTypeIds[] = (int) $at->id;
+                                    }
+                                }
+                            }
+
+                            $prodData = [
+                                "id" => $product->id,
+                                "product_name" => $product->product_name,
+                                "animal_type_ids" => $pivotAnimalTypeIds,
+                                "animal_life_stages" => (object) $pivotLifeStages,
+                                "animal_category_id" => $product->animal_category_id,
+                                "brand_name" => $product->brand_name,
+                                "price" => $product->price,
+                                "stock" => $product->stock,
+                                "sku" => $product->sku,
+                                "product_status" => $product->product_status,
+                                "short_description" => $product->short_description,
+                                "full_description" => $product->full_description,
+                                "image_url" => $product->image_url,
+                                "animal_image_url" => $product->animal_image_url,
+                                "wet_or_dry" => $product->wet_or_dry,
+                                "weight_variants" => $product->variants
+                                    ->map(function($v) {
+                                        $specs = json_decode($v->specifications, true);
+                                        $val = $specs['variant_value'] ?? $specs['weight_value'] ?? null;
+                                        if ($val === null) {
+                                            $val = preg_replace('/\s*(KG|G|Lbs|Oz|Size|Color|Flavor|Material|Type):?\s*/i', '', $v->variant_name);
+                                            $val = trim($val);
+                                        }
+                                        return [
+                                            'value' => $val ?: $v->variant_name, 
+                                            'unit' => $v->uom ?: 'Type',
+                                            'price' => $v->variant_price,
+                                            'stock' => $v->variant_quantity,
+                                        ];
+                                    })->values()->toArray(),
+                            ];
+                        ?>
+                        <button type="button" class="action-btn" title="Edit" aria-label="Edit product"
+                            data-product="<?php echo e(json_encode($prodData)); ?>"
+                            onclick="openProductModal('edit', JSON.parse(this.dataset.product))">
+                            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                        </button>
+                        <!-- Draft Button: Only for non-draft products -->
+                        <?php if(($product->product_status ?? 'active') !== 'draft'): ?>
+                        <!-- Draft Button (Soft Delete) -->
+                        <form method="POST" action="<?php echo e(route('inventory.draft', $product->id)); ?>" style="display:inline">
+                            <?php echo csrf_field(); ?>
+                            <?php echo method_field('PATCH'); ?>
+                            <button type="submit" class="action-btn" title="Hide this product (Move to Draft)" onclick="return confirm('Hide this product from the storefront and move it to Draft?')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg>
+                            </button>
+                        </form>
+                        <?php else: ?>
+                        <!-- Restore Button -->
+                        <form method="POST" action="<?php echo e(route('inventory.restore', $product->id)); ?>" style="display:inline">
+                            <?php echo csrf_field(); ?>
+                            <?php echo method_field('PATCH'); ?>
+                            <button type="submit" class="action-btn" title="Restore Product" style="color: #22c55e;" onclick="return confirm('Restore this product and make it active again?')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
+                            </button>
+                        </form>
+                        <!-- Permanent Delete Button -->
+                        <form method="POST" action="<?php echo e(route('inventory.destroy', $product->id)); ?>" style="display:inline">
+                            <?php echo csrf_field(); ?>
+                            <?php echo method_field('DELETE'); ?>
+                            <button type="submit" class="action-btn" title="Permanently Delete Product" onclick="return confirm('⚠️ PERMANENT DELETE\n\nAre you sure you want to permanently delete this product? This cannot be undone!')" style="color: #ef4444; transition: opacity 0.2s; opacity: 0.85;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
+                                <!-- Trashcan SVG for Permanent Deletion -->
+                                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-4.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
+                            </button>
+                        </form>
+                        <?php endif; ?>
+                    </td>
+                    <!-- End: Action Buttons -->
+                </tr>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                <!-- Empty State: Shown when no products exist -->
+                <tr>
+                    <td colspan="7" class="text-center empty-orders">No products found yet.</td>
+                </tr>
+                <?php endif; ?>
+                <!-- End: Product Rows Loop -->
+            </tbody>
+            <!-- End: Table Body -->
+        </table>
+    </div>
+    <!-- End: Products Data Table -->
+
+    <!-- Pagination: Only shown if products span multiple pages -->
+    <?php if(isset($products) && $products instanceof \Illuminate\Contracts\Pagination\Paginator && $products->hasPages()): ?>
+    <div class="orders-pagination">
+        <?php echo e($products->links()); ?>
+
+    </div>
+    <?php endif; ?>
+    <!-- End: Pagination -->
+
+</div>
+<!-- ===== END PRODUCTS TABLE SECTION ===== -->
+
+<?php $__env->stopSection(); ?>
+
+<!-- ===== PRODUCT MODAL (ADD/EDIT) ===== -->
+<!-- Modal popup for creating or editing a product -->
+<?php $__env->startPush('modals'); ?>
+<!-- Modal Backdrop: Dark overlay behind the modal -->
+<div class="modal-backdrop <?php echo e($errors->any() ? 'open' : ''); ?>" data-modal-id="product-modal"></div>
+
+<!-- Modal Container -->
+<div id="product-modal" class="modal <?php echo e($errors->any() ? 'open' : ''); ?>" style="max-width: 1000px; width: 95%;" role="dialog" aria-modal="true" aria-labelledby="productModalTitle" tabindex="-1">
+
+    <!-- Modal Header: Title and Close Button -->
+    <div class="modal-header">
+        <h2 id="productModalTitle" class="modal-title">Add New Product</h2>
+        <button type="button" class="modal-close" data-modal-close="product-modal" aria-label="Close modal">&times;</button>
+    </div>
+    <!-- End: Modal Header -->
+
+    <!-- Modal Body: Contains the product form -->
+    <div class="modal-body">
+        <form id="productModalForm" action="<?php echo e(old('_method') === 'PUT' ? route('inventory.update', old('product_id')) : route('inventory.store')); ?>" method="POST" enctype="multipart/form-data">
+            <?php echo csrf_field(); ?>
+            
+            <div id="productMethodContainer">
+                <?php if(old('_method') === 'PUT'): ?>
+                    <input type="hidden" name="_method" value="PUT">
+                <?php endif; ?>
+            </div>
+            <input type="hidden" name="product_id" id="product_id_input" value="<?php echo e(old('product_id', '')); ?>">
+            
+            <!-- Include the reusable product form partial -->
+            <?php echo $__env->make('products._form', ['product' => new \App\Models\Product()], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+
+            <!-- Modal Footer: Cancel and Save Buttons -->
+            <div class="modal-footer" style="padding-top: 20px; border-top: 1px solid #f3f4f6; margin-top: 20px;">
+                <button type="button" class="btn-secondary" data-modal-close="product-modal">Cancel</button>
+                <button type="submit" id="productModalSubmitBtn" class="btn-primary">Save Product</button>
+            </div>
+            <!-- End: Modal Footer -->
+        </form>
+    </div>
+    <!-- End: Modal Body -->
+
+</div>
+<!-- ===== END PRODUCT MODAL ===== -->
+<?php $__env->stopPush(); ?>
+
+<!-- Page-Specific Scripts -->
+<?php $__env->startPush('scripts'); ?>
+<!-- Orders JS: Additional table interaction scripts for this page -->
+<script src="<?php echo e(asset('js/orders.js')); ?>"></script>
+<!-- Image Upload Logic -->
+<script src="<?php echo e(asset('js/paste-upload.js')); ?>"></script>
+<script>
+    // ===== WET OR DRY FIELD LOGIC =====
+    // Show/hide the wet_or_dry field based on category selection
+    document.addEventListener('DOMContentLoaded', function() {
+        const categorySelect = document.getElementById('animal_category_id');
+        const wetOrDryGroup = document.getElementById('wetOrDryGroup');
+        // variantGroup is always visible now
+        
+        // Function to check if "Food & Nutrition" is selected and show/hide field
+        function toggleWetOrDryField() {
+            if (!categorySelect) return;
+            
+            let selectedText = '';
+            if (categorySelect.tagName === 'SELECT') {
+                const selectedOption = categorySelect.options[categorySelect.selectedIndex];
+                selectedText = selectedOption ? selectedOption.text : '';
+            }
+            
+            // Show the field if "Food & Nutrition" is selected
+            if (selectedText.includes('Food & Nutrition') || selectedText.includes('Food &') ) {
+                if(wetOrDryGroup) wetOrDryGroup.style.display = 'block';
+                
+            } else {
+                if(wetOrDryGroup) wetOrDryGroup.style.display = 'none';
+                
+                
+                // Clear the value when hiding
+                const wetOrDrySelect = document.getElementById('wet_or_dry');
+                if (wetOrDrySelect) {
+                    wetOrDrySelect.value = '';
+                }
+            }
+        }
+        
+        // Add event listener to category select
+        if (categorySelect) {
+            categorySelect.addEventListener('change', toggleWetOrDryField);
+            // Check initial state
+            toggleWetOrDryField();
+        }
+    });
+    // ===== END WET OR DRY FIELD LOGIC =====
+
+    function openProductModal(mode, data = null) {
+        const modal = document.getElementById('product-modal');
+        const backdrop = document.querySelector('.modal-backdrop[data-modal-id="product-modal"]');
+        const form = document.getElementById('productModalForm');
+        const title = document.getElementById('productModalTitle');
+        const submitBtn = document.getElementById('productModalSubmitBtn');
+        const methodContainer = document.getElementById('productMethodContainer');
+        
+        // Reset form
+        form.reset();
+        
+        // Reset image preview in paste zone
+        const preview = form.querySelector('.upload-preview');
+        const pasteZone = form.querySelector('.paste-upload-zone');
+        if (pasteZone) pasteZone.classList.remove('has-file');
+        if (preview) preview.innerHTML = '';
+        
+        // Reset multi-animal selection
+        const animalTypeSelect = document.getElementById('animal_type_ids');
+        if (animalTypeSelect) {
+            Array.from(animalTypeSelect.options).forEach(opt => opt.selected = false);
+        }
+        
+        if (mode === 'add') {
+            title.textContent = 'Add New Product';
+            submitBtn.textContent = 'Save Product';
+            form.action = "<?php echo e(route('inventory.store')); ?>";
+            methodContainer.innerHTML = '';
+            document.getElementById('product_id_input').value = '';
+            
+            // Set simple defaults
+            const statusSelect = document.getElementById('status');
+            if (statusSelect) statusSelect.value = 'Active';
+            
+            // Trigger update for new form state
+            if (window.updateChips) window.updateChips();
+            // Clear variants and add a default 'Standard' one
+            if (window.setVariantChips) {
+                window.setVariantChips([{ value: 'Standard', unit: 'Type', price: 0, stock: 0 }]);
+            } else if (window.clearVariantChips) {
+                window.clearVariantChips();
+            }
+        } else if (mode === 'edit' && data) {
+            title.textContent = 'Edit Product';
+            submitBtn.textContent = 'Save Changes';
+            form.action = `/admin/inventory/${data.id}`;
+            methodContainer.innerHTML = '<input type="hidden" name="_method" value="PUT">';
+            document.getElementById('product_id_input').value = data.id;
+            
+            // Set text and select inputs
+            const fields = {
+                'product_name': data.product_name,
+                'animal_category_id': data.animal_category_id,
+                'brand_name': data.brand_name,
+                'price': data.price,
+                'stock': data.stock,
+                'sku': data.sku,
+                'short_description': data.short_description,
+                'full_description': data.full_description,
+                'wet_or_dry': data.wet_or_dry
+            };
+            
+            Object.keys(fields).forEach(fieldId => {
+                const el = document.getElementById(fieldId);
+                if (el) el.value = fields[fieldId] || '';
+            });
+            
+            // Pre-select animal types for multi-select
+            if (animalTypeSelect && data.animal_type_ids && data.animal_type_ids.length > 0) {
+                var idsAsNumbers = data.animal_type_ids.map(function(id) { return Number(id); });
+                Array.from(animalTypeSelect.options).forEach(opt => {
+                    opt.selected = idsAsNumbers.includes(Number(opt.value));
+                });
+            }
+            
+            // Update chips and life stage selectors
+            if (window.updateChips) window.updateChips(data.animal_life_stages || {});
+            
+            // Pre-populate variants
+            if (window.setVariantChips) {
+                if (data.weight_variants && data.weight_variants.length > 0) {
+                    window.setVariantChips(data.weight_variants);
+                } else {
+                    // Fallback for products that haven't been migrated to variants yet
+                    window.setVariantChips([{ value: 'Standard', unit: 'Type', price: data.price, stock: data.stock }]);
+                }
+            }
+            
+            // Handle image preview
+            if (data.image_url) {
+                if (pasteZone) pasteZone.classList.add('has-file');
+                if (preview) {
+                    preview.innerHTML = `<img src="${data.image_url}" alt="Preview"><div class="upload-filename">Current Image</div>`;
+                }
+            }
+            
+            // Trigger the wet/dry field visibility check
+            setTimeout(function() {
+                const categorySelect = document.getElementById('animal_category_id');
+                if (categorySelect) {
+                    const event = new Event('change', { bubbles: true });
+                    categorySelect.dispatchEvent(event);
+                }
+            }, 150);
+        }
+        
+        // Show modal
+        if (modal) modal.classList.add('open');
+        if (backdrop) backdrop.classList.add('open');
+    }
+</script>
+<?php $__env->stopPush(); ?>
+
+
+
+<?php echo $__env->make('layouts.admin', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\Pet Markt-PH\resources\views/inventory_admin.blade.php ENDPATH**/ ?>

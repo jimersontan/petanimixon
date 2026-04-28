@@ -102,6 +102,8 @@ Route::middleware(['auth', 'client'])->group(function () {
 
     // Reviews
     Route::post('/product/{product}/review', [ReviewController::class, 'store'])->name('review.store');
+    Route::put('/review/{review}', [ReviewController::class, 'update'])->name('review.update');
+    Route::delete('/review/{review}', [ReviewController::class, 'destroy'])->name('review.destroy');
     Route::post('/review/{review}/like', [ReviewController::class, 'toggleLike'])->name('review.like');
     Route::post('/review/{review}/reply', [ReviewController::class, 'reply'])->name('review.reply');
 });

@@ -8,7 +8,7 @@
     <!-- CSRF Token: Used by AJAX requests for security -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- Core Stylesheets -->
-    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}?v=1.0.1">
     <link rel="stylesheet" href="{{ asset('css/orders.css') }}">
     <!-- Select2: Searchable dropdown library -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />

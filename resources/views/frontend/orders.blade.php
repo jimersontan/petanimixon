@@ -141,6 +141,71 @@
     .mo-product-name { max-width: 100px; }
     .mo-rec-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
 }
+
+/* ── REVIEW MODAL ── */
+.rm-modal-backdrop {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+    display: none; align-items: center; justify-content: center;
+    z-index: 10000; opacity: 0; transition: opacity 0.3s;
+}
+.rm-modal-backdrop.open { display: flex; opacity: 1; }
+
+.rm-modal {
+    background: #fff; width: 90%; max-width: 500px; border-radius: 20px;
+    overflow: hidden; transform: translateY(20px); transition: transform 0.3s;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+.rm-modal-backdrop.open .rm-modal { transform: translateY(0); }
+
+.rm-header {
+    padding: 20px 24px; border-bottom: 1px solid #eee;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.rm-title { font-size: 18px; font-weight: 800; color: #1a1a2e; }
+.rm-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #999; }
+
+.rm-body { padding: 24px; }
+.rm-product-preview { display: flex; gap: 12px; align-items: center; margin-bottom: 20px; padding: 12px; background: #f9f9f9; border-radius: 12px; }
+.rm-product-img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
+.rm-product-name { font-size: 14px; font-weight: 700; color: #333; }
+
+.rm-stars-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; }
+.rm-stars-label { font-size: 13px; font-weight: 600; color: #666; margin-bottom: 10px; }
+.rm-stars { display: flex; gap: 8px; flex-direction: row-reverse; }
+.rm-star-input { display: none; }
+.rm-star-label { font-size: 32px; color: #ddd; cursor: pointer; transition: color 0.2s; }
+.rm-star-input:checked ~ .rm-star-label,
+.rm-star-label:hover,
+.rm-star-label:hover ~ .rm-star-label { color: #facc15; }
+
+.rm-textarea {
+    width: 100%; border: 1px solid #ddd; border-radius: 12px; padding: 12px;
+    font-size: 14px; min-height: 100px; resize: vertical; outline: none; transition: border-color 0.2s;
+}
+.rm-textarea:focus { border-color: var(--ud-orange); }
+
+.rm-upload-section { margin-top: 16px; }
+.rm-upload-label { font-size: 13px; font-weight: 600; color: #666; margin-bottom: 8px; display: block; }
+.rm-upload-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+.rm-upload-btn {
+    width: 60px; height: 60px; border: 2px dashed #ddd; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.2s; color: #999;
+}
+.rm-upload-btn:hover { border-color: var(--ud-orange); color: var(--ud-orange); background: #fff7ed; }
+.rm-preview-img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; border: 1px solid #eee; position: relative; }
+.rm-preview-remove {
+    position: absolute; top: -5px; right: -5px; background: #ef4444; color: #fff;
+    width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 10px; cursor: pointer; border: 2px solid #fff;
+}
+
+.rm-footer { padding: 0 24px 24px; display: flex; gap: 12px; }
+.rm-btn { flex: 1; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; border: none; transition: all 0.2s; }
+.rm-btn-cancel { background: #f5f5f5; color: #666; }
+.rm-btn-submit { background: var(--ud-orange); color: #fff; }
+.rm-btn-submit:hover { background: #d14f00; }
 </style>
 @endpush
 
@@ -257,6 +322,22 @@
                                 <div>
                                     <div class="mo-product-name">{{ optional($item->product)->product_name ?? 'Product' }}</div>
                                     <div class="mo-product-qty">x{{ $item->quantity }} · ₱{{ number_format((float)($item->unit_price ?? 0), 2) }}</div>
+                                    @if($order->order_status === 'delivered')
+                                        @php $userReview = $item->product->reviews->first(); @endphp
+                                        @if($userReview)
+                                            <button type="button" class="mo-btn-review-sm" 
+                                                    onclick="openReviewModal({{ $item->product_id }}, '{{ addslashes($item->product->product_name) }}', '{{ $item->product->image_url }}', {{ $userReview->id }}, {{ $userReview->rating }}, '{{ addslashes($userReview->comment) }}')"
+                                                    style="background:none; border:none; color:#16a34a; font-size:11px; font-weight:700; padding:0; cursor:pointer; margin-top:4px;">
+                                                ✅ Edited Review
+                                            </button>
+                                        @else
+                                            <button type="button" class="mo-btn-review-sm" 
+                                                    onclick="openReviewModal({{ $item->product_id }}, '{{ addslashes($item->product->product_name) }}', '{{ $item->product->image_url }}')"
+                                                    style="background:none; border:none; color:var(--ud-orange); font-size:11px; font-weight:700; padding:0; cursor:pointer; margin-top:4px;">
+                                                ⭐ Rate Product
+                                            </button>
+                                        @endif
+                                    @endif
                                 </div>
                             </div>
                         @endforeach
@@ -276,9 +357,23 @@
                             @if($order->order_status === 'out_for_delivery')
                                 <a href="{{ route('order.track', $order->order_id) }}" class="mo-btn mo-btn-primary">📍 Track Package</a>
                             @elseif($order->order_status === 'delivered')
-                                <a href="{{ route('order.track', $order->order_id) }}" class="mo-btn mo-btn-primary">⭐ Write Review</a>
-                                @if($order->orderItems->first())
-                                    <a href="{{ route('returns.create', $order->orderItems->first()->id) }}" class="mo-btn mo-btn-outline" style="border-color: #ef4444; color: #ef4444;">↩ Return</a>
+                                @php 
+                                    $firstItem = $order->orderItems->first(); 
+                                    $firstReview = $firstItem ? $firstItem->product->reviews->first() : null;
+                                @endphp
+                                @if($firstItem)
+                                    @if($firstReview)
+                                        <button type="button" class="mo-btn mo-btn-outline" style="border-color: #16a34a; color: #16a34a;"
+                                                onclick="openReviewModal({{ $firstItem->product_id }}, '{{ addslashes($firstItem->product->product_name) }}', '{{ $firstItem->product->image_url }}', {{ $firstReview->id }}, {{ $firstReview->rating }}, '{{ addslashes($firstReview->comment) }}')">
+                                            ✅ Edit Review
+                                        </button>
+                                    @else
+                                        <button type="button" class="mo-btn mo-btn-primary" 
+                                                onclick="openReviewModal({{ $firstItem->product_id }}, '{{ addslashes($firstItem->product->product_name) }}', '{{ $firstItem->product->image_url }}')">
+                                            ⭐ Write Review
+                                        </button>
+                                    @endif
+                                    <a href="{{ route('returns.create', $firstItem->id) }}" class="mo-btn mo-btn-outline" style="border-color: #ef4444; color: #ef4444;">↩ Return</a>
                                 @endif
                             @endif
                         </div>
@@ -324,7 +419,145 @@
         </div>
     @endif
 
+    @endif
+
 </div>
+
+{{-- ── REVIEW MODAL ── --}}
+<div class="rm-modal-backdrop" id="reviewModal">
+    <div class="rm-modal">
+        <div class="rm-header">
+            <h2 class="rm-title">Write a Review</h2>
+            <button type="button" class="rm-close" onclick="closeReviewModal()">&times;</button>
+        </div>
+        <form id="reviewForm" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="rm-body">
+                <div class="rm-product-preview">
+                    <img id="rmProductImg" src="" alt="" class="rm-product-img">
+                    <div id="rmProductName" class="rm-product-name"></div>
+                </div>
+
+                <div class="rm-stars-container">
+                    <span class="rm-stars-label">Rate your experience</span>
+                    <div class="rm-stars">
+                        @for($i = 5; $i >= 1; $i--)
+                            <input type="radio" name="rating" id="star{{ $i }}" value="{{ $i }}" class="rm-star-input" required>
+                            <label for="star{{ $i }}" class="rm-star-label">★</label>
+                        @endfor
+                    </div>
+                </div>
+
+                <textarea name="comment" class="rm-textarea" placeholder="Share your thoughts about this product..." required></textarea>
+
+                <div class="rm-upload-section">
+                    <span class="rm-upload-label">Add Photos (Max 4)</span>
+                    <div class="rm-upload-grid" id="rmUploadGrid">
+                        <label class="rm-upload-btn">
+                            <span>+</span>
+                            <input type="file" name="review_images[]" multiple accept="image/*" style="display:none;" onchange="handleReviewImages(this)">
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="rm-footer">
+                <button type="button" class="rm-btn rm-btn-cancel" onclick="closeReviewModal()">Cancel</button>
+                <button type="submit" class="rm-btn rm-btn-submit">Submit Review</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+function openReviewModal(productId, productName, productImg, reviewId = null, rating = null, comment = '') {
+    const modal = document.getElementById('reviewModal');
+    const form = document.getElementById('reviewForm');
+    const nameEl = document.getElementById('rmProductName');
+    const imgEl = document.getElementById('rmProductImg');
+    const titleEl = modal.querySelector('.rm-title');
+    const submitBtn = modal.querySelector('.rm-btn-submit');
+    const methodContainer = form.querySelector('input[name="_method"]') || document.createElement('input');
+    
+    // Reset form
+    form.reset();
+    document.getElementById('rmUploadGrid').querySelectorAll('.rm-preview-img').forEach(p => p.remove());
+    
+    if (reviewId) {
+        titleEl.textContent = 'Edit Your Review';
+        submitBtn.textContent = 'Update Review';
+        form.action = `/review/${reviewId}`;
+        
+        // Add PUT method
+        methodContainer.type = 'hidden';
+        methodContainer.name = '_method';
+        methodContainer.value = 'PUT';
+        if (!form.contains(methodContainer)) form.appendChild(methodContainer);
+        
+        // Set rating
+        if (rating) {
+            const star = document.getElementById(`star${rating}`);
+            if (star) star.checked = true;
+        }
+        
+        // Set comment
+        form.querySelector('.rm-textarea').value = comment;
+        
+        // Hide upload section for edit (optional, or just allow it if backend supports it)
+        modal.querySelector('.rm-upload-section').style.display = 'none';
+    } else {
+        titleEl.textContent = 'Write a Review';
+        submitBtn.textContent = 'Submit Review';
+        form.action = `/product/${productId}/review`;
+        
+        // Remove PUT method if exists
+        const existingMethod = form.querySelector('input[name="_method"]');
+        if (existingMethod) existingMethod.remove();
+        
+        modal.querySelector('.rm-upload-section').style.display = 'block';
+    }
+    
+    nameEl.textContent = productName;
+    imgEl.src = productImg;
+    
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeReviewModal() {
+    const modal = document.getElementById('reviewModal');
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function handleReviewImages(input) {
+    const grid = document.getElementById('rmUploadGrid');
+    const existingPreviews = grid.querySelectorAll('.rm-preview-img');
+    existingPreviews.forEach(p => p.remove());
+    
+    if (input.files) {
+        Array.from(input.files).slice(0, 4).forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'rm-preview-img';
+                div.style.backgroundImage = `url(${e.target.result})`;
+                div.style.backgroundSize = 'cover';
+                div.style.backgroundPosition = 'center';
+                div.innerHTML = `<span class="rm-preview-remove" onclick="this.parentElement.remove()">×</span>`;
+                grid.insertBefore(div, grid.querySelector('.rm-upload-btn'));
+            }
+            reader.readAsDataURL(file);
+        });
+    }
+}
+
+// Close on backdrop click
+document.getElementById('reviewModal').addEventListener('click', function(e) {
+    if (e.target === this) closeReviewModal();
+});
+</script>
+@endpush
 @endsection
 
 

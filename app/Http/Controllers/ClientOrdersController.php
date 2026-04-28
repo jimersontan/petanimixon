@@ -17,7 +17,11 @@ class ClientOrdersController extends Controller
 
         $query = Order::query()
             ->where('user_id', $user->id)
-            ->with(['orderItems.product']);
+            ->with(['orderItems.product' => function($q) use ($user) {
+                $q->with(['reviews' => function($rq) use ($user) {
+                    $rq->where('user_id', $user->id);
+                }]);
+            }]);
 
         // Status filter
         $statusFilter = $request->get('status', 'all');

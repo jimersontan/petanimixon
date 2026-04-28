@@ -111,15 +111,15 @@
         </div>
         <!-- End: Brand -->
 
-        <!-- Price and Stock Fields: Hidden because variants handle them now -->
-        <div class="form-row" style="display: none !important; gap: 15px;">
-            <!-- Field: Price (hidden default to 0) -->
+        <!-- Price and Stock Fields: ALWAYS HIDDEN, using variants for everything now -->
+        <div class="form-row" id="basePriceStockRow" style="display: none !important; gap: 15px;">
+            <!-- Field: Price -->
             <div class="form-group" style="flex: 1; min-width: 0;">
                 <label for="price">Base Price (₱)</label>
                 <input type="number" step="0.01" name="price" id="price" class="form-control" style="width: 100%;" value="{{ old('price', $product->price ?? 0) }}">
             </div>
             <!-- End: Price -->
-            <!-- Field: Stock (hidden default to 0) -->
+            <!-- Field: Stock -->
             <div class="form-group" style="flex: 1; min-width: 0;">
                 <label for="stock">Stock</label>
                 <input type="number" min="0" name="stock" id="stock" class="form-control" style="width: 100%;" value="{{ old('stock', $product->stock ?? 0) }}">
@@ -627,7 +627,9 @@
     }
 
     function syncGlobalStock() {
-        if (!globalStockInput) return;
+        const row = document.getElementById('basePriceStockRow');
+        if (!globalStockInput || !row) return;
+
         if (window._productVariants.length > 0) {
             var total = 0;
             window._productVariants.forEach(function(v) { total += (parseInt(v.stock, 10) || 0); });
@@ -635,15 +637,18 @@
             globalStockInput.readOnly = true;
             globalStockInput.style.background = '#f3f4f6';
             globalStockInput.style.color = '#6b7280';
+            
+            // In many setups, when variants exist, the base price is hidden or used as "Starting at"
+            // For now, we'll keep it visible but maybe hint that it's the base.
+            // Or if the user prefers, we can hide the whole row. 
+            // The request was "editing for products without variants", implying they might be hidden now.
+            // Let's keep it visible but disable stock editing.
             if (stockAutoLabel) stockAutoLabel.style.display = 'inline';
             if (priceHint) priceHint.style.display = 'inline';
-        } else {
-            globalStockInput.readOnly = false;
-            globalStockInput.style.background = '';
-            globalStockInput.style.color = '';
-            if (stockAutoLabel) stockAutoLabel.style.display = 'none';
-            if (priceHint) priceHint.style.display = 'none';
         }
+        
+        // Always hidden as requested
+        row.style.display = 'none';
     }
 
     window.renderVariantTable = function() {

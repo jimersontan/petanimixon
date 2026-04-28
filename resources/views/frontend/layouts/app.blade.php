@@ -19,8 +19,8 @@
         <div class="ud-header-inner">
             <div class="ud-header-left" style="display: flex; align-items: center; gap: 32px;">
                 <a href="{{ route('shop') }}" class="ud-logo" style="display:flex; align-items:center; gap:0; text-decoration:none;">
-                    <img src="{{ asset('images/logo.png') }}" alt="Pet Markt-PH Logo" style="max-height: 38px; margin-right: -8px;">
-                    <span class="ud-logo-text" style="font-size: 24px; color:#1f2937; margin:0;">Pet <span style="color: #ff8a00; font-weight: 700;">Markt-PH</span></span>
+                    <img src="{{ asset('images/logo.png') }}" alt="Pet Markt-PH Logo" style="max-height: 24px; margin-right: -6px;">
+                    <span class="ud-logo-text" style="font-size: 16px; color:#1f2937; margin:0;">Pet <span style="color: #ff8a00; font-weight: 700;">Markt-PH</span></span>
                 </a>
 
                 <button type="button" class="show-on-mobile-flex" aria-label="Search" onclick="window.openMobSearch()" style="border:none; background:transparent; padding:0; cursor:pointer; color:#555; display:none; align-items:center;">

@@ -79,7 +79,47 @@ class ReviewController extends Controller
             'user_id' => Auth::id(),
             'reply' => $request->reply,
         ]);
+    }
 
-        return redirect()->back()->with('message', 'Reply posted!');
+    /**
+     * Update an existing review.
+     */
+    public function update(Request $request, $reviewId)
+    {
+        $review = Review::findOrFail($reviewId);
+        
+        // Ensure user owns the review
+        if ($review->user_id !== Auth::id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:2000',
+        ]);
+
+        $review->update([
+            'rating' => $request->rating,
+            'comment' => $request->comment,
+        ]);
+
+        return redirect()->back()->with('message', 'Review updated successfully!');
+    }
+
+    /**
+     * Delete a review.
+     */
+    public function destroy($reviewId)
+    {
+        $review = Review::findOrFail($reviewId);
+        
+        // Ensure user owns the review
+        if ($review->user_id !== Auth::id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $review->delete();
+
+        return redirect()->back()->with('message', 'Review deleted!');
     }
 }

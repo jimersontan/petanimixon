@@ -60,17 +60,17 @@ body.user-dashboard {
 .hm-hero-section {
     display: grid;
     grid-template-columns: 4fr 1fr;
-    gap: 16px;
-    margin: 20px 0 0;
-    padding: 0 16px;
+    gap: 10px;
+    margin: 8px 0 0;
+    padding: 0 12px;
 }
 
 .hm-hero-main {
-    border-radius: 20px;
+    border-radius: 12px;
     overflow: hidden;
     position: relative;
     background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 50%, #FED7AA 100%);
-    min-height: 440px;
+    min-height: 220px;
 }
 
 .hm-carousel {
@@ -86,7 +86,7 @@ body.user-dashboard {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 44px 52px;
+    padding: 18px 26px;
     opacity: 1;
     position: relative;
     overflow: hidden;
@@ -144,13 +144,13 @@ body.user-dashboard {
 .hm-slide-badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
     color: #fff;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 800;
-    padding: 6px 16px;
-    border-radius: 20px;
+    padding: 4px 12px;
+    border-radius: 16px;
     width: fit-content;
     letter-spacing: 0.8px;
     text-transform: uppercase;
@@ -158,20 +158,20 @@ body.user-dashboard {
 }
 
 .hm-slide-title {
-    font-size: 30px;
+    font-size: 18px;
     font-weight: 900;
     color: #1a1a1a;
     line-height: 1.2;
-    margin: 4px 0 0;
-    letter-spacing: -0.5px;
+    margin: 2px 0 0;
+    letter-spacing: -0.3px;
 }
 
 .hm-slide-subtitle {
-    font-size: 14px;
+    font-size: 12px;
     color: #78716c;
     margin: 0;
     font-weight: 500;
-    line-height: 1.4;
+    line-height: 1.3;
 }
 
 .hm-slide-pricing {
@@ -182,10 +182,10 @@ body.user-dashboard {
 }
 
 .hm-slide-price {
-    font-size: 28px;
+    font-size: 18px;
     font-weight: 900;
     color: #ea580c;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.3px;
 }
 
 .hm-slide-original {
@@ -250,9 +250,9 @@ body.user-dashboard {
 
 .hm-slide-image img {
     max-width: 100%;
-    max-height: 380px;
+    max-height: 180px;
     object-fit: contain;
-    filter: drop-shadow(0 12px 32px rgba(0,0,0,0.1));
+    filter: drop-shadow(0 8px 20px rgba(0,0,0,0.1));
     transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
     position: relative;
     z-index: 1;
@@ -328,11 +328,11 @@ body.user-dashboard {
 
 .hm-side-banner {
     flex: 1;
-    border-radius: 20px;
+    border-radius: 10px;
     overflow: hidden;
     display: flex;
     align-items: center;
-    padding: 22px 20px;
+    padding: 10px 10px;
     text-decoration: none;
     color: inherit;
     position: relative;
@@ -465,11 +465,11 @@ body.user-dashboard {
 .hm-trust-strip {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    padding: 24px 0;
+    gap: 12px;
+    padding: 14px 0;
     border-top: 1px solid #f0f0f0;
     border-bottom: 1px solid #f0f0f0;
-    margin-bottom: 32px;
+    margin-bottom: 20px;
 }
 
 .hm-trust-item {
@@ -480,9 +480,9 @@ body.user-dashboard {
 }
 
 .hm-trust-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
     background: #FFF7ED;
     color: #FF8C42;
     display: flex;
@@ -492,8 +492,8 @@ body.user-dashboard {
 }
 
 .hm-trust-icon svg {
-    width: 22px;
-    height: 22px;
+    width: 17px;
+    height: 17px;
 }
 
 .hm-trust-text {
@@ -503,30 +503,30 @@ body.user-dashboard {
 }
 
 .hm-trust-text strong {
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 700;
     color: #1a1a1a;
 }
 
 .hm-trust-text span {
-    font-size: 12px;
+    font-size: 10px;
     color: #888;
 }
 
 /* ── Section Base ── */
 .hm-section {
-    margin-bottom: 40px;
+    margin-bottom: 24px;
 }
 
 .hm-section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .hm-section-title {
-    font-size: 22px;
+    font-size: 17px;
     font-weight: 800;
     color: #1a1a1a;
     margin: 0;
@@ -534,7 +534,7 @@ body.user-dashboard {
 }
 
 .hm-section-link {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
     color: #FF8C42;
     text-decoration: none;
@@ -574,8 +574,8 @@ body.user-dashboard {
 }
 
 .hm-cat-icon {
-    width: 72px;
-    height: 72px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
     background: #fff;
     border: 2px solid #f0f0f0;
@@ -599,11 +599,11 @@ body.user-dashboard {
 }
 
 .hm-cat-icon span {
-    font-size: 32px;
+    font-size: 24px;
 }
 
 .hm-cat-name {
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 600;
     color: #333;
     text-align: center;
@@ -615,7 +615,7 @@ body.user-dashboard {
     background: #FFF7ED;
     margin-left: -24px;
     margin-right: -24px;
-    padding: 28px 24px;
+    padding: 18px 24px;
     border-radius: 0;
 }
 
@@ -662,22 +662,22 @@ body.user-dashboard {
 .hm-product-scroller::-webkit-scrollbar { display: none; }
 
 .hm-product-scroller .hm-product-card {
-    min-width: 180px;
-    max-width: 200px;
+    min-width: 150px;
+    max-width: 170px;
     flex-shrink: 0;
 }
 
 /* ── Product Grid ── */
 .hm-product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
 }
 
 /* ── Product Card ── */
 .hm-product-card {
     background: #fff;
-    border-radius: 12px;
+    border-radius: 8px;
     overflow: hidden;
     border: 1px solid #f0f0f0;
     display: flex;
@@ -686,15 +686,15 @@ body.user-dashboard {
 }
 
 .hm-product-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 28px rgba(0,0,0,0.1);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
     border-color: #e0e0e0;
 }
 
 .hm-pc-image {
     position: relative;
     width: 100%;
-    aspect-ratio: 1;
+    aspect-ratio: 4/3;
     background: #f9f9f9;
     display: flex;
     align-items: center;
@@ -716,12 +716,12 @@ body.user-dashboard {
 
 .hm-badge {
     position: absolute;
-    top: 10px;
-    font-size: 11px;
+    top: 6px;
+    font-size: 9px;
     font-weight: 800;
-    padding: 4px 10px;
-    border-radius: 5px;
-    letter-spacing: 0.5px;
+    padding: 3px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.4px;
     z-index: 2;
 }
 
@@ -738,19 +738,19 @@ body.user-dashboard {
 }
 
 .hm-pc-info {
-    padding: 12px 14px 16px;
+    padding: 8px 10px 10px;
     display: flex;
     flex-direction: column;
     flex: 1;
 }
 
 .hm-pc-title {
-    font-size: 13px;
+    font-size: 11.5px;
     font-weight: 600;
     color: #222;
-    margin: 0 0 6px;
-    line-height: 1.4;
-    min-height: 36px;
+    margin: 0 0 4px;
+    line-height: 1.3;
+    min-height: 30px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -767,13 +767,13 @@ body.user-dashboard {
 .hm-pc-rating {
     display: flex;
     align-items: center;
-    gap: 4px;
-    margin-bottom: 6px;
+    gap: 3px;
+    margin-bottom: 4px;
 }
 
 .hm-stars-wrap {
     display: inline-block;
-    font-size: 14px;
+    font-size: 12px;
     font-family: sans-serif;
     line-height: 1;
     position: relative;
@@ -794,7 +794,7 @@ body.user-dashboard {
 }
 
 .hm-count {
-    font-size: 12px;
+    font-size: 10px;
     color: #aaa;
 }
 
@@ -806,19 +806,19 @@ body.user-dashboard {
 }
 
 .hm-price-current {
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 800;
     color: #FF8C42;
 }
 
 .hm-price-old {
-    font-size: 13px;
+    font-size: 11px;
     color: #bbb;
     text-decoration: line-through;
 }
 
 .hm-sold-count {
-    font-size: 12px;
+    font-size: 10px;
     color: #999;
     margin-left: auto;
 }
@@ -1147,10 +1147,10 @@ body.user-dashboard {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
-    padding: 1rem 2rem;
+    padding: 0.35rem 1.2rem;
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: 1.2rem;
     flex-wrap: wrap;
     justify-content: space-between;
 }

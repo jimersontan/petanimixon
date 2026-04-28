@@ -67,16 +67,7 @@
 
                     <button type="submit" class="login-btn">Log In</button>
 
-                    <div class="divider">or</div>
 
-                    <div class="social-login">
-                        <button type="button" class="social-btn google-btn"
-                            onclick="showNotification('Google login coming soon')">Continue with Google</button>
-                        <button type="button" class="social-btn facebook-btn"
-                            onclick="showNotification('Facebook login coming soon')">Continue with Facebook</button>
-                        <button type="button" class="social-btn apple-btn"
-                            onclick="showNotification('Apple login coming soon')">Continue with Apple</button>
-                    </div>
                 </form>
 
                 <div class="form-footer" style="display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 16px;">

@@ -98,7 +98,7 @@ class ProductAdminController extends Controller
             'animal_type_ids.*' => 'integer|exists:animal_types,id',
             'life_stages' => 'nullable|array',
             'animal_category_id' => 'required|exists:categories,id',
-            'price' => 'required|numeric|min:0',
+            'price' => 'nullable|numeric|min:0',
             'sku' => 'required|string|unique:products,sku',
             'stock' => 'nullable|integer|min:0',
             'image' => 'nullable|image|max:4096',
@@ -178,7 +178,20 @@ class ProductAdminController extends Controller
         unset($data['life_stages']);
         unset($data['product_variants']);
         
-        // Auto-assign status based on stock
+        // Derive price and stock from variants if present
+        if (!empty($productVariants)) {
+            $data['price'] = (float)($productVariants[0]['price'] ?? 0);
+            
+            $totalVariantStock = 0;
+            foreach($productVariants as $pv) {
+                $totalVariantStock += (int)($pv['stock'] ?? 0);
+            }
+            $data['stock'] = $totalVariantStock;
+        } else {
+            if (empty($data['price'])) $data['price'] = 0;
+            if (empty($data['stock'])) $data['stock'] = 0;
+        }
+
         if (isset($data['stock'])) {
             $data['product_status'] = ((int) $data['stock'] > 0) ? 'active' : 'out_of_stock';
         } else {
@@ -227,8 +240,9 @@ class ProductAdminController extends Controller
                     'product_status' => $variantStock > 0 ? 'active' : 'out_of_stock',
                 ]);
             }
-            // Update product stock to be the sum of all variant stocks
+            // Update product price (first variant), stock (sum), and status
             $product->update([
+                'price' => (float)($productVariants[0]['price'] ?? $data['price']),
                 'stock' => $totalStock,
                 'product_status' => $totalStock > 0 ? 'active' : 'out_of_stock',
             ]);
@@ -271,7 +285,7 @@ class ProductAdminController extends Controller
             'animal_type_ids.*' => 'integer|exists:animal_types,id',
             'life_stages' => 'nullable|array',
             'animal_category_id' => 'required|exists:categories,id',
-            'price' => 'required|numeric|min:0',
+            'price' => 'nullable|numeric|min:0',
             'sku' => ['required', 'string', \Illuminate\Validation\Rule::unique('products', 'sku')->ignore($product->id)],
             'stock' => 'nullable|integer|min:0',
             'image' => 'nullable|image|max:4096',
@@ -320,6 +334,7 @@ class ProductAdminController extends Controller
         }
 
         // Calculate comma separated strings for backwards compatibility
+        // Calculate comma separated strings for backwards compatibility
         $animalTypeNames = [];
         $lifeStageNames = [];
         $syncData = [];
@@ -346,8 +361,18 @@ class ProductAdminController extends Controller
         unset($data['animal_type_ids']);
         unset($data['life_stages']);
         unset($data['product_variants']);
+        
+        // Derive price and stock from variants if present
+        if (!empty($productVariants)) {
+            $data['price'] = (float)($productVariants[0]['price'] ?? 0);
+            
+            $totalVariantStock = 0;
+            foreach($productVariants as $pv) {
+                $totalVariantStock += (int)($pv['stock'] ?? 0);
+            }
+            $data['stock'] = $totalVariantStock;
+        }
 
-        // Auto-assign status based on stock if the product wasn't manually drafted
         if ($product->product_status !== 'draft') {
             if (isset($data['stock'])) {
                 $data['product_status'] = ((int) $data['stock'] > 0) ? 'active' : 'out_of_stock';
@@ -398,8 +423,9 @@ class ProductAdminController extends Controller
                     'product_status' => $variantStock > 0 ? 'active' : 'out_of_stock',
                 ]);
             }
-            // Update product stock to be the sum of all variant stocks
+            // Update product price (first variant), stock (sum), and status
             $product->update([
+                'price' => (float)($productVariants[0]['price'] ?? $data['price']),
                 'stock' => $totalStock,
                 'product_status' => $totalStock > 0 ? 'active' : 'out_of_stock',
             ]);

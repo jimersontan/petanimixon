@@ -211,19 +211,7 @@
 
                         <button type="submit" class="create-btn">Create Account 🎉</button>
 
-                        <div class="divider">or</div>
 
-                        <div class="social-login">
-                            <button type="button" class="social-btn google-btn">
-                                <i>G</i> Sign up with Google
-                            </button>
-                            <button type="button" class="social-btn facebook-btn">
-                                <i>f</i> Sign up with Facebook
-                            </button>
-                            <button type="button" class="social-btn apple-btn">
-                                <i>🍎</i> Sign up with Apple
-                            </button>
-                        </div>
                     </form>
 
                     <div class="login-link">
